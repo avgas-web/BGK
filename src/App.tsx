@@ -25,6 +25,7 @@ import {
   TruthLieMix,
   InternetBlame,
 } from './components/GaslightPatterns';
+import { FinancialPanic } from './components/FinancialPanic';
 
 // ============ LOGO ============
 function Logo() {
@@ -835,6 +836,7 @@ export default function App() {
       <ForcedDependency enabled={effectsActive} />
       <TruthLieMix enabled={effectsActive} />
       <InternetBlame enabled={effectsActive} />
+      <FinancialPanic enabled={effectsActive} />
 
       {/* MODALS */}
       <AnimatePresence>
