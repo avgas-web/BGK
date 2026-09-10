@@ -714,12 +714,12 @@ export default function TestPage() {
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a 
-                  href="/" 
+                <button 
+                  onClick={() => window.location.href = './'}
                   className="bg-lime text-cosmic px-6 py-3 rounded-full font-heading font-bold hover:animate-pulse-glow transition-all text-center"
                 >
                   Вернуться на главную
-                </a>
+                </button>
                 <button
                   onClick={() => {
                     setCurrentQuestion(0);
