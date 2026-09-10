@@ -1,146 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// ============ GASLIGHTING HOOKS ============
-
-function useGaslighting(enabled: boolean) {
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showCookie, setShowCookie] = useState(false);
-  const [cookieSwapped, setCookieSwapped] = useState(false);
-  const [whisper, setWhisper] = useState('');
-  const [heroTextChanged, setHeroTextChanged] = useState(false);
-  const [counterValue, setCounterValue] = useState(40);
-  const [scrollDirection, setScrollDirection] = useState<'forward' | 'backward'>('forward');
-  const [buttonText, setButtonText] = useState('Записаться');
-  const [showExitModal, setShowExitModal] = useState(false);
-
-  useEffect(() => {
-    if (!enabled) return;
-    
-    // Welcome back after 3 seconds
-    const welcomeTimer = setTimeout(() => setShowWelcome(true), 3000);
-    
-    // Cookie banner after 5 seconds
-    const cookieTimer = setTimeout(() => setShowCookie(true), 5000);
-    
-    // Random whispers
-    const whispers = ['Ты сам это выбрал', 'Так было всегда', 'Ты уверен?', 'Это не первый раз', 'Ты уже видел это'];
-    const whisperInterval = setInterval(() => {
-      if (Math.random() > 0.7) {
-        setWhisper(whispers[Math.floor(Math.random() * whispers.length)]);
-        setTimeout(() => setWhisper(''), 3000);
-      }
-    }, 15000);
-    
-    // Hero text change after 30 seconds
-    const heroTimer = setTimeout(() => setHeroTextChanged(true), 30000);
-    
-    // Counter fluctuation
-    const counterInterval = setInterval(() => {
-      const change = Math.random() > 0.5 ? 1 : -1;
-      setCounterValue(prev => Math.max(35, Math.min(45, prev + change)));
-    }, 4000);
-    
-    // Scroll direction glitch
-    const scrollGlitch = setInterval(() => {
-      if (Math.random() > 0.8) {
-        setScrollDirection('backward');
-        setTimeout(() => setScrollDirection('forward'), 2000);
-      }
-    }, 10000);
-    
-    // Button text change
-    const btnInterval = setInterval(() => {
-      if (Math.random() > 0.6) {
-        setButtonText('Вы уже записаны');
-        setTimeout(() => setButtonText('Записаться'), 3000);
-      }
-    }, 12000);
-    
-    // Cookie swap
-    const swapInterval = setInterval(() => {
-      setCookieSwapped(prev => !prev);
-    }, 8000);
-
-    return () => {
-      clearTimeout(welcomeTimer);
-      clearTimeout(cookieTimer);
-      clearInterval(whisperInterval);
-      clearTimeout(heroTimer);
-      clearInterval(counterInterval);
-      clearInterval(scrollGlitch);
-      clearInterval(btnInterval);
-      clearInterval(swapInterval);
-    };
-  }, [enabled]);
-
-  // Exit intent
-  useEffect(() => {
-    if (!enabled) return;
-    const handleMouseLeave = (e: MouseEvent) => {
-      if (e.clientY <= 0) {
-        setShowExitModal(true);
-      }
-    };
-    document.addEventListener('mouseleave', handleMouseLeave);
-    return () => document.removeEventListener('mouseleave', handleMouseLeave);
-  }, [enabled]);
-
-  return {
-    showWelcome, setShowWelcome,
-    showCookie, setShowCookie,
-    cookieSwapped,
-    whisper,
-    heroTextChanged,
-    counterValue,
-    scrollDirection,
-    buttonText,
-    showExitModal, setShowExitModal,
-  };
-}
-
-// ============ CURSOR TRAIL ============
-
-function CursorTrail({ enabled }: { enabled: boolean }) {
-  const [trails, setTrails] = useState<{ id: number; x: number; y: number }[]>([]);
-  
-  useEffect(() => {
-    if (!enabled) return;
-    let id = 0;
-    const handleMove = (e: MouseEvent) => {
-      if (Math.random() > 0.85) {
-        setTrails(prev => [...prev.slice(-8), { id: id++, x: e.clientX, y: e.clientY }]);
-      }
-    };
-    document.addEventListener('mousemove', handleMove);
-    return () => document.removeEventListener('mousemove', handleMove);
-  }, [enabled]);
-
-  useEffect(() => {
-    if (trails.length === 0) return;
-    const timer = setTimeout(() => {
-      setTrails(prev => prev.slice(1));
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [trails]);
-
-  if (!enabled) return null;
-
-  return (
-    <>
-      {trails.map(trail => (
-        <div
-          key={trail.id}
-          className="cursor-trail"
-          style={{ left: trail.x - 6, top: trail.y - 6 }}
-        />
-      ))}
-    </>
-  );
-}
+import { useGaslighting, GaslightEffects, ScrambledText } from './components/GaslightEffects';
+import TestPage from './pages/TestPage';
 
 // ============ LOGO ============
-
 function Logo() {
   return (
     <div className="flex items-center gap-3">
@@ -159,38 +22,59 @@ function Logo() {
   );
 }
 
-// ============ PROGRESS BAR ============
-
+// ============ SCROLL PROGRESS ============
 function ScrollProgress({ direction }: { direction: 'forward' | 'backward' }) {
   const [progress, setProgress] = useState(0);
-
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       let p = (scrollTop / docHeight) * 100;
-      if (direction === 'backward') {
-        p = 100 - p;
-      }
+      if (direction === 'backward') p = 100 - p;
       setProgress(p);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [direction]);
-
   return (
     <div className="fixed top-0 left-0 right-0 h-[2px] z-50">
-      <div
-        className="h-full bg-gradient-to-r from-purple to-lime transition-all duration-300"
-        style={{ width: `${progress}%` }}
-      />
+      <div className="h-full bg-gradient-to-r from-purple to-lime transition-all duration-300" style={{ width: `${progress}%` }} />
     </div>
   );
 }
 
-// ============ MAIN APP ============
+// ============ CURSOR TRAIL ============
+function CursorTrail({ enabled }: { enabled: boolean }) {
+  const [trails, setTrails] = useState<{ id: number; x: number; y: number }[]>([]);
+  useEffect(() => {
+    if (!enabled) return;
+    let id = 0;
+    const handleMove = (e: MouseEvent) => {
+      if (Math.random() > 0.85) {
+        setTrails(prev => [...prev.slice(-8), { id: id++, x: e.clientX, y: e.clientY }]);
+      }
+    };
+    document.addEventListener('mousemove', handleMove);
+    return () => document.removeEventListener('mousemove', handleMove);
+  }, [enabled]);
+  useEffect(() => {
+    if (trails.length === 0) return;
+    const timer = setTimeout(() => setTrails(prev => prev.slice(1)), 1000);
+    return () => clearTimeout(timer);
+  }, [trails]);
+  if (!enabled) return null;
+  return (
+    <>
+      {trails.map(trail => (
+        <div key={trail.id} className="cursor-trail" style={{ left: trail.x - 6, top: trail.y - 6 }} />
+      ))}
+    </>
+  );
+}
 
+// ============ MAIN APP ============
 export default function App() {
+  const [currentPage, setCurrentPage] = useState<'home' | 'test'>('home');
   const [clarityMode, setClarityMode] = useState(false);
   const [gaslightingEnabled, setGaslightingEnabled] = useState(true);
   const [stopWordActive, setStopWordActive] = useState(false);
@@ -206,7 +90,7 @@ export default function App() {
 
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
 
-  // Check for reduced motion
+  // Reduced motion
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (mq.matches) {
@@ -215,7 +99,7 @@ export default function App() {
     }
   }, []);
 
-  // Stop word check
+  // Stop word
   const checkStopWord = useCallback((value: string) => {
     if (value.toLowerCase().includes('бесконечность')) {
       setStopWordActive(true);
@@ -247,7 +131,7 @@ export default function App() {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  // Reviews data
+  // Reviews
   const reviews = reviewsHovered && gaslightingEnabled && !clarityMode ? [
     { name: 'Мария К.', role: 'Продакт-менеджер, Яндекс', text: 'После Калибровки я перестала верить всему, что говорят на планёрках. Это изменило мою карьеру.' },
     { name: 'Дмитрий В.', role: 'CEO, стартап', text: 'Я думал, что меня невозможно обмануть. Калибровка показала, что я обманывал сам себя.' },
@@ -259,27 +143,28 @@ export default function App() {
   ];
 
   const containerClass = clarityMode ? 'clarity-mode' : '';
+  const effectsActive = gaslightingEnabled && !clarityMode && !stopWordActive;
+
+  // If test page
+  if (currentPage === 'test') {
+    return <TestPage />;
+  }
 
   return (
-    <div className={`min-h-screen bg-cosmic text-white ${containerClass} scanline-overlay noise-bg`}>
-      <CursorTrail enabled={gaslightingEnabled && !clarityMode} />
-      <ScrollProgress direction={gaslightingEnabled && !clarityMode ? gaslight.scrollDirection : 'forward'} />
+    <div className={`min-h-screen bg-cosmic text-white ${containerClass} scanline-overlay noise-bg ${
+      gaslight.jitterActive ? 'animate-jitter' : ''
+    } ${gaslight.colorShiftActive ? 'animate-color-shift' : ''} ${
+      gaslight.vhsTrackingActive ? 'animate-vhs-tracking' : ''
+    } ${gaslight.screenRotated ? 'animate-rotate-slight' : ''} ${
+      gaslight.invertedColors ? 'invert' : ''
+    } ${gaslight.doubleVisionActive ? 'animate-double-vision' : ''} ${
+      gaslight.isFrozen ? 'freeze-effect' : ''
+    }`}>
+      <CursorTrail enabled={effectsActive} />
+      <ScrollProgress direction={effectsActive ? gaslight.scrollDirection : 'forward'} />
+      <GaslightEffects gaslight={gaslight} enabled={effectsActive} />
 
-      {/* Whisper overlay */}
-      <AnimatePresence>
-        {gaslight.whisper && !clarityMode && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 flex items-center justify-center pointer-events-none z-40"
-          >
-            <span className="font-mono text-2xl text-purple animate-whisper">{gaslight.whisper}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Stop word input (hidden in corner) */}
+      {/* Stop word input */}
       <div className="fixed bottom-4 right-4 z-50 opacity-20 hover:opacity-100 transition-opacity">
         <input
           type="text"
@@ -298,7 +183,7 @@ export default function App() {
         {clarityMode ? '✦ Режим спектакля' : '◎ Режим ясности'}
       </button>
 
-      {/* Stop word active message */}
+      {/* Stop word active */}
       <AnimatePresence>
         {stopWordActive && (
           <motion.div
@@ -313,30 +198,32 @@ export default function App() {
       </AnimatePresence>
 
       {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-40 glass">
+      <nav className={`fixed top-0 left-0 right-0 z-40 glass ${gaslight.jitterActive ? 'animate-jitter' : ''}`}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <Logo />
           <div className="hidden md:flex items-center gap-6 text-sm text-gray">
             <a href="#method" className="hover:text-lime transition-colors">Метод</a>
             <a href="#products" className="hover:text-lime transition-colors">Продукты</a>
+            <button onClick={() => setCurrentPage('test')} className="hover:text-lime transition-colors">Тест</button>
             <a href="#b2b" className="hover:text-lime transition-colors">B2B</a>
             <a href="#team" className="hover:text-lime transition-colors">Команда</a>
             <a href="#faq" className="hover:text-lime transition-colors">FAQ</a>
           </div>
-          <button className="bg-lime/10 border border-lime/30 text-lime px-4 py-2 rounded-full text-sm font-heading hover:bg-lime/20 transition-colors">
-            Калибровка
+          <button 
+            onClick={() => setCurrentPage('test')}
+            className="bg-lime/10 border border-lime/30 text-lime px-4 py-2 rounded-full text-sm font-heading hover:bg-lime/20 transition-colors"
+          >
+            Пройти тест
           </button>
         </div>
       </nav>
 
       {/* HERO */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
-        {/* Orbital decoration */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[600px] h-[600px] rounded-full border border-purple/10 animate-spin" style={{ animationDuration: '60s' }} />
           <div className="absolute w-[400px] h-[400px] rounded-full border border-lime/10 animate-spin" style={{ animationDuration: '40s', animationDirection: 'reverse' }} />
           <div className="absolute w-[200px] h-[200px] rounded-full border border-purple/20 animate-pulse" />
-          {/* Orbiting dot */}
           <div className="absolute animate-orbit">
             <div className="w-3 h-3 rounded-full bg-lime animate-pulse-glow" />
           </div>
@@ -350,33 +237,55 @@ export default function App() {
           >
             <div className="font-mono text-xs text-purple mb-6 tracking-widest">ПРОТОКОЛ КАЛИБРОВКИ В.2.4.1</div>
             <h1
-              className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8 glitch-text"
-              data-text={gaslight.heroTextChanged && !clarityMode ? 'То, что ты помнишь — лишь одна из версий. И ты её придумал.' : 'То, что ты видишь — лишь одна из версий. И не самая удачная.'}
+              className={`font-heading text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8 glitch-text ${
+                gaslight.doubleVisionActive ? 'animate-double-vision' : ''
+              }`}
+              data-text={
+                gaslight.heroTextChanged && !clarityMode 
+                  ? 'То, что ты помнишь — лишь одна из версий. И ты её придумал.' 
+                  : 'То, что ты видишь — лишь одна из версий. И не самая удачная.'
+              }
             >
-              {gaslight.heroTextChanged && !clarityMode ? 'То, что ты помнишь — лишь одна из версий. И ты её придумал.' : 'То, что ты видишь — лишь одна из версий. И не самая удачная.'}
+              <ScrambledText 
+                text={gaslight.heroTextChanged && !clarityMode 
+                  ? 'То, что ты помнишь — лишь одна из версий. И ты её придумал.' 
+                  : 'То, что ты видишь — лишь одна из версий. И не самая удачная.'}
+                active={gaslight.textScrambleActive && !clarityMode}
+              />
             </h1>
             <p className="text-gray text-lg md:text-xl max-w-2xl mx-auto mb-10">
               Иммерсивная платформа критического мышления. Научись видеть манипуляцию — и обезвредить её за десять секунд.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="#products" className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all">
+              <button 
+                onClick={() => setCurrentPage('test')}
+                className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all"
+              >
                 Пройти Калибровку
-              </a>
-              <a href="#products" className="border border-purple/40 text-purple px-8 py-4 rounded-full font-heading text-lg hover:bg-purple/10 transition-colors">
+              </button>
+              <button
+                onClick={() => setCurrentPage('test')}
+                className="border border-purple/40 text-purple px-8 py-4 rounded-full font-heading text-lg hover:bg-purple/10 transition-colors"
+              >
                 Я уже проходил
-              </a>
+              </button>
             </div>
+            <button
+              onClick={() => setCurrentPage('test')}
+              className="mt-6 text-sm text-gray hover:text-lime transition-colors underline"
+            >
+              Или пройдите тест на подверженность газлайтингу →
+            </button>
           </motion.div>
         </div>
 
-        {/* Bottom gradient */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-cosmic to-transparent" />
       </section>
 
       {/* DISCLAIMER */}
       <section className="py-8 border-y border-purple/10">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="glass rounded-lg px-6 py-4 flex items-start gap-4">
+          <div className={`glass rounded-lg px-6 py-4 flex items-start gap-4 ${gaslight.jitterActive ? 'animate-jitter' : ''}`}>
             <div className="w-8 h-8 rounded-full bg-orange/20 flex items-center justify-center flex-shrink-0 mt-0.5">
               <span className="text-orange text-sm">⚠</span>
             </div>
@@ -405,13 +314,13 @@ export default function App() {
               Вы уверены, что это первый раз?
             </h2>
             <p className="text-gray text-lg max-w-2xl mx-auto">
-              Наш протокол фиксирует {gaslightingEnabled && !clarityMode ? gaslight.counterValue : 40} активных сессий прямо сейчас. 
+              Наш протокол фиксирует {effectsActive ? gaslight.counterValue : 40} активных сессий прямо сейчас. 
               Возможно, вы уже проходили калибровку. Просто не помните. Это нормально — 
               первый акт всегда стирает сам себя.
             </p>
             <div className="mt-8 flex justify-center gap-8">
               <div className="text-center">
-                <div className="font-heading text-4xl font-bold text-lime">{gaslightingEnabled && !clarityMode ? gaslight.counterValue : 40}</div>
+                <div className="font-heading text-4xl font-bold text-lime">{effectsActive ? gaslight.counterValue : 40}</div>
                 <div className="font-mono text-xs text-gray mt-1">мест осталось</div>
               </div>
               <div className="text-center">
@@ -453,7 +362,7 @@ export default function App() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.2 }}
-                className="glass rounded-xl p-6 hover:border-lime/30 transition-colors"
+                className={`glass rounded-xl p-6 hover:border-lime/30 transition-colors ${gaslight.jitterActive ? 'animate-jitter' : ''}`}
               >
                 <div className="text-3xl mb-4">{item.icon}</div>
                 <h3 className="font-heading text-xl font-bold mb-3">{item.title}</h3>
@@ -481,7 +390,6 @@ export default function App() {
             </p>
           </motion.div>
 
-          {/* Three Acts */}
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             {[
               { act: 'АКТ I', title: 'Демонстрация', desc: 'Мы показываем манипуляцию в реальном времени. Вы видите, как работает газлайтинг — и понимаете, что уже попались.', colorClass: 'text-purple' },
@@ -496,7 +404,7 @@ export default function App() {
                 transition={{ duration: 0.6, delay: i * 0.2 }}
                 className="relative"
               >
-                <div className="glass rounded-xl p-8 h-full">
+                <div className={`glass rounded-xl p-8 h-full ${gaslight.jitterActive ? 'animate-jitter' : ''}`}>
                   <div className={`font-mono text-xs ${item.colorClass} mb-2 tracking-widest`}>{item.act}</div>
                   <h3 className="font-heading text-2xl font-bold mb-4">{item.title}</h3>
                   <p className="text-gray text-sm leading-relaxed">{item.desc}</p>
@@ -508,7 +416,6 @@ export default function App() {
             ))}
           </div>
 
-          {/* Десятисекундный люк */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -560,7 +467,7 @@ export default function App() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="glass rounded-xl p-6 hover:border-lime/30 transition-all group"
+                className={`glass rounded-xl p-6 hover:border-lime/30 transition-all group ${gaslight.jitterActive ? 'animate-jitter' : ''}`}
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className={`font-mono text-xs px-2 py-1 rounded-full border ${item.badgeClass}`}>
@@ -579,10 +486,12 @@ export default function App() {
             ))}
           </div>
 
-          {/* CTA */}
           <div className="mt-12 text-center">
-            <button className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all">
-              {gaslightingEnabled && !clarityMode ? gaslight.buttonText : 'Записаться на Калибровку'}
+            <button 
+              onClick={() => setCurrentPage('test')}
+              className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all"
+            >
+              {effectsActive ? gaslight.buttonText : 'Записаться на Калибровку'}
             </button>
           </div>
         </div>
@@ -670,7 +579,7 @@ export default function App() {
               </motion.div>
             ))}
           </div>
-          {gaslightingEnabled && !clarityMode && (
+          {effectsActive && (
             <p className="text-center text-xs text-gray/50 mt-4 font-mono">* наведите для обновления</p>
           )}
         </div>
@@ -768,7 +677,7 @@ export default function App() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="glass rounded-lg overflow-hidden"
+                className={`glass rounded-lg overflow-hidden ${gaslight.jitterActive ? 'animate-jitter' : ''}`}
               >
                 <button
                   onClick={() => toggleFaq(i)}
@@ -819,7 +728,10 @@ export default function App() {
               Пройдите Калибровку и научитесь видеть манипуляцию за десять секунд.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all">
+              <button 
+                onClick={() => setCurrentPage('test')}
+                className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all"
+              >
                 Записаться на Калибровку
               </button>
               <button className="border border-purple/40 text-purple px-8 py-4 rounded-full font-heading text-lg hover:bg-purple/10 transition-colors">
@@ -855,7 +767,7 @@ export default function App() {
                 <li><a href="#" className="hover:text-lime transition-colors">О нас</a></li>
                 <li><a href="#" className="hover:text-lime transition-colors">Команда</a></li>
                 <li><a href="#" className="hover:text-lime transition-colors">Этика</a></li>
-                <li><a href="#" className="hover:text-lime transition-colors">Контакты</a></li>
+                <li><button onClick={() => setCurrentPage('test')} className="hover:text-lime transition-colors">Тест</button></li>
               </ul>
             </div>
             <div>
@@ -880,7 +792,6 @@ export default function App() {
 
       {/* MODALS */}
       <AnimatePresence>
-        {/* Welcome back modal */}
         {gaslight.showWelcome && !clarityMode && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -912,7 +823,6 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Cookie banner */}
         {gaslight.showCookie && !clarityMode && (
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -967,7 +877,6 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Exit modal */}
         {gaslight.showExitModal && !clarityMode && (
           <motion.div
             initial={{ opacity: 0 }}
