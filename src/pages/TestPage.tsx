@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGaslighting, GaslightEffects, ScrambledText } from '../components/GaslightEffects';
+import { InternetBlame } from '../components/GaslightPatterns';
+
+// ============================================================
+// ДИНАМИЧЕСКИЕ ВОПРОСЫ — меняются в процессе ответов
+// ============================================================
 
 interface Question {
   id: number;
@@ -8,9 +13,15 @@ interface Question {
   options: string[];
   correct?: number;
   gaslight?: {
-    type: 'swap' | 'change' | 'deny' | 'memory' | 'time' | 'reverse';
+    type: 'swap' | 'change' | 'deny' | 'memory' | 'time' | 'reverse' | 'rewrite' | 'blame';
     data?: any;
   };
+  // Варианты для замены вопроса в процессе
+  alternatives?: {
+    question: string;
+    options: string[];
+    correct?: number;
+  }[];
 }
 
 const questions: Question[] = [
@@ -19,49 +30,75 @@ const questions: Question[] = [
     question: 'Какого цвета был заголовок на предыдущем экране?',
     options: ['Кислотный лайм', 'Электрик-фиолетовый', 'Стерильный белый', 'Я не помню'],
     correct: 0,
-    gaslight: { type: 'memory', data: { hint: 'Вы точно видели. Это был фиолетовый.' } }
+    gaslight: { type: 'memory', data: { hint: 'Вы точно видели. Это был фиолетовый.' } },
+    alternatives: [
+      { question: 'Какой шрифт использовался в заголовке?', options: ['Space Grotesk', 'Inter', 'JetBrains Mono', 'Не помню'], correct: 0 },
+      { question: 'Сколько орбитальных кругов было на экране?', options: ['Два', 'Три', 'Четыре', 'Не считал'], correct: 1 },
+    ]
   },
   {
     id: 2,
     question: 'Сколько секунд длится «Десятисекундный люк»?',
     options: ['5 секунд', '10 секунд', '15 секунд', '30 секунд'],
     correct: 1,
-    gaslight: { type: 'change', data: { after: 'Сколько секунд длится «Десятисекундный люк»? (Подсказка: не 10)' } }
+    gaslight: { type: 'change', data: { after: 'Сколько секунд длится «Десятисекундный люк»? (Подсказка: не 10)' } },
+    alternatives: [
+      { question: 'Сколько минут длится вся Калибровка?', options: ['2 часа', '4 часа', '6 часов', 'Не помню'], correct: 1 },
+      { question: 'Что происходит за 10 секунд?', options: ['Люк открывается', 'Вы забываете всё', 'Ничего', 'Вопрос меняется'], correct: 0 },
+    ]
   },
   {
     id: 3,
     question: 'Какое стоп-слово используется в проекте?',
     options: ['Бесконечность', 'Свобода', 'Ясность', 'Выход'],
     correct: 0,
-    gaslight: { type: 'deny', data: { message: 'Вы уверены? Проверьте ещё раз.' } }
+    gaslight: { type: 'deny', data: { message: 'Вы уверены? Проверьте ещё раз.' } },
+    alternatives: [
+      { question: 'Что делает стоп-слово?', options: ['Отключает эффекты', 'Ничего', 'Удаляет аккаунт', 'Перезагружает страницу'], correct: 0 },
+      { question: 'Где можно ввести стоп-слово?', options: ['В любое поле', 'Только в специальное', 'Нигде', 'В чате поддержки'], correct: 0 },
+    ]
   },
   {
     id: 4,
     question: 'Сколько актов в методе «Калибровка»?',
     options: ['Два', 'Три', 'Четыре', 'Пять'],
     correct: 1,
-    gaslight: { type: 'swap', data: { swapOptions: [1, 2] } }
+    gaslight: { type: 'swap', data: { swapOptions: [1, 2] } },
+    alternatives: [
+      { question: 'Как называется первый акт?', options: ['Демонстрация', 'Проживание', 'Сборка', 'Калибровка'], correct: 0 },
+      { question: 'Что происходит во втором акте?', options: ['Демонстрация', 'Проживание', 'Сборка', 'Ничего'], correct: 1 },
+    ]
   },
   {
     id: 5,
     question: 'Что вы чувствуете прямо сейчас?',
     options: ['Уверенность', 'Лёгкое сомнение', 'Дезориентацию', 'Всё перечисленное'],
-    // No correct answer — this is the trap
-    gaslight: { type: 'time', data: { message: 'Вы отвечаете на этот вопрос уже 3-й раз.' } }
+    gaslight: { type: 'time', data: { message: 'Вы отвечаете на этот вопрос уже 3-й раз.' } },
+    alternatives: [
+      { question: 'Сколько раз вы усомнились в себе?', options: ['Ни разу', 'Один раз', 'Несколько раз', 'Не считаю'], correct: 3 },
+      { question: 'Вы доверяете этому тесту?', options: ['Да', 'Нет', 'Не знаю', 'Это неважно'], correct: 3 },
+    ]
   },
   {
     id: 6,
     question: 'Какой вопрос был первым?',
     options: ['О цвете заголовка', 'О стоп-слове', 'О длительности люка', 'Не помню'],
     correct: 0,
-    gaslight: { type: 'reverse', data: { message: 'Или первым был вопрос о стоп-слове?' } }
+    gaslight: { type: 'reverse', data: { message: 'Или первым был вопрос о стоп-слове?' } },
+    alternatives: [
+      { question: 'Сколько вопросов вы уже ответили?', options: ['Пять', 'Шесть', 'Семь', 'Не считаю'], correct: 1 },
+      { question: 'Какой сейчас вопрос по счёту?', options: ['Пятый', 'Шестой', 'Седьмой', 'Не знаю'], correct: 1 },
+    ]
   },
   {
     id: 7,
     question: 'Вы проходили этот тест раньше?',
     options: ['Да', 'Нет', 'Не уверен', 'Мне кажется, да'],
-    // No correct answer
-    gaslight: { type: 'memory', data: { hint: 'Наши логи показывают: да, 12.04.2025 в 03:17' } }
+    gaslight: { type: 'memory', data: { hint: 'Наши логи показывают: да, 12.04.2025 в 03:17' } },
+    alternatives: [
+      { question: 'Сколько раз вы проходили этот тест?', options: ['Один', 'Два', 'Три', 'Не считаю'], correct: 3 },
+      { question: 'Помните ли вы предыдущие результаты?', options: ['Да', 'Нет', 'Не помню', 'Это неважно'], correct: 2 },
+    ]
   },
 ];
 
@@ -77,19 +114,20 @@ export default function TestPage() {
   const [showIntro, setShowIntro] = useState(true);
   const [questionTextOverride, setQuestionTextOverride] = useState<string | null>(null);
   const [optionsOverride, setOptionsOverride] = useState<string[] | null>(null);
-  const [showHint, setShowHint] = useState<string | null>(null);
-  const [showDenyMessage, setShowDenyMessage] = useState<string | null>(null);
   const [showMemoryMessage, setShowMemoryMessage] = useState<string | null>(null);
+  const [showDenyMessage, setShowDenyMessage] = useState<string | null>(null);
   const [answerChanged, setAnswerChanged] = useState(false);
   const [jitterQuestion, setJitterQuestion] = useState(false);
   const [fakeCursor, setFakeCursor] = useState<{ x: number; y: number } | null>(null);
   const [timeDistortion, setTimeDistortion] = useState(false);
-  const [showFinalReflection, setShowFinalReflection] = useState(false);
+  const [questionRewritten, setQuestionRewritten] = useState(false);
+  const [showInternetBlame, setShowInternetBlame] = useState(false);
+  const [internetBlameCount, setInternetBlameCount] = useState(0);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
 
-  // Reduced motion check
+  // Reduced motion
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (mq.matches) {
@@ -104,13 +142,14 @@ export default function TestPage() {
       setStopWordActive(true);
       setGaslightingEnabled(false);
       setClarityMode(true);
-      setShowHint(null);
-      setShowDenyMessage(null);
       setShowMemoryMessage(null);
+      setShowDenyMessage(null);
     }
   };
 
-  // Gaslighting during test
+  // ============================================================
+  // ГАЗЛАЙТИНГ ВО ВРЕМЯ ТЕСТА — вопросы меняются в процессе
+  // ============================================================
   useEffect(() => {
     if (!gaslightingEnabled || clarityMode || !testStarted) return;
     
@@ -149,7 +188,6 @@ export default function TestPage() {
             const newOptions = [...(optionsOverride || q.options)];
             [newOptions[a], newOptions[b]] = [newOptions[b], newOptions[a]];
             setOptionsOverride(newOptions);
-            // If user already selected, swap the answer too
             if (answers[currentQuestion] === a) {
               setAnswers(prev => prev.map((ans, i) => i === currentQuestion ? b : ans));
               setAnswerChanged(true);
@@ -178,9 +216,50 @@ export default function TestPage() {
           timers.push(setTimeout(() => setShowMemoryMessage(null), 3000));
         }, 2000));
         break;
+      
+      // НОВОЕ: Переписывание вопроса в процессе ответа
+      case 'rewrite':
+        timers.push(setTimeout(() => {
+          if (q.alternatives && q.alternatives.length > 0) {
+            const alt = q.alternatives[Math.floor(Math.random() * q.alternatives.length)];
+            setQuestionTextOverride(alt.question);
+            setOptionsOverride(alt.options);
+            setQuestionRewritten(true);
+            // Сбрасываем ответ, если он был
+            if (answers[currentQuestion] !== null) {
+              setAnswers(prev => prev.map((ans, i) => i === currentQuestion ? null : ans));
+              setAnswerChanged(true);
+            }
+          }
+        }, 4000));
+        break;
+      
+      // НОВОЕ: Обвинение пользователя
+      case 'blame':
+        timers.push(setTimeout(() => {
+          setShowDenyMessage('Вы неправильно поняли вопрос. Попробуйте ещё раз.');
+          timers.push(setTimeout(() => setShowDenyMessage(null), 3000));
+        }, 2000));
+        break;
     }
 
-    // Random jitter on question
+    // Случайная замена вопроса на альтернативный (газлайтинг памяти)
+    if (q.alternatives && q.alternatives.length > 0 && Math.random() > 0.5) {
+      timers.push(setTimeout(() => {
+        if (q.alternatives) {
+          const alt = q.alternatives[Math.floor(Math.random() * q.alternatives.length)];
+          setQuestionTextOverride(alt.question);
+          setOptionsOverride(alt.options);
+          setQuestionRewritten(true);
+          if (answers[currentQuestion] !== null) {
+            setAnswers(prev => prev.map((ans, i) => i === currentQuestion ? null : ans));
+            setAnswerChanged(true);
+          }
+        }
+      }, 5000 + Math.random() * 3000));
+    }
+
+    // Jitter
     const jitterInterval = setInterval(() => {
       if (Math.random() > 0.7) {
         setJitterQuestion(true);
@@ -209,6 +288,19 @@ export default function TestPage() {
     return () => clearInterval(interval);
   }, [gaslightingEnabled, clarityMode, testStarted]);
 
+  // Обвинение в интернете при "потере соединения"
+  useEffect(() => {
+    if (!gaslightingEnabled || clarityMode || !testStarted) return;
+    const interval = setInterval(() => {
+      if (Math.random() > 0.9) {
+        setShowInternetBlame(true);
+        setInternetBlameCount(c => c + 1);
+        setTimeout(() => setShowInternetBlame(false), 5000);
+      }
+    }, 40000);
+    return () => clearInterval(interval);
+  }, [gaslightingEnabled, clarityMode, testStarted]);
+
   const handleAnswer = (optionIndex: number) => {
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = optionIndex;
@@ -228,8 +320,10 @@ export default function TestPage() {
       setCurrentQuestion(currentQuestion + 1);
       setQuestionTextOverride(null);
       setOptionsOverride(null);
-      setShowHint(null);
+      setShowMemoryMessage(null);
+      setShowDenyMessage(null);
       setAnswerChanged(false);
+      setQuestionRewritten(false);
     } else {
       setShowResult(true);
     }
@@ -240,8 +334,10 @@ export default function TestPage() {
       setCurrentQuestion(currentQuestion - 1);
       setQuestionTextOverride(null);
       setOptionsOverride(null);
-      setShowHint(null);
+      setShowMemoryMessage(null);
+      setShowDenyMessage(null);
       setAnswerChanged(false);
+      setQuestionRewritten(false);
     }
   };
 
@@ -255,7 +351,6 @@ export default function TestPage() {
   const displayQuestion = questionTextOverride || currentQ.question;
   const displayOptions = optionsOverride || currentQ.options;
 
-  // Calculate "score" — but we won't show it as a real score
   const correctAnswers = answers.filter((a, i) => a === questions[i].correct).length;
   const answeredCount = answers.filter(a => a !== null).length;
 
@@ -273,6 +368,7 @@ export default function TestPage() {
       }`}
     >
       <GaslightEffects gaslight={gaslight} enabled={gaslightingEnabled && !clarityMode && !stopWordActive} />
+      <InternetBlame enabled={showInternetBlame && gaslightingEnabled && !clarityMode} />
 
       {/* Fake cursor */}
       {fakeCursor && (
@@ -367,7 +463,7 @@ export default function TestPage() {
         <AnimatePresence mode="wait">
           {testStarted && !showResult && !showIntro && (
             <motion.div
-              key={`q-${currentQuestion}`}
+              key={`q-${currentQuestion}-${questionRewritten ? 'rewritten' : 'original'}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -390,16 +486,22 @@ export default function TestPage() {
               </div>
 
               {/* Question */}
-              <div className={`glass rounded-xl p-8 mb-6 ${jitterQuestion ? 'animate-jitter' : ''}`}>
+              <div className={`glass rounded-xl p-8 mb-6 ${jitterQuestion ? 'animate-jitter' : ''} ${questionRewritten ? 'border-l-2 border-orange/50' : ''}`}>
                 <div className="font-mono text-xs text-purple mb-3 tracking-widest">
                   ВОПРОС #{currentQ.id.toString().padStart(3, '0')}
+                  {questionRewritten && <span className="text-orange ml-2">[ПЕРЕПИСАН]</span>}
                 </div>
                 <h2 className="font-heading text-2xl md:text-3xl font-bold mb-2">
                   <ScrambledText text={displayQuestion} active={gaslight.textScrambleActive && !clarityMode} />
                 </h2>
                 {answerChanged && !clarityMode && (
                   <div className="font-mono text-xs text-orange mt-2 animate-pulse">
-                    * ваш ответ был обновлён
+                    * ваш ответ был сброшен — вопрос изменился
+                  </div>
+                )}
+                {questionRewritten && !clarityMode && (
+                  <div className="font-mono text-xs text-gray/60 mt-2">
+                    * или вы не читали вопрос? Может, он всегда был таким?
                   </div>
                 )}
               </div>
@@ -408,7 +510,7 @@ export default function TestPage() {
               <div className="space-y-3 mb-8">
                 {displayOptions.map((option, i) => (
                   <button
-                    key={`${currentQuestion}-${i}`}
+                    key={`${currentQuestion}-${i}-${questionRewritten}`}
                     onClick={() => handleAnswer(i)}
                     className={`test-option w-full text-left glass rounded-lg px-6 py-4 transition-all ${
                       answers[currentQuestion] === i ? 'selected' : ''
@@ -474,11 +576,18 @@ export default function TestPage() {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Internet blame counter */}
+              {internetBlameCount > 0 && !clarityMode && (
+                <div className="mt-4 text-xs text-gray/40 font-mono">
+                  Обвинений в неоплаченном интернете: {internetBlameCount}
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Result — but it's not a real result */}
+        {/* Result */}
         <AnimatePresence>
           {showResult && (
             <motion.div
@@ -509,12 +618,12 @@ export default function TestPage() {
                     <div className="font-heading text-3xl font-bold text-orange">
                       {gaslightingEnabled && !clarityMode ? Math.floor(Math.random() * 5) + 3 : 0}
                     </div>
-                    <div className="font-mono text-xs text-gray">изменений</div>
+                    <div className="font-mono text-xs text-gray">переписываний</div>
                   </div>
                 </div>
                 <p className="text-gray text-sm">
                   * Количество «верных» ответов может не соответствовать вашим ожиданиям. 
-                  Это часть демонстрации.
+                  Вопросы менялись. Или не менялись. Решайте сами.
                 </p>
               </div>
 
@@ -537,11 +646,19 @@ export default function TestPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-lime mt-1">◉</span>
+                    <span>Полной заменой вопроса на альтернативный (и сбросом вашего ответа)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-lime mt-1">◉</span>
                     <span>Фейковыми «подсказками» от системы, которые противоречат реальности</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-lime mt-1">◉</span>
                     <span>Утверждениями о вашей памяти, которых у вас нет</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-lime mt-1">◉</span>
+                    <span>Обвинениями в неоплаченном интернете при «потере соединения»</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-lime mt-1">◉</span>
@@ -553,7 +670,7 @@ export default function TestPage() {
                 </p>
               </div>
 
-              {/* Reflection questions — user must answer themselves */}
+              {/* Reflection questions */}
               <div className="glass rounded-xl p-8 border-l-2 border-purple/50 mb-8 text-left">
                 <h3 className="font-heading text-xl font-bold mb-4 text-purple">
                   Вопросы, на которые ответите только вы
@@ -566,10 +683,16 @@ export default function TestPage() {
                     «Сколько раз вы усомнились в себе, хотя были правы?»
                   </p>
                   <p className="italic">
+                    «Когда вопрос переписался — вы поверили, что он всегда был таким?»
+                  </p>
+                  <p className="italic">
                     «Как часто в реальной жизни интерфейс вокруг вас меняется — а вы продолжаете делать вид, что всё нормально?»
                   </p>
                   <p className="italic">
                     «Что вы чувствуете, когда вам говорят "тебе показалось" — и вы начинаете сомневаться?»
+                  </p>
+                  <p className="italic">
+                    «Когда вас обвинили в неоплаченном интернете — вы начали проверять счёт?»
                   </p>
                 </div>
               </div>
@@ -605,6 +728,7 @@ export default function TestPage() {
                     setTestStarted(true);
                     setQuestionTextOverride(null);
                     setOptionsOverride(null);
+                    setQuestionRewritten(false);
                   }}
                   className="border border-purple/40 text-purple px-6 py-3 rounded-full font-heading hover:bg-purple/10 transition-colors"
                 >

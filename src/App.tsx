@@ -2,6 +2,29 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGaslighting, GaslightEffects, ScrambledText } from './components/GaslightEffects';
 import TestPage from './pages/TestPage';
+import {
+  DeniedAction,
+  RewrittenHistory,
+  FalseConfirmation,
+  BlameShift,
+  ContradictorySignals,
+  MovingGoalposts,
+  ForcedAmnesia,
+  Isolation,
+  Trivialization,
+  LoveBombing,
+  Overload,
+  FalseUrgency,
+  FakeSocialProof,
+  TechnicalGaslighting,
+  SupportGaslighting,
+  HiddenConsent,
+  InterfaceShift,
+  FalseAlerts,
+  ForcedDependency,
+  TruthLieMix,
+  InternetBlame,
+} from './components/GaslightPatterns';
 
 // ============ LOGO ============
 function Logo() {
@@ -789,6 +812,29 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* ====== 20 ТИПОВ ГАЗЛАЙТИНГА ====== */}
+      <DeniedAction enabled={effectsActive} />
+      <RewrittenHistory enabled={effectsActive} />
+      <FalseConfirmation enabled={effectsActive} />
+      <BlameShift enabled={effectsActive} />
+      <ContradictorySignals enabled={effectsActive} />
+      <MovingGoalposts enabled={effectsActive} />
+      <ForcedAmnesia enabled={effectsActive} />
+      <Isolation enabled={effectsActive} />
+      <Trivialization enabled={effectsActive} />
+      <LoveBombing enabled={effectsActive} />
+      <Overload enabled={effectsActive} />
+      <FalseUrgency enabled={effectsActive} />
+      <FakeSocialProof enabled={effectsActive} />
+      <TechnicalGaslighting enabled={effectsActive} />
+      <SupportGaslighting enabled={effectsActive} />
+      <HiddenConsent enabled={effectsActive} />
+      <InterfaceShift enabled={effectsActive} />
+      <FalseAlerts enabled={effectsActive} />
+      <ForcedDependency enabled={effectsActive} />
+      <TruthLieMix enabled={effectsActive} />
+      <InternetBlame enabled={effectsActive} />
 
       {/* MODALS */}
       <AnimatePresence>
