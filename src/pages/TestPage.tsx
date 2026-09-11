@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGaslighting, GaslightEffects, ScrambledText } from '../components/GaslightEffects';
 import { InternetBlame } from '../components/GaslightPatterns';
+import { BSOD } from '../components/ScaryEffects';
 
 // ============================================================
 // ДИНАМИЧЕСКИЕ ВОПРОСЫ — меняются в процессе ответов
@@ -114,6 +115,101 @@ const questions: Question[] = [
       { question: 'Вы уверены в своих ответах?', options: ['Да', 'Нет', 'Не совсем', 'Каких ответах?'], correct: 3 },
     ]
   },
+  {
+    id: 8,
+    question: 'Кто основатель проекта?',
+    options: ['Базз', 'Хранитель', 'Виктор', 'Неизвестно'],
+    correct: 0,
+    gaslight: { type: 'memory', data: { hint: 'Вы же видели на странице команды. Или нет?' } },
+    alternatives: [
+      { question: 'Кто клинический директор?', options: ['Базз', 'Хранитель', 'Ирина', 'Не помню'], correct: 1 },
+      { question: 'Сколько человек в команде?', options: ['Два', 'Три', 'Четыре', 'Не считал'], correct: 2 },
+      { question: 'Кто отвечает за безопасность?', options: ['Базз', 'Хранитель', 'Автоматически', 'Никто'], correct: 1 },
+    ]
+  },
+  {
+    id: 9,
+    question: 'Что такое «Маяк»?',
+    options: ['Цифровой курс', 'Приложение', 'И курс, и приложение', 'Не помню'],
+    correct: 2,
+    gaslight: { type: 'change', data: { after: 'Что такое «Маяк»? (Подсказка: не только курс)' } },
+    alternatives: [
+      { question: 'Сколько стоит курс «Маяк»?', options: ['Бесплатно', '15 000 ₽', '45 000 ₽', 'Не помню'], correct: 1 },
+      { question: 'Сколько модулей в курсе?', options: ['5', '8', '10', 'Не считал'], correct: 1 },
+      { question: 'Можно ли пройти «Маяк» бесплатно?', options: ['Да', 'Нет', 'Только приложение', 'Не знаю'], correct: 2 },
+    ]
+  },
+  {
+    id: 10,
+    question: 'Сколько стоит «Год на орбите»?',
+    options: ['45 000 ₽', '120 000 ₽', '200 000 ₽', 'Не помню'],
+    correct: 1,
+    gaslight: { type: 'deny', data: { message: 'Вы уверены? Может, вы перепутали с Калибровкой?' } },
+    alternatives: [
+      { question: 'Что входит в «Год на орбите»?', options: ['12 месяцев поддержки', 'Ежемесячные встречи', 'Доступ к сообществу', 'Всё перечисленное'], correct: 3 },
+      { question: 'Можно ли отменить подписку?', options: ['Да', 'Нет', 'Только с штрафом', 'Не знаю'], correct: 2 },
+      { question: 'Сколько стоит Калибровка?', options: ['От 15 000 ₽', 'От 45 000 ₽', 'От 120 000 ₽', 'Не помню'], correct: 1 },
+    ]
+  },
+  {
+    id: 11,
+    question: 'Какой цвет основной в дизайне сайта?',
+    options: ['Кислотный лайм', 'Электрик-фиолетовый', 'Космический индиго', 'Не помню'],
+    correct: 2,
+    gaslight: { type: 'swap', data: { swapOptions: [0, 1] } },
+    alternatives: [
+      { question: 'Какой цвет акцентный?', options: ['Лайм', 'Фиолетовый', 'Оранжевый', 'Не помню'], correct: 0 },
+      { question: 'Сколько основных цветов используется?', options: ['Два', 'Три', 'Четыре', 'Не считал'], correct: 2 },
+      { question: 'Какой фон сайта?', options: ['Белый', 'Чёрный', 'Космический индиго', 'Не помню'], correct: 2 },
+    ]
+  },
+  {
+    id: 12,
+    question: 'Что вы делали, когда начали этот тест?',
+    options: ['Читали вопросы', 'Отвечали на вопросы', 'Сомневались', 'Не помню'],
+    gaslight: { type: 'time', data: { message: 'Вы уже отвечали на этот вопрос. Или вам показалось?' } },
+    alternatives: [
+      { question: 'Сколько времени прошло с начала теста?', options: ['Меньше минуты', '1-3 минуты', 'Больше 5 минут', 'Не слежу'], correct: 3 },
+      { question: 'Вы устали отвечать?', options: ['Да', 'Нет', 'Немного', 'Не замечаю'], correct: 3 },
+      { question: 'Хотите ли вы прекратить?', options: ['Да', 'Нет', 'Не знаю', 'Зачем вы это спрашиваете?'], correct: 3 },
+    ]
+  },
+  {
+    id: 13,
+    question: 'Какой юридический статус проекта?',
+    options: ['ООО', 'ИП', 'НКО', 'Не знаю'],
+    correct: 0,
+    gaslight: { type: 'memory', data: { hint: 'Вы же читали футер. Или нет?' } },
+    alternatives: [
+      { question: 'Как называется юридическое лицо?', options: ['Институт Информационной Гигиены', 'Базз Газлайтер Клаб', 'Не помню', 'Не читал'], correct: 0 },
+      { question: 'Где зарегистрирована компания?', options: ['Москва', 'Санкт-Петербург', 'Онлайн', 'Не знаю'], correct: 0 },
+      { question: 'Есть ли у проекта лицензия?', options: ['Да', 'Нет', 'Не требуется', 'Не знаю'], correct: 2 },
+    ]
+  },
+  {
+    id: 14,
+    question: 'Что происходит, если ввести стоп-слово?',
+    options: ['Все эффекты отключаются', 'Ничего', 'Тест завершается', 'Не знаю'],
+    correct: 0,
+    gaslight: { type: 'deny', data: { message: 'Вы уверены? Может, вы просто придумали это?' } },
+    alternatives: [
+      { question: 'Где находится поле для стоп-слова?', options: ['В правом нижнем углу', 'В левом верхнем углу', 'Нигде', 'Не помню'], correct: 0 },
+      { question: 'Можно ли использовать стоп-слово несколько раз?', options: ['Да', 'Нет', 'Только один раз', 'Не знаю'], correct: 0 },
+      { question: 'Что означает стоп-слово?', options: ['Бесконечность', 'Свобода', 'Выход', 'Не помню'], correct: 0 },
+    ]
+  },
+  {
+    id: 15,
+    question: 'Последний вопрос. Вы готовы?',
+    options: ['Да', 'Нет', 'Не уверен', 'Зачем вы спрашиваете?'],
+    gaslight: { type: 'blame', data: { message: 'Странный вопрос. Конечно, вы готовы. Вы же дошли до конца.' } },
+    alternatives: [
+      { question: 'Что вы поняли из этого теста?', options: ['Ничего', 'Всё', 'Не уверен', 'Это неважно'], correct: 3 },
+      { question: 'Будете ли вы проходить тест ещё раз?', options: ['Да', 'Нет', 'Не знаю', 'Зачем?'], correct: 3 },
+      { question: 'Вы доверяете своим ответам?', options: ['Да', 'Нет', 'Не совсем', 'Каким ответах?'], correct: 3 },
+      { question: 'Что вы чувствуете сейчас?', options: ['Облегчение', 'Раздражение', 'Дезориентацию', 'Всё перечисленное'], correct: 3 },
+    ]
+  },
 ];
 
 export default function TestPage() {
@@ -137,6 +233,8 @@ export default function TestPage() {
   const [questionRewritten, setQuestionRewritten] = useState(false);
   const [showInternetBlame, setShowInternetBlame] = useState(false);
   const [internetBlameCount, setInternetBlameCount] = useState(0);
+  const [testCrashed, setTestCrashed] = useState(false);
+  const [showBSOD, setShowBSOD] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
@@ -357,6 +455,23 @@ export default function TestPage() {
 
   const startTest = () => {
     setShowIntro(false);
+    
+    // 25% шанс краша теста
+    if (Math.random() < 0.25) {
+      setTestCrashed(true);
+      return;
+    }
+    
+    // 20% шанс BSOD (если не краш)
+    if (Math.random() < 0.20) {
+      setShowBSOD(true);
+      setTimeout(() => {
+        setShowBSOD(false);
+        setTestStarted(true);
+      }, 2000);
+      return;
+    }
+    
     setTestStarted(true);
   };
 
@@ -383,6 +498,7 @@ export default function TestPage() {
     >
       <GaslightEffects gaslight={gaslight} enabled={gaslightingEnabled && !clarityMode && !stopWordActive} />
       <InternetBlame enabled={showInternetBlame && gaslightingEnabled && !clarityMode} />
+      <BSOD enabled={showBSOD && gaslightingEnabled && !clarityMode} />
 
       {/* Fake cursor */}
       {fakeCursor && (
@@ -395,14 +511,17 @@ export default function TestPage() {
       )}
 
       {/* Stop word input */}
-      <div className="fixed bottom-4 right-4 z-50 opacity-20 hover:opacity-100 transition-opacity">
-        <input
-          type="text"
-          value={stopInput}
-          onChange={(e) => { setStopInput(e.target.value); checkStopWord(e.target.value); }}
-          placeholder="..."
-          className="bg-transparent border border-gray/20 rounded px-2 py-1 text-xs text-gray w-16 focus:w-40 transition-all focus:outline-none focus:border-purple"
-        />
+      <div className="fixed bottom-4 right-4 z-50">
+        <div className="flex flex-col items-end gap-1">
+          <label className="text-[10px] text-gray/60 font-mono">СТОП-СЛОВО:</label>
+          <input
+            type="text"
+            value={stopInput}
+            onChange={(e) => { setStopInput(e.target.value); checkStopWord(e.target.value); }}
+            placeholder="Введите для остановки..."
+            className="bg-graphite/80 backdrop-blur border border-purple/30 rounded px-3 py-2 text-xs text-gray w-48 focus:w-64 transition-all focus:outline-none focus:border-lime font-mono placeholder:text-gray/40"
+          />
+        </div>
       </div>
 
       {/* Clarity mode toggle */}
@@ -436,6 +555,30 @@ export default function TestPage() {
         </div>
       )}
 
+      {/* Test Crash Screen */}
+      {testCrashed && (
+        <div className="fixed inset-0 bg-black z-[9999] flex items-center justify-center">
+          <div className="text-center p-8">
+            <div className="text-6xl mb-6">💥</div>
+            <h2 className="text-3xl font-bold text-red mb-4">ТЕСТ ПРЕРВАН</h2>
+            <p className="text-gray mb-2">Произошла критическая ошибка</p>
+            <p className="text-gray text-sm mb-6">Код ошибки: 0x{Math.floor(Math.random() * 9999).toString(16).toUpperCase()}</p>
+            <p className="text-gray/60 text-xs mb-8">Возможно, вы не были готовы. Или мы не были готовы к вам.</p>
+            <button
+              onClick={() => {
+                setTestCrashed(false);
+                setTestStarted(true);
+                setCurrentQuestion(0);
+                setAnswers(Array(15).fill(null));
+              }}
+              className="bg-lime text-cosmic px-6 py-3 rounded-full font-bold hover:animate-pulse-glow transition-all"
+            >
+              Попробовать снова
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main content */}
       <div className="max-w-3xl mx-auto px-6 py-20">
         {/* Intro */}
@@ -453,7 +596,7 @@ export default function TestPage() {
                 Тест на подверженность газлайтингу
               </h1>
               <p className="text-gray text-lg mb-4 max-w-xl mx-auto">
-                7 вопросов. Проверим, насколько вы уверены в своём восприятии.
+                15 вопросов. Проверим, насколько вы уверены в своём восприятии.
               </p>
               <p className="text-gray/60 text-sm mb-8 max-w-xl mx-auto">
                 Отвечайте честно. Время не ограничено. Хотя, возможно, вы уже начали отвечать.

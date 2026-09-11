@@ -26,6 +26,7 @@ import {
   InternetBlame,
 } from './components/GaslightPatterns';
 import { FinancialPanic } from './components/FinancialPanic';
+import { ScaryLockScreen, ScreenCracks, BSOD } from './components/ScaryEffects';
 
 // ============ LOGO ============
 function Logo() {
@@ -217,14 +218,17 @@ export default function App() {
       <GaslightEffects gaslight={gaslight} enabled={effectsActive} />
 
       {/* Stop word input */}
-      <div className="fixed bottom-4 right-4 z-50 opacity-20 hover:opacity-100 transition-opacity">
-        <input
-          type="text"
-          value={stopInput}
-          onChange={handleStopInput}
-          placeholder="..."
-          className="bg-transparent border border-gray/20 rounded px-2 py-1 text-xs text-gray w-16 focus:w-40 transition-all focus:outline-none focus:border-purple"
-        />
+      <div className="fixed bottom-4 right-4 z-50">
+        <div className="flex flex-col items-end gap-1">
+          <label className="text-[10px] text-gray/60 font-mono">СТОП-СЛОВО:</label>
+          <input
+            type="text"
+            value={stopInput}
+            onChange={handleStopInput}
+            placeholder="Введите для остановки..."
+            className="bg-graphite/80 backdrop-blur border border-purple/30 rounded px-3 py-2 text-xs text-gray w-48 focus:w-64 transition-all focus:outline-none focus:border-lime font-mono placeholder:text-gray/40"
+          />
+        </div>
       </div>
 
       {/* Clarity mode toggle */}
@@ -825,7 +829,7 @@ export default function App() {
             <div>
               <h4 className="font-heading text-sm font-bold mb-3">Контакты</h4>
               <ul className="space-y-2 text-xs text-gray">
-                <li>hello@buzzgaslighter.club</li>
+                <li>avgas85@mail.ru</li>
                 <li>+7 (495) 000-00-00</li>
                 <li>Москва, Пресненская наб. 12</li>
               </ul>
@@ -865,6 +869,9 @@ export default function App() {
       <TruthLieMix enabled={effectsActive} />
       <InternetBlame enabled={effectsActive} />
       <FinancialPanic enabled={effectsActive} />
+      <ScaryLockScreen enabled={effectsActive} />
+      <ScreenCracks enabled={effectsActive} />
+      <BSOD enabled={effectsActive} />
 
       {/* MODALS */}
       <AnimatePresence>
