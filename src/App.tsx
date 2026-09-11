@@ -106,6 +106,8 @@ export default function App() {
   const [gaslightingEnabled, setGaslightingEnabled] = useState(true);
   const [stopWordActive, setStopWordActive] = useState(false);
   const [stopInput, setStopInput] = useState('');
+  const [contactPhoneShown, setContactPhoneShown] = useState(false);
+  const [showStopPanel, setShowStopPanel] = useState(false);
   // Динамический FAQ — пул вопросов и ответов с газлайтингом
   const faqPool = [
     // Пул 1: "помощь"
@@ -224,18 +226,39 @@ export default function App() {
       <ScrollProgress direction={effectsActive ? gaslight.scrollDirection : 'forward'} />
       <GaslightEffects gaslight={gaslight} enabled={effectsActive} />
 
-      {/* Stop word input */}
+      {/* Stop button - иконка в углу */}
       <div className="fixed bottom-4 right-4 z-50">
-        <div className="flex flex-col items-end gap-1">
-          <label className="text-[10px] text-gray/60 font-mono">СТОП-СЛОВО:</label>
-          <input
-            type="text"
-            value={stopInput}
-            onChange={handleStopInput}
-            placeholder="Введите для остановки..."
-            className="bg-graphite/80 backdrop-blur border border-purple/30 rounded px-3 py-2 text-xs text-gray w-48 focus:w-64 transition-all focus:outline-none focus:border-lime font-mono placeholder:text-gray/40"
-          />
-        </div>
+        <button
+          onClick={() => setShowStopPanel(!showStopPanel)}
+          className="w-12 h-12 rounded-full bg-graphite/80 backdrop-blur border-2 border-red/50 flex items-center justify-center hover:border-red hover:scale-110 transition-all group"
+          aria-label="Открыть панель стоп-слова"
+          title="Стоп-слово"
+        >
+          <span className="text-red text-xl group-hover:animate-pulse">⏹</span>
+        </button>
+        
+        {/* Раскрывающаяся панель */}
+        {showStopPanel && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute bottom-14 right-0 bg-graphite/95 backdrop-blur border border-red/30 rounded-lg p-3 w-64"
+          >
+            <div className="text-xs text-red font-mono mb-2">СТОП-СЛОВО:</div>
+            <input
+              type="text"
+              value={stopInput}
+              onChange={handleStopInput}
+              placeholder="Введите слово..."
+              className="w-full bg-cosmic border border-red/20 rounded px-3 py-2 text-xs text-gray focus:outline-none focus:border-red font-mono placeholder:text-gray/40"
+              autoFocus
+              aria-label="Введите стоп-слово для отключения эффектов"
+            />
+            <div className="text-[10px] text-gray/50 mt-2 font-mono">
+              Подсказка: слово из 13 букв
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Stop word active */}
@@ -699,7 +722,7 @@ export default function App() {
             {[
               { name: 'Базз', role: 'Основатель / Методолог', desc: '15 лет в иммерсивном театре. Создатель метода «Калибровка».' },
               { name: 'Хранитель', role: 'Клинический директор', desc: 'Клинический психолог. 20 лет практики. Отвечает за безопасность. И за то, чтобы вы её не потеряли.' },
-              { name: 'Максим Орбитов', role: 'Технический директор', desc: 'Архитектор иммерсивных пространств. Ex-Яндекс, ex-Сбер.' },
+              { name: 'Авгас', role: 'Концепт-директор', desc: 'Архитектор смыслов и визуальных метафор. Превращает идеи в иммерсивные миры.' },
               { name: 'Алиса Маякова', role: 'Директор по маркетингу', desc: 'Брендинг иммерсивных проектов. Знает, как продать то, чего нет.' },
             ].map((member, i) => (
               <motion.div
@@ -838,8 +861,16 @@ export default function App() {
               <h4 className="font-heading text-sm font-bold mb-3">Контакты</h4>
               <ul className="space-y-2 text-xs text-gray">
                 <li>avgas85@mail.ru</li>
-                <li>+7 (495) 000-00-00</li>
-                <li>Москва, Пресненская наб. 12</li>
+                <li>
+                  <button
+                    onClick={() => setContactPhoneShown(!contactPhoneShown)}
+                    className="hover:text-lime transition-colors text-left"
+                  >
+                    {contactPhoneShown ? 'avgas85@mail.ru (вам показалось)' : 'Показать телефон'}
+                  </button>
+                </li>
+                <li>Санкт-Петербург</li>
+                <li className="text-gray/50">Адрес уточняется</li>
               </ul>
             </div>
           </div>
