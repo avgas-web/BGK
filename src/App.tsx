@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGaslighting, GaslightEffects, ScrambledText } from './components/GaslightEffects';
 import TestPage from './pages/TestPage';
+import WarningPage from './components/WarningPage';
 import {
   DeniedAction,
   RewrittenHistory,
@@ -100,6 +101,7 @@ function CursorTrail({ enabled }: { enabled: boolean }) {
 // ============ MAIN APP ============
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'test'>('home');
+  const [showWarning, setShowWarning] = useState(true);
   const [clarityMode, setClarityMode] = useState(false);
   const [gaslightingEnabled, setGaslightingEnabled] = useState(true);
   const [stopWordActive, setStopWordActive] = useState(false);
@@ -198,6 +200,11 @@ export default function App() {
   const containerClass = clarityMode ? 'clarity-mode' : '';
   const effectsActive = gaslightingEnabled && !clarityMode && !stopWordActive;
 
+  // Warning page
+  if (showWarning) {
+    return <WarningPage onAccept={() => setShowWarning(false)} />;
+  }
+
   // If test page
   if (currentPage === 'test') {
     return <TestPage />;
@@ -231,14 +238,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Clarity mode toggle */}
-      <button
-        onClick={() => { setClarityMode(!clarityMode); if (!clarityMode) setGaslightingEnabled(false); else setGaslightingEnabled(true); }}
-        className="fixed top-4 right-4 z-50 glass rounded-full px-3 py-1.5 text-xs font-mono text-gray hover:text-lime transition-colors"
-      >
-        {clarityMode ? '✦ Режим спектакля' : '◎ Режим ясности'}
-      </button>
-
       {/* Stop word active */}
       <AnimatePresence>
         {stopWordActive && (
@@ -265,12 +264,21 @@ export default function App() {
             <a href="#team" className="hover:text-lime transition-colors">Команда</a>
             <a href="#faq" className="hover:text-lime transition-colors">FAQ</a>
           </div>
-          <button 
-            onClick={() => setCurrentPage('test')}
-            className="bg-lime/10 border border-lime/30 text-lime px-4 py-2 rounded-full text-sm font-heading hover:bg-lime/20 transition-colors"
-          >
-            Пройти тест
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { setClarityMode(!clarityMode); if (!clarityMode) setGaslightingEnabled(false); else setGaslightingEnabled(true); }}
+              className="hidden md:block glass rounded-full px-3 py-1.5 text-xs font-mono text-gray hover:text-lime transition-colors"
+              title="Переключить режим отображения"
+            >
+              {clarityMode ? '✦ Спектакль' : '◎ Ясность'}
+            </button>
+            <button 
+              onClick={() => setCurrentPage('test')}
+              className="bg-lime/10 border border-lime/30 text-lime px-4 py-2 rounded-full text-sm font-heading hover:bg-lime/20 transition-colors"
+            >
+              Пройти тест
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -349,7 +357,7 @@ export default function App() {
               <p className="text-sm text-gray">
                 <span className="text-orange font-mono font-bold">ДИСКЛЕЙМЕР:</span> Это художественная демонстрация. Вы в безопасности. 
                 Стоп-слово — <span className="text-lime font-mono">«Бесконечность»</span>. 
-                Введите его в любое поле или активируйте «Режим ясности» в правом верхнем углу.
+                Введите его в любое поле или активируйте кнопку «◎ Ясность» в навигации.
               </p>
             </div>
           </div>
