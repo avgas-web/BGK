@@ -314,17 +314,28 @@ export default function WarningPage({ onAccept }: WarningPageProps) {
           </div>
         </motion.div>
 
-        {/* Юридическая информация */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-6 text-center text-xs text-gray/40 font-mono"
-        >
-          <p>ООО «Институт Информационной Гигиены»</p>
-          <p className="mt-1">avgas85@mail.ru</p>
-        </motion.div>
-      </div>
+          {/* Юридическая информация */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="mt-6 text-center text-xs text-gray/40 font-mono"
+          >
+            <p>ООО «Институт Информационной Гигиены»</p>
+            <p className="mt-1">avgas85@mail.ru</p>
+          </motion.div>
+
+          {/* Юридический дисклеймер */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="mt-4 text-center text-[10px] text-gray/30 leading-relaxed max-w-xl mx-auto"
+          >
+            <p>
+              Информация, представленная на данном сайте, носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями статьи 437 ГК РФ. Отправляя сведения через любую электронную форму на этом сайте, вы даете согласие на обработку ваших персональных данных.
+            </p>
+          </motion.div>      </div>
     </div>
   );
 }

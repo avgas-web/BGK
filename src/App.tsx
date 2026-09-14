@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGaslighting, GaslightEffects, ScrambledText } from './components/GaslightEffects';
 import TestPage from './pages/TestPage';
 import WarningPage from './components/WarningPage';
+import Roulette from './components/Roulette';
 import {
   DeniedAction,
   RewrittenHistory,
@@ -100,8 +101,9 @@ function CursorTrail({ enabled }: { enabled: boolean }) {
 
 // ============ MAIN APP ============
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'test'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'test' | 'roulette'>('home');
   const [showWarning, setShowWarning] = useState(true);
+  const [hasAcceptedWarning, setHasAcceptedWarning] = useState(false);
   const [clarityMode, setClarityMode] = useState(false);
   const [gaslightingEnabled, setGaslightingEnabled] = useState(true);
   const [stopWordActive, setStopWordActive] = useState(false);
@@ -203,8 +205,13 @@ export default function App() {
   const effectsActive = gaslightingEnabled && !clarityMode && !stopWordActive;
 
   // Warning page
-  if (showWarning) {
-    return <WarningPage onAccept={() => setShowWarning(false)} />;
+  if (showWarning && !hasAcceptedWarning) {
+    return <WarningPage onAccept={() => { setShowWarning(false); setHasAcceptedWarning(true); }} />;
+  }
+
+  // Roulette page
+  if (currentPage === 'roulette') {
+    return <Roulette onComplete={() => setCurrentPage('home')} />;
   }
 
   // If test page
@@ -345,7 +352,7 @@ export default function App() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
-                onClick={() => setCurrentPage('test')}
+                onClick={() => setCurrentPage('roulette')}
                 className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all"
               >
                 Пройти Калибровку
