@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 // ============================================================
 // SVG-ЛОГОТИП БГК — шлем Базза Газлайтера + три буквы
 // ============================================================
-function BGCLogo() {
+interface BGCLogoProps {
+  rotation?: number;
+}
+
+function BGCLogo({ rotation = 0 }: BGCLogoProps) {
   return (
     <svg
       viewBox="0 0 600 500"
@@ -106,7 +110,7 @@ function BGCLogo() {
       </g>
 
       {/* Три большие буквы БГК */}
-      <g transform="translate(300, 380)">
+      <g transform={`translate(300, 380) rotate(${rotation})`}>
         {/* Б */}
         <text
           x="-130"
@@ -114,7 +118,7 @@ function BGCLogo() {
           fontFamily="Space Grotesk, sans-serif"
           fontSize="110"
           fontWeight="700"
-          fill="#C8FF00"
+          fill="#FF3B3B"
           textAnchor="middle"
           letterSpacing="-2"
         >
@@ -128,7 +132,7 @@ function BGCLogo() {
           fontFamily="Space Grotesk, sans-serif"
           fontSize="110"
           fontWeight="700"
-          fill="#F4F6F8"
+          fill="#FF3B3B"
           textAnchor="middle"
           letterSpacing="-2"
         >
@@ -142,7 +146,7 @@ function BGCLogo() {
           fontFamily="Space Grotesk, sans-serif"
           fontSize="110"
           fontWeight="700"
-          fill="#7B61FF"
+          fill="#FF3B3B"
           textAnchor="middle"
           letterSpacing="-2"
         >
@@ -187,10 +191,30 @@ interface WarningPageProps {
 
 export default function WarningPage({ onAccept }: WarningPageProps) {
   const [checked, setChecked] = useState(false);
-
+  const [rotation, setRotation] = useState(0);
+  const [isShaking, setIsShaking] = useState(false);
+  
+  // Анимация вращения букв
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRotation(prev => {
+        const newRotation = prev + 1;
+        
+        // При достижении 180 градусов (КГБ) запускаем эффект дёрганья
+        if (newRotation % 360 === 180) {
+          setIsShaking(true);
+          setTimeout(() => setIsShaking(false), 500);
+        }
+        
+        return newRotation % 360;
+      });
+    }, 50); // 50ms = 20 FPS, полный оборот за 18 секунд
+    
+    return () => clearInterval(interval);
+  }, []);
+  
   return (
-    <div className="min-h-screen bg-cosmic text-white flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full">
+    <div className={`min-h-screen bg-cosmic text-white flex items-center justify-center p-6 ${isShaking ? 'animate-screen-shake' : ''}`}>      <div className="max-w-2xl w-full">
         {/* Логотип */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -198,7 +222,7 @@ export default function WarningPage({ onAccept }: WarningPageProps) {
           transition={{ duration: 0.8 }}
           className="flex justify-center mb-8"
         >
-          <BGCLogo />
+          <BGCLogo rotation={rotation} />
         </motion.div>
 
         {/* Предупреждение */}
