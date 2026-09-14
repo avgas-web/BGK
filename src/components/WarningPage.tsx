@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 // ============================================================
-// SVG-ЛОГОТИП БГК — шлем Базза Газлайтера + три буквы
+// 3D-ЛОГОТИП БГК — шлем Базза Газлайтера + объёмные 3D буквы
 // ============================================================
 interface BGCLogoProps {
   rotation?: number;
@@ -10,175 +10,283 @@ interface BGCLogoProps {
 
 function BGCLogo({ rotation = 0 }: BGCLogoProps) {
   return (
-    <svg
-      viewBox="0 0 600 500"
-      className="w-full max-w-2xl"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Фоновое свечение */}
-      <defs>
-        <radialGradient id="bgGlow" cx="50%" cy="40%" r="50%">
-          <stop offset="0%" stopColor="#7B61FF" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#070712" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id="helmetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#14141F" />
-          <stop offset="100%" stopColor="#070712" />
-        </linearGradient>
-        <linearGradient id="visorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#7B61FF" stopOpacity="0.8" />
-          <stop offset="50%" stopColor="#C8FF00" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#7B61FF" stopOpacity="0.8" />
-        </linearGradient>
-        <linearGradient id="beamGrad" x1="50%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%" stopColor="#C8FF00" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#C8FF00" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-
-      {/* Фоновое свечение */}
-      <rect width="600" height="500" fill="url(#bgGlow)" />
-
-      {/* Орбитальные круги */}
-      <circle cx="300" cy="180" r="140" stroke="#7B61FF" strokeWidth="1" fill="none" opacity="0.3" />
-      <circle cx="300" cy="180" r="110" stroke="#C8FF00" strokeWidth="0.5" fill="none" opacity="0.4" />
-
-      {/* Луч маяка (идёт вверх от шлема) */}
-      <path
-        d="M 300 80 L 295 20 L 305 20 Z"
-        fill="url(#beamGrad)"
-        opacity="0.7"
-      />
-      <circle cx="300" cy="20" r="4" fill="#C8FF00" opacity="0.9" />
-
-      {/* Шлем Базза Газлайтера */}
-      <g transform="translate(300, 180)">
-        {/* Основа шлема */}
-        <ellipse cx="0" cy="0" rx="80" ry="70" fill="url(#helmetGrad)" stroke="#7B61FF" strokeWidth="2" />
-        
-        {/* Верхняя дуга шлема */}
-        <path
-          d="M -80 0 Q -80 -70 0 -70 Q 80 -70 80 0"
-          fill="#14141F"
-          stroke="#7B61FF"
-          strokeWidth="2"
-        />
-        
-        {/* Визор */}
-        <path
-          d="M -60 -10 Q -60 -40 0 -40 Q 60 -40 60 -10 Q 60 10 0 10 Q -60 10 -60 -10"
-          fill="url(#visorGrad)"
-          stroke="#C8FF00"
-          strokeWidth="1.5"
-          opacity="0.9"
-        />
-        
-        {/* Спираль газлайтинга внутри визора */}
-        <path
-          d="M 0 -25 Q 15 -25 15 -15 Q 15 -5 0 -5 Q -10 -5 -10 -15 Q -10 -22 0 -22 Q 8 -22 8 -15 Q 8 -10 0 -10"
-          fill="none"
-          stroke="#C8FF00"
-          strokeWidth="1.5"
-          opacity="0.8"
-        />
-        
-        {/* Боковые элементы шлема */}
-        <path
-          d="M -80 0 L -95 10 L -85 20"
-          fill="none"
-          stroke="#7B61FF"
-          strokeWidth="2"
-        />
-        <path
-          d="M 80 0 L 95 10 L 85 20"
-          fill="none"
-          stroke="#7B61FF"
-          strokeWidth="2"
-        />
-        
-        {/* Нижняя часть шлема */}
-        <path
-          d="M -50 30 Q 0 50 50 30"
-          fill="none"
-          stroke="#7B61FF"
-          strokeWidth="1.5"
-          opacity="0.6"
-        />
-        
-        {/* Индикатор на шлеме */}
-        <circle cx="0" cy="35" r="3" fill="#C8FF00" />
-      </g>
-
-      {/* Три большие буквы БГК */}
-      <g transform={`translate(300, 380) rotate(${rotation})`}>
-        {/* Б */}
-        <text
-          x="-130"
-          y="0"
-          fontFamily="Space Grotesk, sans-serif"
-          fontSize="110"
-          fontWeight="700"
-          fill="#FF3B3B"
-          textAnchor="middle"
-          letterSpacing="-2"
-        >
-          Б
-        </text>
-        
-        {/* Г */}
-        <text
-          x="0"
-          y="0"
-          fontFamily="Space Grotesk, sans-serif"
-          fontSize="110"
-          fontWeight="700"
-          fill="#FF3B3B"
-          textAnchor="middle"
-          letterSpacing="-2"
-        >
-          Г
-        </text>
-        
-        {/* К */}
-        <text
-          x="130"
-          y="0"
-          fontFamily="Space Grotesk, sans-serif"
-          fontSize="110"
-          fontWeight="700"
-          fill="#FF3B3B"
-          textAnchor="middle"
-          letterSpacing="-2"
-        >
-          К
-        </text>
-      </g>
-
-      {/* Подпись */}
-      <text
-        x="300"
-        y="450"
-        fontFamily="JetBrains Mono, monospace"
-        fontSize="11"
-        fill="#A7A9B8"
-        textAnchor="middle"
-        letterSpacing="3"
+    <div className="w-full max-w-2xl relative">
+      {/* SVG-часть с шлемом */}
+      <svg
+        viewBox="0 0 600 350"
+        className="w-full"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        БАЗЗ ГАЗЛАЙТЕР КЛАБ
-      </text>
-      <text
-        x="300"
-        y="470"
-        fontFamily="JetBrains Mono, monospace"
-        fontSize="9"
-        fill="#A7A9B8"
-        textAnchor="middle"
-        letterSpacing="2"
-        opacity="0.7"
+        {/* Фоновое свечение */}
+        <defs>
+          <radialGradient id="bgGlow" cx="50%" cy="40%" r="50%">
+            <stop offset="0%" stopColor="#7B61FF" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#070712" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="helmetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#14141F" />
+            <stop offset="100%" stopColor="#070712" />
+          </linearGradient>
+          <linearGradient id="visorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#7B61FF" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#C8FF00" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#7B61FF" stopOpacity="0.8" />
+          </linearGradient>
+          <linearGradient id="beamGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stopColor="#C8FF00" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#C8FF00" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        {/* Фоновое свечение */}
+        <rect width="600" height="350" fill="url(#bgGlow)" />
+
+        {/* Орбитальные круги */}
+        <circle cx="300" cy="180" r="140" stroke="#7B61FF" strokeWidth="1" fill="none" opacity="0.3" />
+        <circle cx="300" cy="180" r="110" stroke="#C8FF00" strokeWidth="0.5" fill="none" opacity="0.4" />
+
+        {/* Луч маяка (идёт вверх от шлема) */}
+        <path
+          d="M 300 80 L 295 20 L 305 20 Z"
+          fill="url(#beamGrad)"
+          opacity="0.7"
+        />
+        <circle cx="300" cy="20" r="4" fill="#C8FF00" opacity="0.9" />
+
+        {/* Шлем Базза Газлайтера */}
+        <g transform="translate(300, 180)">
+          {/* Основа шлема */}
+          <ellipse cx="0" cy="0" rx="80" ry="70" fill="url(#helmetGrad)" stroke="#7B61FF" strokeWidth="2" />
+          
+          {/* Верхняя дуга шлема */}
+          <path
+            d="M -80 0 Q -80 -70 0 -70 Q 80 -70 80 0"
+            fill="#14141F"
+            stroke="#7B61FF"
+            strokeWidth="2"
+          />
+          
+          {/* Визор */}
+          <path
+            d="M -60 -10 Q -60 -40 0 -40 Q 60 -40 60 -10 Q 60 10 0 10 Q -60 10 -60 -10"
+            fill="url(#visorGrad)"
+            stroke="#C8FF00"
+            strokeWidth="1.5"
+            opacity="0.9"
+          />
+          
+          {/* Спираль газлайтинга внутри визора */}
+          <path
+            d="M 0 -25 Q 15 -25 15 -15 Q 15 -5 0 -5 Q -10 -5 -10 -15 Q -10 -22 0 -22 Q 8 -22 8 -15 Q 8 -10 0 -10"
+            fill="none"
+            stroke="#C8FF00"
+            strokeWidth="1.5"
+            opacity="0.8"
+          />
+          
+          {/* Боковые элементы шлема */}
+          <path
+            d="M -80 0 L -95 10 L -85 20"
+            fill="none"
+            stroke="#7B61FF"
+            strokeWidth="2"
+          />
+          <path
+            d="M 80 0 L 95 10 L 85 20"
+            fill="none"
+            stroke="#7B61FF"
+            strokeWidth="2"
+          />
+          
+          {/* Нижняя часть шлема */}
+          <path
+            d="M -50 30 Q 0 50 50 30"
+            fill="none"
+            stroke="#7B61FF"
+            strokeWidth="1.5"
+            opacity="0.6"
+          />
+          
+          {/* Индикатор на шлеме */}
+          <circle cx="0" cy="35" r="3" fill="#C8FF00" />
+        </g>
+
+        {/* Подпись */}
+        <text
+          x="300"
+          y="320"
+          fontFamily="JetBrains Mono, monospace"
+          fontSize="11"
+          fill="#A7A9B8"
+          textAnchor="middle"
+          letterSpacing="3"
+        >
+          БАЗЗ ГАЗЛАЙТЕР КЛАБ
+        </text>
+        <text
+          x="300"
+          y="340"
+          fontFamily="JetBrains Mono, monospace"
+          fontSize="9"
+          fill="#A7A9B8"
+          textAnchor="middle"
+          letterSpacing="2"
+          opacity="0.7"
+        >
+          ИНСТИТУТ ИНФОРМАЦИОННОЙ ГИГИЕНЫ
+        </text>
+      </svg>
+
+      {/* 3D буквы БГК */}
+      <div 
+        className="flex justify-center items-center gap-8 mt-8"
+        style={{
+          perspective: '1000px',
+          perspectiveOrigin: 'center center',
+        }}
       >
-        ИНСТИТУТ ИНФОРМАЦИОННОЙ ГИГИЕНЫ
-      </text>
-    </svg>
+        <div
+          className="relative"
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: `rotateY(${rotation}deg)`,
+            transition: 'transform 0.05s linear',
+          }}
+        >
+          {/* Б */}
+          <div className="relative">
+            {/* Задняя грань */}
+            <div
+              className="absolute inset-0 font-heading text-[110px] font-bold text-center"
+              style={{
+                color: '#8B0000',
+                transform: 'translateZ(-20px)',
+                textShadow: '0 0 10px rgba(139, 0, 0, 0.5)',
+              }}
+            >
+              Б
+            </div>
+            {/* Боковые грани (имитация объёма) */}
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute inset-0 font-heading text-[110px] font-bold text-center"
+                style={{
+                  color: `rgb(${139 + i * 5}, ${i * 2}, ${i * 2})`,
+                  transform: `translateZ(${-20 + i}px)`,
+                  opacity: 0.3,
+                }}
+              >
+                Б
+              </div>
+            ))}
+            {/* Передняя грань */}
+            <div
+              className="relative font-heading text-[110px] font-bold text-center"
+              style={{
+                color: '#FF3B3B',
+                transform: 'translateZ(0px)',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+              }}
+            >
+              Б
+            </div>
+          </div>
+        </div>
+
+        <div
+          className="relative"
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: `rotateY(${rotation}deg)`,
+            transition: 'transform 0.05s linear',
+          }}
+        >
+          {/* Г */}
+          <div className="relative">
+            <div
+              className="absolute inset-0 font-heading text-[110px] font-bold text-center"
+              style={{
+                color: '#8B0000',
+                transform: 'translateZ(-20px)',
+                textShadow: '0 0 10px rgba(139, 0, 0, 0.5)',
+              }}
+            >
+              Г
+            </div>
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute inset-0 font-heading text-[110px] font-bold text-center"
+                style={{
+                  color: `rgb(${139 + i * 5}, ${i * 2}, ${i * 2})`,
+                  transform: `translateZ(${-20 + i}px)`,
+                  opacity: 0.3,
+                }}
+              >
+                Г
+              </div>
+            ))}
+            <div
+              className="relative font-heading text-[110px] font-bold text-center"
+              style={{
+                color: '#FF3B3B',
+                transform: 'translateZ(0px)',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+              }}
+            >
+              Г
+            </div>
+          </div>
+        </div>
+
+        <div
+          className="relative"
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: `rotateY(${rotation}deg)`,
+            transition: 'transform 0.05s linear',
+          }}
+        >
+          {/* К */}
+          <div className="relative">
+            <div
+              className="absolute inset-0 font-heading text-[110px] font-bold text-center"
+              style={{
+                color: '#8B0000',
+                transform: 'translateZ(-20px)',
+                textShadow: '0 0 10px rgba(139, 0, 0, 0.5)',
+              }}
+            >
+              К
+            </div>
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute inset-0 font-heading text-[110px] font-bold text-center"
+                style={{
+                  color: `rgb(${139 + i * 5}, ${i * 2}, ${i * 2})`,
+                  transform: `translateZ(${-20 + i}px)`,
+                  opacity: 0.3,
+                }}
+              >
+                К
+              </div>
+            ))}
+            <div
+              className="relative font-heading text-[110px] font-bold text-center"
+              style={{
+                color: '#FF3B3B',
+                transform: 'translateZ(0px)',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+              }}
+            >
+              К
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -214,7 +322,8 @@ export default function WarningPage({ onAccept }: WarningPageProps) {
   }, []);
   
   return (
-    <div className={`min-h-screen bg-cosmic text-white flex items-center justify-center p-6 ${isShaking ? 'animate-screen-shake' : ''}`}>      <div className="max-w-2xl w-full">
+    <div className={`min-h-screen bg-cosmic text-white flex items-center justify-center p-6 ${isShaking ? 'animate-screen-shake' : ''}`}>
+      <div className="max-w-2xl w-full">
         {/* Логотип */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -338,28 +447,29 @@ export default function WarningPage({ onAccept }: WarningPageProps) {
           </div>
         </motion.div>
 
-          {/* Юридическая информация */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-6 text-center text-xs text-gray/40 font-mono"
-          >
-            <p>ООО «Институт Информационной Гигиены»</p>
-            <p className="mt-1">avgas85@mail.ru</p>
-          </motion.div>
+        {/* Юридическая информация */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="mt-6 text-center text-xs text-gray/40 font-mono"
+        >
+          <p>ООО «Институт Информационной Гигиены»</p>
+          <p className="mt-1">avgas85@mail.ru</p>
+        </motion.div>
 
-          {/* Юридический дисклеймер */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="mt-4 text-center text-[10px] text-gray/30 leading-relaxed max-w-xl mx-auto"
-          >
-            <p>
-              Информация, представленная на данном сайте, носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями статьи 437 ГК РФ. Отправляя сведения через любую электронную форму на этом сайте, вы даете согласие на обработку ваших персональных данных.
-            </p>
-          </motion.div>      </div>
+        {/* Юридический дисклеймер */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="mt-4 text-center text-[10px] text-gray/30 leading-relaxed max-w-xl mx-auto"
+        >
+          <p>
+            Информация, представленная на данном сайте, носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями статьи 437 ГК РФ. Отправляя сведения через любую электронную форму на этом сайте, вы даете согласие на обработку ваших персональных данных.
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
 }

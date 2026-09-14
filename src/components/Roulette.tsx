@@ -12,12 +12,12 @@ export default function Roulette({ onComplete }: RouletteProps) {
   const [showComment, setShowComment] = useState(false);
 
   const segments = [
-    { label: 'Скидка 90%', color: '#C8FF00' },
-    { label: 'Скидка 50%', color: '#7B61FF' },
-    { label: 'Скидка 25%', color: '#FF6B35' },
-    { label: 'Скидка 10%', color: '#A7A9B8' },
-    { label: 'Скидка 5%', color: '#F4F6F8' },
-    { label: 'Без скидки', color: '#14141F' },
+    { label: 'Скидка 90%', fullName: 'Скидка 90% на Калибровку', color: '#C8FF00' },
+    { label: 'Скидка 50%', fullName: 'Скидка 50% на курс "Маяк"', color: '#7B61FF' },
+    { label: 'Скидка 25%', fullName: 'Скидка 25% на "Год на орбите"', color: '#FF6B35' },
+    { label: 'Скидка 10%', fullName: 'Скидка 10% на сертификацию', color: '#A7A9B8' },
+    { label: 'Скидка 5%', fullName: 'Скидка 5% на корпоративный интенсив', color: '#F4F6F8' },
+    { label: 'Без скидки', fullName: 'Без скидки (но вы всё равно молодец)', color: '#14141F' },
   ];
 
   const spinRoulette = () => {
@@ -36,7 +36,7 @@ export default function Roulette({ onComplete }: RouletteProps) {
 
     setTimeout(() => {
       setIsSpinning(false);
-      setResult(segments[winningIndex].label);
+      setResult(segments[winningIndex].fullName);
       setTimeout(() => setShowComment(true), 1000);
     }, 4000);
   };
