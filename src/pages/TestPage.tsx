@@ -212,13 +212,29 @@ const questions: Question[] = [
   },
 ];
 
+// Дополнительные вопросы (16-40) - дубликаты с вариациями
+const additionalQuestions: Question[] = Array.from({ length: 25 }, (_, i) => ({
+  id: 16 + i,
+  question: `Дополнительный вопрос ${i + 1}. Вы уверены в своём ответе?`,
+  options: ['Да', 'Нет', 'Не знаю', 'Это неважно'],
+  gaslight: { type: 'memory', data: { hint: `Вы уже отвечали на похожий вопрос. Или нет?` } },
+  alternatives: [
+    { question: `Вариант A вопроса ${i + 1}`, options: ['Первый', 'Второй', 'Третий', 'Не помню'], correct: Math.floor(Math.random() * 4) },
+    { question: `Вариант B вопроса ${i + 1}`, options: ['Да', 'Нет', 'Может быть', 'Не уверен'], correct: Math.floor(Math.random() * 4) },
+    { question: `Вариант C вопроса ${i + 1}`, options: ['Всё верно', 'Всё неверно', 'Частично', 'Не знаю'], correct: Math.floor(Math.random() * 4) },
+  ]
+}));
+
+const allQuestionsFinal: Question[] = [...questions, ...additionalQuestions];
+
 export default function TestPage() {
   const [gaslightingEnabled, setGaslightingEnabled] = useState(true);
   const [clarityMode, setClarityMode] = useState(false);
   const [stopWordActive, setStopWordActive] = useState(false);
   const [stopInput, setStopInput] = useState('');
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<(number | null)[]>(Array(questions.length).fill(null));
+  const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<(number | null)[]>(Array(15).fill(null));
   const [showResult, setShowResult] = useState(false);
   const [testStarted, setTestStarted] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
@@ -265,8 +281,8 @@ export default function TestPage() {
   useEffect(() => {
     if (!gaslightingEnabled || clarityMode || !testStarted) return;
     
-    const q = questions[currentQuestion];
-    if (!q.gaslight) return;
+    const q = selectedQuestions[currentQuestion];
+    if (!q || !q.gaslight) return;
 
     const timers: ReturnType<typeof setTimeout>[] = [];
 
@@ -419,16 +435,22 @@ export default function TestPage() {
     setAnswers(newAnswers);
     
     // Deny gaslight
-    if (gaslightingEnabled && !clarityMode && questions[currentQuestion].gaslight?.type === 'deny') {
+    if (gaslightingEnabled && !clarityMode && selectedQuestions[currentQuestion]?.gaslight?.type === 'deny') {
       setTimeout(() => {
-        setShowDenyMessage(questions[currentQuestion].gaslight?.data?.message || '');
+        setShowDenyMessage(selectedQuestions[currentQuestion].gaslight?.data?.message || '');
         setTimeout(() => setShowDenyMessage(null), 3000);
       }, 1000);
     }
   };
 
   const nextQuestion = () => {
-    if (currentQuestion < questions.length - 1) {
+    // 15% шанс краша в середине теста (не на первом и не на последнем вопросе)
+    if (currentQuestion > 2 && currentQuestion < selectedQuestions.length - 2 && Math.random() < 0.15) {
+      setTestCrashed(true);
+      return;
+    }
+    
+    if (currentQuestion < selectedQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setQuestionTextOverride(null);
       setOptionsOverride(null);
@@ -441,8 +463,16 @@ export default function TestPage() {
     }
   };
 
+  const [showCheatAccusation, setShowCheatAccusation] = useState(false);
+
   const prevQuestion = () => {
     if (currentQuestion > 0) {
+      // Обвинение в нечестной сдаче теста
+      if (gaslightingEnabled && !clarityMode && Math.random() < 0.7) {
+        setShowCheatAccusation(true);
+        setTimeout(() => setShowCheatAccusation(false), 3000);
+      }
+      
       setCurrentQuestion(currentQuestion - 1);
       setQuestionTextOverride(null);
       setOptionsOverride(null);
@@ -455,6 +485,11 @@ export default function TestPage() {
 
   const startTest = () => {
     setShowIntro(false);
+    
+    // Выбираем 15 случайных вопросов из 40
+    const shuffled = [...allQuestionsFinal].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, 15);
+    setSelectedQuestions(selected);
     
     // 25% шанс краша теста
     if (Math.random() < 0.25) {
@@ -476,11 +511,11 @@ export default function TestPage() {
   };
 
   const containerClass = clarityMode ? 'clarity-mode' : '';
-  const currentQ = questions[currentQuestion];
-  const displayQuestion = questionTextOverride || currentQ.question;
-  const displayOptions = optionsOverride || currentQ.options;
+  const currentQ = selectedQuestions[currentQuestion];
+  const displayQuestion = questionTextOverride || currentQ?.question || '';
+  const displayOptions = optionsOverride || currentQ?.options || [];
 
-  const correctAnswers = answers.filter((a, i) => a === questions[i].correct).length;
+  const correctAnswers = answers.filter((a, i) => a === selectedQuestions[i]?.correct).length;
   const answeredCount = answers.filter(a => a !== null).length;
 
   return (
@@ -629,16 +664,16 @@ export default function TestPage() {
               {/* Progress */}
               <div className="flex items-center justify-between mb-8">
                 <div className="font-mono text-xs text-gray">
-                  Вопрос {currentQuestion + 1} / {questions.length}
+                  Вопрос {currentQuestion + 1} / {selectedQuestions.length}
                 </div>
                 <div className="flex-1 mx-4 h-1 bg-graphite rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-purple to-lime transition-all duration-500"
-                    style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+                    style={{ width: `${((currentQuestion + 1) / selectedQuestions.length) * 100}%` }}
                   />
                 </div>
                 <div className="font-mono text-xs text-gray">
-                  {Math.round(((currentQuestion + 1) / questions.length) * 100)}%
+                  {Math.round(((currentQuestion + 1) / selectedQuestions.length) * 100)}%
                 </div>
               </div>
 
@@ -701,9 +736,24 @@ export default function TestPage() {
                   disabled={answers[currentQuestion] === null}
                   className="bg-lime/10 border border-lime/30 text-lime px-6 py-2 rounded-full text-sm hover:bg-lime/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  {currentQuestion === questions.length - 1 ? 'Завершить' : 'Далее →'}
+                  {currentQuestion === selectedQuestions.length - 1 ? 'Завершить' : 'Далее →'}
                 </button>
               </div>
+
+              {/* Cheat accusation */}
+              <AnimatePresence>
+                {showCheatAccusation && !clarityMode && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="mt-6 glass rounded-lg p-4 border-l-2 border-red/50"
+                  >
+                    <div className="font-mono text-xs text-red mb-1">ОБВИНЕНИЕ:</div>
+                    <p className="text-sm text-gray">Попытка возврата к предыдущему вопросу. Это нечестная сдача теста. Вы пытаетесь подсмотреть ответы?</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Gaslight hints */}
               <AnimatePresence>
@@ -880,7 +930,7 @@ export default function TestPage() {
                 <button
                   onClick={() => {
                     setCurrentQuestion(0);
-                    setAnswers(Array(questions.length).fill(null));
+                    setAnswers(Array(selectedQuestions.length).fill(null));
                     setShowResult(false);
                     setTestStarted(true);
                     setQuestionTextOverride(null);
