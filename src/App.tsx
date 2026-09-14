@@ -4,6 +4,7 @@ import { useGaslighting, GaslightEffects, ScrambledText } from './components/Gas
 import TestPage from './pages/TestPage';
 import WarningPage from './components/WarningPage';
 import Roulette from './components/Roulette';
+import SafeZoneButton from './components/SafeZoneButton';
 import {
   DeniedAction,
   RewrittenHistory,
@@ -73,8 +74,18 @@ function ScrollProgress({ direction }: { direction: 'forward' | 'backward' }) {
 // ============ CURSOR TRAIL ============
 function CursorTrail({ enabled }: { enabled: boolean }) {
   const [trails, setTrails] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+  
   useEffect(() => {
-    if (!enabled) return;
+    // Отключаем на мобильных устройствах
+    const checkMobile = () => {
+      setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
+    checkMobile();
+  }, []);
+  
+  useEffect(() => {
+    if (!enabled || isMobile) return;
     let id = 0;
     const handleMove = (e: MouseEvent) => {
       if (Math.random() > 0.85) {
@@ -83,7 +94,7 @@ function CursorTrail({ enabled }: { enabled: boolean }) {
     };
     document.addEventListener('mousemove', handleMove);
     return () => document.removeEventListener('mousemove', handleMove);
-  }, [enabled]);
+  }, [enabled, isMobile]);
   useEffect(() => {
     if (trails.length === 0) return;
     const timer = setTimeout(() => setTrails(prev => prev.slice(1)), 1000);
@@ -296,13 +307,6 @@ export default function App() {
             <a href="#faq" className="hover:text-lime transition-colors">FAQ</a>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => { setClarityMode(!clarityMode); if (!clarityMode) setGaslightingEnabled(false); else setGaslightingEnabled(true); }}
-              className="hidden md:block glass rounded-full px-3 py-1.5 text-xs font-mono text-gray hover:text-lime transition-colors"
-              title="Переключить режим отображения"
-            >
-              {clarityMode ? '✦ Спектакль' : '◎ Ясность'}
-            </button>
             <button 
               onClick={() => setCurrentPage('test')}
               className="bg-lime/10 border border-lime/30 text-lime px-4 py-2 rounded-full text-sm font-heading hover:bg-lime/20 transition-colors"
@@ -713,7 +717,13 @@ export default function App() {
             <div className="font-mono text-xs text-purple mb-4 tracking-widest">ОТЗЫВЫ</div>
             <h2 className="font-heading text-3xl md:text-4xl font-bold mb-12">Они прошли Калибровку</h2>
           </motion.div>
-          <div className="grid md:grid-cols-3 gap-6" onMouseEnter={() => setReviewsHovered(true)} onMouseLeave={() => setReviewsHovered(false)}>
+          <div 
+            className="grid md:grid-cols-3 gap-6" 
+            onMouseEnter={() => setReviewsHovered(true)} 
+            onMouseLeave={() => setReviewsHovered(false)}
+            onTouchStart={() => setReviewsHovered(true)}
+            onTouchEnd={() => setTimeout(() => setReviewsHovered(false), 2000)}
+          >
             {reviews.map((review, i) => (
               <motion.div
                 key={`${review.name}-${i}`}
@@ -982,6 +992,16 @@ export default function App() {
       <ScaryLockScreen enabled={effectsActive} />
       <ScreenCracks enabled={effectsActive} />
       <BSOD enabled={effectsActive} />
+
+      {/* Safe Zone Button */}
+      <SafeZoneButton
+        clarityMode={clarityMode}
+        onToggle={() => {
+          setClarityMode(!clarityMode);
+          if (!clarityMode) setGaslightingEnabled(false);
+          else setGaslightingEnabled(true);
+        }}
+      />
 
       {/* MODALS */}
       <AnimatePresence>
