@@ -290,6 +290,7 @@ export default function App() {
             <a href="#method" className="hover:text-lime transition-colors">Метод</a>
             <a href="#products" className="hover:text-lime transition-colors">Продукты</a>
             <button onClick={() => setCurrentPage('test')} className="hover:text-lime transition-colors">Тест</button>
+            <button onClick={() => setCurrentPage('roulette')} className="hover:text-orange transition-colors">🎰 Рулетка</button>
             <a href="#b2b" className="hover:text-lime transition-colors">B2B</a>
             <a href="#team" className="hover:text-lime transition-colors">Команда</a>
             <a href="#faq" className="hover:text-lime transition-colors">FAQ</a>
@@ -306,7 +307,13 @@ export default function App() {
               onClick={() => setCurrentPage('test')}
               className="bg-lime/10 border border-lime/30 text-lime px-4 py-2 rounded-full text-sm font-heading hover:bg-lime/20 transition-colors"
             >
-              Пройти тест
+              Тест
+            </button>
+            <button 
+              onClick={() => setCurrentPage('roulette')}
+              className="bg-orange/10 border border-orange/30 text-orange px-4 py-2 rounded-full text-sm font-heading hover:bg-orange/20 transition-colors"
+            >
+              🎰 Рулетка
             </button>
           </div>
         </div>
@@ -352,10 +359,16 @@ export default function App() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
-                onClick={() => setCurrentPage('roulette')}
+                onClick={() => setCurrentPage('test')}
                 className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all"
               >
-                Пройти Калибровку
+                Пройти тест
+              </button>
+              <button 
+                onClick={() => setCurrentPage('roulette')}
+                className="bg-orange text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all"
+              >
+                🎰 Испытать удачу
               </button>
               <button
                 onClick={() => setCurrentPage('test')}
@@ -364,12 +377,20 @@ export default function App() {
                 Я уже проходил
               </button>
             </div>
-            <button
-              onClick={() => setCurrentPage('test')}
-              className="mt-6 text-sm text-gray hover:text-lime transition-colors underline"
-            >
-              Или пройдите тест на подверженность газлайтингу →
-            </button>
+            <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center text-sm">
+              <button
+                onClick={() => setCurrentPage('test')}
+                className="text-gray hover:text-lime transition-colors underline"
+              >
+                Тест на подверженность газлайтингу →
+              </button>
+              <button
+                onClick={() => setCurrentPage('roulette')}
+                className="text-gray hover:text-orange transition-colors underline"
+              >
+                Рулетка «Выиграй скидку» →
+              </button>
+            </div>
           </motion.div>
         </div>
 
@@ -588,6 +609,48 @@ export default function App() {
               {effectsActive ? gaslight.buttonText : 'Записаться на Калибровку'}
             </button>
           </div>
+        </div>
+      </section>
+
+      {/* ROULETTE PROMO */}
+      <section id="roulette" className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-orange/10 animate-spin" style={{ animationDuration: '30s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-lime/10 animate-spin" style={{ animationDuration: '20s', animationDirection: 'reverse' }} />
+        </div>
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="font-mono text-xs text-orange mb-4 tracking-widest">ИСПЫТАЙТЕ УДАЧУ</div>
+            <h2 className="font-heading text-3xl md:text-5xl font-bold mb-6">
+              🎰 Рулетка «Выиграй скидку»
+            </h2>
+            <p className="text-gray text-lg max-w-2xl mx-auto mb-8">
+              Крутите колесо фортуны и получите скидку до 90% на Калибровку. 
+              Или не получите. Или получите, но цена останется прежней. 
+              Кто знает? Попробуйте — и увидите сами.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => setCurrentPage('roulette')}
+                className="bg-orange text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:animate-pulse-glow transition-all"
+              >
+                🎰 Крутить рулетку
+              </button>
+              <button
+                onClick={() => setCurrentPage('test')}
+                className="border border-purple/40 text-purple px-8 py-4 rounded-full font-heading text-lg hover:bg-purple/10 transition-colors"
+              >
+                Пройти тест
+              </button>
+            </div>
+            <p className="text-xs text-gray/50 mt-6 font-mono">
+              * Это демонстрация газлайтинга. Никто ничем не рискует.
+            </p>
+          </motion.div>
         </div>
       </section>
 
@@ -853,6 +916,7 @@ export default function App() {
                 <li><a href="#" className="hover:text-lime transition-colors">Год на орбите</a></li>
                 <li><a href="#" className="hover:text-lime transition-colors">Маяк (курс)</a></li>
                 <li><a href="#" className="hover:text-lime transition-colors">Маяк (приложение)</a></li>
+                <li><button onClick={() => setCurrentPage('roulette')} className="hover:text-orange transition-colors text-left">🎰 Рулетка</button></li>
               </ul>
             </div>
             <div>
