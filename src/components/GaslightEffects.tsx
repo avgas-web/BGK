@@ -270,6 +270,11 @@ export function useGaslighting(enabled: boolean) {
   // === EXIT INTENT ===
   useEffect(() => {
     if (!enabled) return;
+    
+    // Отключаем на мобильных устройствах
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) return;
+    
     let shown = false;
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 0 && !shown) {

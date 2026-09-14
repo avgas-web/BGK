@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGaslighting, GaslightEffects, ScrambledText } from '../components/GaslightEffects';
 import { InternetBlame } from '../components/GaslightPatterns';
 import { BSOD } from '../components/ScaryEffects';
+import TestDebrief, { type Manipulation } from '../components/TestDebrief';
 
 // ============================================================
 // ДИНАМИЧЕСКИЕ ВОПРОСЫ — меняются в процессе ответов
@@ -738,6 +739,8 @@ export default function TestPage() {
   const [internetBlameCount, setInternetBlameCount] = useState(0);
   const [testCrashed, setTestCrashed] = useState(false);
   const [showBSOD, setShowBSOD] = useState(false);
+  const [manipulations, setManipulations] = useState<Manipulation[]>([]);
+  const [showDebrief, setShowDebrief] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
@@ -930,9 +933,60 @@ export default function TestPage() {
     }
   };
 
+  // Функция для отслеживания манипуляций
+  const trackManipulation = (type: string, name: string, description: string, wikiLink: string) => {
+    setManipulations(prev => {
+      const existing = prev.find(m => m.type === type);
+      if (existing) {
+        return prev.map(m => m.type === type ? { ...m, count: m.count + 1 } : m);
+      }
+      return [...prev, { type, name, description, count: 1, wikiLink }];
+    });
+  };
+
   const nextQuestion = () => {
-    // 15% шанс краша в середине теста (не на первом и не на последнем вопросе)
+    // Отслеживаем манипуляции
+    if (questionRewritten) {
+      trackManipulation(
+        'question_rewrite',
+        'Переписывание вопроса',
+        'Вопрос изменился после вашего ответа, заставив усомниться в памяти',
+        'https://ru.wikipedia.org/wiki/Газлайтинг'
+      );
+    }
+    if (answerChanged) {
+      trackManipulation(
+        'answer_change',
+        'Изменение ответа',
+        'Ваш ответ был изменён без вашего ведома',
+        'https://ru.wikipedia.org/wiki/Когнитивное_искажение'
+      );
+    }
+    if (showMemoryMessage) {
+      trackManipulation(
+        'memory_manipulation',
+        'Манипуляция памятью',
+        'Вам внушали ложные воспоминания о событиях, которых не было',
+        'https://ru.wikipedia.org/wiki/Ложные_воспоминания'
+      );
+    }
+    if (showDenyMessage) {
+      trackManipulation(
+        'denial',
+        'Отрицание реальности',
+        'Вам говорили, что вы ошибаетесь или неправильно понимаете',
+        'https://ru.wikipedia.org/wiki/Газлайтинг'
+      );
+    }
+
+    // 3% шанс краша в середине теста (не на первом и не на последнем вопросе)
     if (currentQuestion > 2 && currentQuestion < selectedQuestions.length - 2 && Math.random() < 0.03) {
+      trackManipulation(
+        'test_crash',
+        'Краш теста',
+        'Тест "сломался", заставив вас начать заново и усомниться в своих силах',
+        'https://ru.wikipedia.org/wiki/Техническая_манипуляция'
+      );
       setTestCrashed(true);
       return;
     }
@@ -947,6 +1001,7 @@ export default function TestPage() {
       setQuestionRewritten(false);
     } else {
       setShowResult(true);
+      setShowDebrief(true);
     }
   };
 
@@ -1288,9 +1343,24 @@ export default function TestPage() {
           )}
         </AnimatePresence>
 
-        {/* Result */}
+        {/* Result / Debrief */}
         <AnimatePresence>
-          {showResult && (
+          {showResult && showDebrief && (
+            <TestDebrief
+              manipulations={manipulations}
+              onBackToHome={() => window.location.href = './'}
+              onRetakeTest={() => {
+                setCurrentQuestion(0);
+                setAnswers(Array(selectedQuestions.length).fill(null));
+                setShowResult(false);
+                setShowDebrief(false);
+                setTestStarted(false);
+                setShowIntro(true);
+                setManipulations([]);
+              }}
+            />
+          )}
+          {showResult && !showDebrief && (
             <motion.div
               key="result"
               initial={{ opacity: 0, y: 20 }}
