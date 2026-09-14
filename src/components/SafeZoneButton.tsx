@@ -34,7 +34,7 @@ export default function SafeZoneButton({ clarityMode, onToggle }: SafeZoneButton
               className="absolute bottom-16 left-0 bg-graphite/95 backdrop-blur border border-lime/30 rounded-lg px-4 py-3 min-w-[200px] shadow-lg"
             >
               <div className="text-xs text-lime font-mono mb-1">
-                {clarityMode ? 'РЕЖИМ ЯСНОСТИ АКТИВЕН' : 'НУЖНО ПЕРЕДЫШАТЬ?'}
+                {clarityMode ? 'РЕЖИМ ЯСНОСТИ АКТИВЕН' : 'УСТАЛИ?'}
               </div>
               <p className="text-xs text-gray">
                 {clarityMode 
