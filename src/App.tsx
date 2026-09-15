@@ -49,7 +49,15 @@ function ScrollProgress({ direction }: { direction: 'forward' | 'backward' }) {
 }
 
 // Home page content
-function HomePage({ gaslight, effectsActive }: { gaslight: any; effectsActive: boolean }) {
+function HomePage({ 
+  gaslight, 
+  effectsActive,
+  onNavigate 
+}: { 
+  gaslight: any; 
+  effectsActive: boolean;
+  onNavigate: (page: string) => void;
+}) {
   return (
     <>
       <ScrollProgress direction={effectsActive ? gaslight.scrollDirection : 'forward'} />
@@ -70,12 +78,18 @@ function HomePage({ gaslight, effectsActive }: { gaslight: any; effectsActive: b
               Иммерсивная платформа критического мышления. Научись видеть манипуляцию — и обезвредить её за десять секунд.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="#test" className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg">
+              <button 
+                onClick={() => onNavigate('test')}
+                className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:scale-105 transition-transform"
+              >
                 Пройти тест
-              </a>
-              <a href="#roulette" className="bg-orange text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg">
+              </button>
+              <button 
+                onClick={() => onNavigate('roulette')}
+                className="bg-orange text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:scale-105 transition-transform"
+              >
                 🎰 Испытать удачу
-              </a>
+              </button>
             </div>
           </motion.div>
         </div>
@@ -194,7 +208,7 @@ export default function App() {
       case 'ethics':
         return <EthicsPage />;
       default:
-        return <HomePage gaslight={gaslight} effectsActive={effectsActive} />;
+        return <HomePage gaslight={gaslight} effectsActive={effectsActive} onNavigate={handleNavigate} />;
     }
   };
 

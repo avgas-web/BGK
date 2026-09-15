@@ -26,6 +26,7 @@ export function useGaslighting(enabled: boolean) {
     fakeLoader: false,
     textScrambleActive: false,
     invertedColors: false,
+    falseUrgencyTimer: null as number | null,
   });
 
   const timersRef = useRef<number[]>([]);
@@ -38,13 +39,11 @@ export function useGaslighting(enabled: boolean) {
       isVisibleRef.current = document.visibilityState === 'visible';
       
       if (!isVisibleRef.current) {
-        // Очищаем все таймеры при скрытии вкладки
         timersRef.current.forEach(clearTimeout);
         intervalsRef.current.forEach(clearInterval);
         timersRef.current = [];
         intervalsRef.current = [];
       } else if (enabled) {
-        // Перезапускаем эффекты при возврате
         initializeEffects();
       }
     };
@@ -221,13 +220,21 @@ export function useGaslighting(enabled: boolean) {
         setTimeout(() => setEffects(prev => ({ ...prev, invertedColors: false })), 200);
       }
     }, timings.invertedColors.interval * capabilities.slowdownFactor));
+
+    // False urgency timer
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.7) {
+        const timerValue = timings.falseUrgency.start - Math.floor(Math.random() * timings.falseUrgency.start);
+        setEffects(prev => ({ ...prev, falseUrgencyTimer: timerValue }));
+        setTimeout(() => setEffects(prev => ({ ...prev, falseUrgencyTimer: null })), 5000);
+      }
+    }, 15000 * capabilities.slowdownFactor));
   };
 
   useEffect(() => {
     if (enabled) {
       initializeEffects();
     } else {
-      // Reset all effects
       setEffects({
         showWelcome: false,
         showCookie: false,
@@ -251,6 +258,7 @@ export function useGaslighting(enabled: boolean) {
         fakeLoader: false,
         textScrambleActive: false,
         invertedColors: false,
+        falseUrgencyTimer: null,
       });
     }
 
@@ -371,6 +379,16 @@ export function GaslightEffects({ effects }: { effects: ReturnType<typeof useGas
       {effects.whisper && (
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[9993]" role="status" aria-live="polite">
           <span className="font-mono text-2xl text-purple animate-whisper">{effects.whisper}</span>
+        </div>
+      )}
+
+      {/* False urgency timer */}
+      {effects.falseUrgencyTimer !== null && (
+        <div className="fixed top-32 right-4 z-[9992] glass rounded-lg px-4 py-3 border-l-2 border-orange/50" role="status" aria-live="polite">
+          <div className="font-mono text-xs text-orange mb-1">⏰ ОСТАЛОСЬ:</div>
+          <div className="font-mono text-lg text-orange font-bold">
+            {Math.floor(effects.falseUrgencyTimer / 60)}:{(effects.falseUrgencyTimer % 60).toString().padStart(2, '0')}
+          </div>
         </div>
       )}
     </>
