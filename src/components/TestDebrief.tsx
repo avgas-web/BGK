@@ -10,11 +10,13 @@ interface Manipulation {
 
 interface TestDebriefProps {
   manipulations: Manipulation[];
+  correctAnswers: number;
+  totalQuestions: number;
   onBackToHome: () => void;
   onRetakeTest: () => void;
 }
 
-export default function TestDebrief({ manipulations, onBackToHome, onRetakeTest }: TestDebriefProps) {
+export default function TestDebrief({ manipulations, correctAnswers, totalQuestions, onBackToHome, onRetakeTest }: TestDebriefProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -85,15 +87,15 @@ export default function TestDebrief({ manipulations, onBackToHome, onRetakeTest 
           </div>
           <div>
             <div className="font-heading text-3xl font-bold text-orange">
-              {Math.round((manipulations.reduce((sum, m) => sum + m.count, 0) / 15) * 100)}%
+              {correctAnswers} / {totalQuestions}
             </div>
-            <div className="font-mono text-xs text-gray">вопросов затронуто</div>
+            <div className="font-mono text-xs text-gray">правильных ответов</div>
           </div>
           <div>
             <div className="font-heading text-3xl font-bold text-lime">
-              {manipulations.filter(m => m.count > 2).length}
+              {Math.round((correctAnswers / totalQuestions) * 100)}%
             </div>
-            <div className="font-mono text-xs text-gray">повторных воздействий</div>
+            <div className="font-mono text-xs text-gray">точность</div>
           </div>
         </div>
       </div>

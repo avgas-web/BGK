@@ -183,6 +183,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const [showDebrief, setShowDebrief] = useState(false);
   const [showBSOD, setShowBSOD] = useState(false);
   const [showBIOS, setShowBIOS] = useState(false);
+  const [bsodShown, setBsodShown] = useState(false);
+  const [biosShown, setBiosShown] = useState(false);
 
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
 
@@ -245,8 +247,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     setSelectedQuestions(selected);
     setShowIntro(false);
     
-    // 2% шанс краша при старте (уменьшено с 5%)
-    if (Math.random() < 0.02) {
+    // 0.5% шанс краша при старте (уменьшено с 2%)
+    if (Math.random() < 0.005) {
       setTestCrashed(true);
       return;
     }
@@ -289,15 +291,17 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       }
     }
     
-    // BSOD при ответе на вопрос (5% вероятность)
-    if (gaslightingEnabled && !clarityMode && Math.random() < 0.05) {
+    // BSOD при ответе на вопрос (5% вероятность, только один раз)
+    if (gaslightingEnabled && !clarityMode && !bsodShown && Math.random() < 0.05) {
       setShowBSOD(true);
+      setBsodShown(true);
       setTimeout(() => setShowBSOD(false), 2000);
     }
     
-    // Черный экран BIOS при ответе на вопрос (5% вероятность)
-    if (gaslightingEnabled && !clarityMode && Math.random() < 0.05) {
+    // Черный экран BIOS при ответе на вопрос (5% вероятность, только один раз)
+    if (gaslightingEnabled && !clarityMode && !biosShown && Math.random() < 0.05) {
       setShowBIOS(true);
+      setBiosShown(true);
       setTimeout(() => setShowBIOS(false), 2000);
     }
 
@@ -337,8 +341,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       );
     }
 
-    // 3% шанс краша в середине
-    if (currentQuestion > 2 && currentQuestion < selectedQuestions.length - 2 && Math.random() < 0.03) {
+    // 0.5% шанс краша в середине
+    if (currentQuestion > 2 && currentQuestion < selectedQuestions.length - 2 && Math.random() < 0.005) {
       trackManipulation(
         'test_crash',
         'Краш теста',
@@ -380,6 +384,16 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
 
   const containerClass = clarityMode ? 'clarity-mode' : '';
   const currentQ = selectedQuestions[currentQuestion];
+  
+  // Подсчет правильных ответов (честно, на основе оригинальных вопросов)
+  const correctAnswersCount = answers.reduce<number>((count, answer, index) => {
+    if (answer === null) return count;
+    const originalQuestion = allQuestions.find(q => q.id === selectedQuestions[index]?.id);
+    if (originalQuestion && answer === originalQuestion.correct) {
+      return count + 1;
+    }
+    return count;
+  }, 0);
 
   return (
     <div className={`min-h-screen bg-cosmic text-white ${containerClass} scanline-overlay ${
@@ -445,7 +459,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
             <p className="text-gray mb-2">Произошла критическая ошибка</p>
             <p className="text-gray text-sm mb-6">Возможно, вы не были готовы.</p>
             <button
-              onClick={() => { setTestCrashed(false); setTestStarted(true); setCurrentQuestion(0); setAnswers(Array(15).fill(null)); }}
+              onClick={() => { setTestCrashed(false); setTestStarted(true); setCurrentQuestion(0); setAnswers(Array(15).fill(null)); setBsodShown(false); setBiosShown(false); }}
               className="bg-lime text-cosmic px-6 py-3 rounded-full font-bold"
             >
               Попробовать снова
@@ -589,6 +603,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
         {showResult && showDebrief && (
           <TestDebrief
             manipulations={manipulations}
+            correctAnswers={correctAnswersCount}
+            totalQuestions={selectedQuestions.length}
             onBackToHome={onBackToHome}
             onRetakeTest={() => {
               setCurrentQuestion(0);
@@ -598,6 +614,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
               setTestStarted(false);
               setShowIntro(true);
               setManipulations([]);
+              setBsodShown(false);
+              setBiosShown(false);
             }}
           />
         )}
