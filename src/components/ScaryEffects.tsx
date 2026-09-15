@@ -9,6 +9,7 @@ export function BSOD({ enabled }: BSODProps) {
   const [showBSOD, setShowBSOD] = useState(false);
   const [showLockScreen, setShowLockScreen] = useState(false);
   const [showCracks, setShowCracks] = useState(false);
+  const [showBIOS, setShowBIOS] = useState(false);
 
   useEffect(() => {
     if (!enabled) return;
@@ -37,10 +38,19 @@ export function BSOD({ enabled }: BSODProps) {
       }
     }, 60000);
 
+    // Черный экран смерти (BIOS) - раз в 2 минуты с 3% вероятности
+    const biosInterval = setInterval(() => {
+      if (Math.random() > 0.97) {
+        setShowBIOS(true);
+        setTimeout(() => setShowBIOS(false), 4000);
+      }
+    }, 120000);
+
     return () => {
       clearInterval(bsodInterval);
       clearInterval(lockInterval);
       clearInterval(cracksInterval);
+      clearInterval(biosInterval);
     };
   }, [enabled]);
 
@@ -139,6 +149,47 @@ export function BSOD({ enabled }: BSODProps) {
                 filter="url(#crack)"
               />
             </svg>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Черный экран смерти (BIOS) */}
+      <AnimatePresence>
+        {showBIOS && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[10001] bg-black flex flex-col justify-start p-8 font-mono"
+          >
+            <div className="text-white text-sm space-y-2">
+              <p className="text-green-400">American Megatrends BIOS v2.68</p>
+              <p>Copyright (C) 1985-2025 American Megatrends Inc.</p>
+              <p>&nbsp;</p>
+              <p>BIOS Date: 12/25/2025 Ver: 2.68</p>
+              <p>Processor: Intel(R) Core(TM) i9-14900K @ 6.00GHz</p>
+              <p>Speed: 6.00 GHz</p>
+              <p>&nbsp;</p>
+              <p>Press DEL to run SETUP</p>
+              <p>Press F12 to boot from network</p>
+              <p>Press F8 for BBS Popup</p>
+              <p>&nbsp;</p>
+              <p className="text-yellow-400">Initializing USB Controllers ... Done</p>
+              <p className="text-yellow-400">480MB OK</p>
+              <p>&nbsp;</p>
+              <p className="text-red-500 animate-pulse">AUTO-DETECTING PRIMARY MASTER ... GASLIGHTER_CLUB</p>
+              <p className="text-red-500 animate-pulse">AUTO-DETECTING PRIMARY SLAVE ... REALITY_DISTORTION</p>
+              <p className="text-red-500 animate-pulse">AUTO-DETECTING SECONDARY MASTER ... MANIPULATION_ENGINE</p>
+              <p>&nbsp;</p>
+              <p className="text-cyan-400">Memory Test: 16384MB OK</p>
+              <p>&nbsp;</p>
+              <p className="text-white">Booting from Hard Disk...</p>
+              <p className="text-red-600 animate-pulse font-bold">ERROR: Reality not found</p>
+              <p className="text-red-600 animate-pulse font-bold">ERROR: Sanity check failed</p>
+              <p className="text-red-600 animate-pulse font-bold">ERROR: Trust module corrupted</p>
+              <p>&nbsp;</p>
+              <p className="text-yellow-300">Press any key to continue...</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
