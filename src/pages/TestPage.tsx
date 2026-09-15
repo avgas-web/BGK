@@ -146,6 +146,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const [testCrashed, setTestCrashed] = useState(false);
   const [manipulations, setManipulations] = useState<Manipulation[]>([]);
   const [showDebrief, setShowDebrief] = useState(false);
+  const [showBSOD, setShowBSOD] = useState(false);
+  const [showBIOS, setShowBIOS] = useState(false);
 
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
 
@@ -208,8 +210,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     setSelectedQuestions(selected);
     setShowIntro(false);
     
-    // 5% шанс краша при старте (уменьшено с 25%)
-    if (Math.random() < 0.05) {
+    // 2% шанс краша при старте (уменьшено с 5%)
+    if (Math.random() < 0.02) {
       setTestCrashed(true);
       return;
     }
@@ -232,7 +234,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     newAnswers[currentQuestion] = optionIndex;
     setAnswers(newAnswers);
 
-    // Газлайтинг: изменение вопроса
+    // Газлайтинг: изменение вопроса через 1 секунду
     if (gaslightingEnabled && !clarityMode && Math.random() > 0.3) {
       const currentQ = selectedQuestions[currentQuestion];
       if (currentQ.alternatives && currentQ.alternatives.length > 0) {
@@ -248,8 +250,20 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
             setAnswers(prev => prev.map((a, i) => i === currentQuestion ? null : a));
             setAnswerChanged(true);
           }
-        }, 3000);
+        }, 1000); // Изменено с 3000 на 1000 (1 секунда)
       }
+    }
+    
+    // BSOD при ответе на вопрос (5% вероятность)
+    if (gaslightingEnabled && !clarityMode && Math.random() < 0.05) {
+      setShowBSOD(true);
+      setTimeout(() => setShowBSOD(false), 2000);
+    }
+    
+    // Черный экран BIOS при ответе на вопрос (5% вероятность)
+    if (gaslightingEnabled && !clarityMode && Math.random() < 0.05) {
+      setShowBIOS(true);
+      setTimeout(() => setShowBIOS(false), 2000);
     }
 
     // Газлайтинг: подсказки
@@ -341,7 +355,11 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       {/* Дополнительные газлайт-эффекты */}
       <FinancialPanic enabled={gaslightingEnabled && !clarityMode && !stopWordActive} />
       <InternetBlame enabled={gaslightingEnabled && !clarityMode && !stopWordActive} />
-      <BSOD enabled={gaslightingEnabled && !clarityMode && !stopWordActive} />
+      <BSOD 
+        enabled={gaslightingEnabled && !clarityMode && !stopWordActive} 
+        forceShowBSOD={showBSOD}
+        forceShowBIOS={showBIOS}
+      />
 
       {/* Насмешливые комментарии */}
       <AnimatePresence>

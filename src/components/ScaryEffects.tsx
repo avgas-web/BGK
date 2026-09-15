@@ -3,13 +3,29 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface BSODProps {
   enabled: boolean;
+  forceShowBSOD?: boolean;
+  forceShowBIOS?: boolean;
 }
 
-export function BSOD({ enabled }: BSODProps) {
+export function BSOD({ enabled, forceShowBSOD = false, forceShowBIOS = false }: BSODProps) {
   const [showBSOD, setShowBSOD] = useState(false);
   const [showLockScreen, setShowLockScreen] = useState(false);
   const [showCracks, setShowCracks] = useState(false);
   const [showBIOS, setShowBIOS] = useState(false);
+  
+  // Принудительный показ BSOD извне
+  useEffect(() => {
+    if (forceShowBSOD) {
+      setShowBSOD(true);
+    }
+  }, [forceShowBSOD]);
+  
+  // Принудительный показ BIOS извне
+  useEffect(() => {
+    if (forceShowBIOS) {
+      setShowBIOS(true);
+    }
+  }, [forceShowBIOS]);
 
   useEffect(() => {
     if (!enabled) return;
