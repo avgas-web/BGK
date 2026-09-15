@@ -165,8 +165,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     setSelectedQuestions(selected);
     setShowIntro(false);
     
-    // 25% шанс краша
-    if (Math.random() < 0.25) {
+    // 5% шанс краша при старте (уменьшено с 25%)
+    if (Math.random() < 0.05) {
       setTestCrashed(true);
       return;
     }
