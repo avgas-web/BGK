@@ -12,8 +12,8 @@ export default function ProductsPage() {
           <div className="font-mono text-xs text-lime mb-4 tracking-widest">ПРОДУКТОВАЯ ЭКОСИСТЕМА</div>
           <h1 className="font-heading text-4xl md:text-6xl font-bold mb-8">Выберите свою орбиту</h1>
           <p className="text-gray text-lg max-w-3xl mb-16 leading-relaxed">
-            Продуктовая экосистема БГК построена по принципу воронки: от якорного продукта к глубокому погружению. 
-            Каждый продукт усиливает эффект предыдущего и создаёт устойчивый навык распознавания манипуляций.
+            Выберите продукт, который подходит именно вам. От разового интенсива до годового членства — 
+            каждый продукт усиливает эффект предыдущего и создаёт устойчивый навык распознавания манипуляций.
           </p>
         </motion.div>
 
@@ -52,7 +52,7 @@ export default function ProductsPage() {
                 <span className="text-purple font-bold">4</span>
               </div>
               <h3 className="font-heading font-bold mb-2 text-sm">Школа</h3>
-              <p className="text-gray text-xs">Сертификация «Магистров» — тиражирование метода</p>
+              <p className="text-gray text-xs">Станьте сертифицированным ведущим и проводите тренинги</p>
             </div>
           </div>
         </motion.div>
@@ -63,8 +63,8 @@ export default function ProductsPage() {
             { 
               title: 'Калибровка', 
               price: '50 000 ₽', 
-              desc: '4-часовой иммерсивный спектакль-тренинг. Якорный продукт. Группа 40 человек.',
-              badge: 'Якорь', 
+              desc: '4-часовой иммерсивный спектакль-тренинг. Основной продукт. Группа до 40 человек.',
+              badge: 'Флагман', 
               badgeClass: 'border-lime/30 text-lime',
               features: ['3 акта трансформации', 'Научный разбор', 'Десятисекундный люк', 'Дежурный психолог']
             },
@@ -79,7 +79,7 @@ export default function ProductsPage() {
             { 
               title: 'Цифровой курс «Маяк»', 
               price: '30 000 ₽', 
-              desc: '30-дневная программа практик, аудио, вебинары. Масштабируемый цифровой продукт.',
+              desc: '30-дневная программа практик с аудио-медитациями и вебинарами. Проходите в удобное время.',
               badge: 'Онлайн', 
               badgeClass: 'border-lime/30 text-lime',
               features: ['30 дней практики', 'Аудио-медитации', 'Вебинары с экспертами', 'Домашние задания']
@@ -95,7 +95,7 @@ export default function ProductsPage() {
             { 
               title: 'Корпоративные интенсивы', 
               price: 'от 1 000 000 ₽', 
-              desc: 'Выездной тренинг «Информационная гигиена» для команд. B2B продукт.',
+              desc: 'Выездной тренинг «Информационная гигиена» для команд. Укрепите стрессоустойчивость вашей команды.',
               badge: 'B2B', 
               badgeClass: 'border-orange/30 text-orange',
               features: ['Выездной формат', 'Диагностика команды', 'Практические кейсы', 'Сопровождение']
@@ -103,8 +103,8 @@ export default function ProductsPage() {
             { 
               title: 'Сертификация «Магистр»', 
               price: '1 000 000 ₽', 
-              desc: 'Годовая программа для ведущих. Тиражирование метода под единым брендом.',
-              badge: 'Школа', 
+              desc: 'Годовая программа для тех, кто хочет стать ведущим Калибровки и проводить тренинги.',
+              badge: 'Сертификация', 
               badgeClass: 'border-purple/30 text-purple',
               features: ['Годовая программа', 'Супервизия', 'Право на бренд', 'Методические материалы']
             },
@@ -141,98 +141,6 @@ export default function ProductsPage() {
             </motion.div>
           ))}
         </div>
-
-        {/* Юнит-экономика */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="glass rounded-xl p-8 mb-16"
-        >
-          <h2 className="font-heading text-2xl font-bold mb-6 text-lime">Юнит-экономика «Калибровки»</h2>
-          <div className="grid md:grid-cols-4 gap-6">
-            <div>
-              <div className="font-heading text-3xl font-bold text-lime mb-2">2 000 000 ₽</div>
-              <div className="text-gray text-sm">Выручка с одной «Калибровки»</div>
-              <div className="text-gray/60 text-xs mt-1">40 человек × 50 000 ₽</div>
-            </div>
-            <div>
-              <div className="font-heading text-3xl font-bold text-purple mb-2">920 000 ₽</div>
-              <div className="text-gray text-sm">Расходы</div>
-              <div className="text-gray/60 text-xs mt-1">Аренда, гонорары, персонал, маркетинг</div>
-            </div>
-            <div>
-              <div className="font-heading text-3xl font-bold text-lime mb-2">1 080 000 ₽</div>
-              <div className="text-gray text-sm">Маржинальная прибыль</div>
-              <div className="text-gray/60 text-xs mt-1">54% маржинальность</div>
-            </div>
-            <div>
-              <div className="font-heading text-3xl font-bold text-orange mb-2">19 чел.</div>
-              <div className="text-gray text-sm">Точка безубыточности</div>
-              <div className="text-gray/60 text-xs mt-1">Минимум участников для выхода в ноль</div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Прогноз выручки */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="glass rounded-xl p-8 mb-16"
-        >
-          <h2 className="font-heading text-2xl font-bold mb-6 text-purple">Прогноз выручки на 3 года</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-purple/20">
-                  <th className="text-left py-3 text-gray">Источник</th>
-                  <th className="text-right py-3 text-lime">Год 1</th>
-                  <th className="text-right py-3 text-lime">Год 2</th>
-                  <th className="text-right py-3 text-lime">Год 3</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray">
-                <tr className="border-b border-purple/10">
-                  <td className="py-3">Публичные «Калибровки»</td>
-                  <td className="text-right">20 млн</td>
-                  <td className="text-right">36 млн</td>
-                  <td className="text-right">64 млн</td>
-                </tr>
-                <tr className="border-b border-purple/10">
-                  <td className="py-3">Годовое членство</td>
-                  <td className="text-right">8 млн</td>
-                  <td className="text-right">18 млн</td>
-                  <td className="text-right">35 млн</td>
-                </tr>
-                <tr className="border-b border-purple/10">
-                  <td className="py-3">Корпоративные тренинги</td>
-                  <td className="text-right">4 млн</td>
-                  <td className="text-right">15 млн</td>
-                  <td className="text-right">35 млн</td>
-                </tr>
-                <tr className="border-b border-purple/10">
-                  <td className="py-3">Цифровые продукты</td>
-                  <td className="text-right">1 млн</td>
-                  <td className="text-right">8 млн</td>
-                  <td className="text-right">25 млн</td>
-                </tr>
-                <tr className="border-b border-purple/10">
-                  <td className="py-3">Сертификация</td>
-                  <td className="text-right">—</td>
-                  <td className="text-right">5 млн</td>
-                  <td className="text-right">12 млн</td>
-                </tr>
-                <tr className="font-bold text-lime">
-                  <td className="py-3">Итого</td>
-                  <td className="text-right">33 млн</td>
-                  <td className="text-right">82 млн</td>
-                  <td className="text-right">171 млн</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
 
         {/* Призыв к действию */}
         <motion.div
