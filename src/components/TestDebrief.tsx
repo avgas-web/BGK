@@ -8,13 +8,13 @@ interface Manipulation {
   wikiLink: string;
 }
 
-interface DebriefProps {
+interface TestDebriefProps {
   manipulations: Manipulation[];
   onBackToHome: () => void;
   onRetakeTest: () => void;
 }
 
-export default function TestDebrief({ manipulations, onBackToHome, onRetakeTest }: DebriefProps) {
+export default function TestDebrief({ manipulations, onBackToHome, onRetakeTest }: TestDebriefProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

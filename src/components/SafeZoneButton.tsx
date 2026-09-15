@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface SafeZoneButtonProps {
@@ -10,8 +10,7 @@ export default function SafeZoneButton({ clarityMode, onToggle }: SafeZoneButton
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  // Показываем подсказку через 10 секунд, если пользователь ещё не нажал
-  useState(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       if (!clarityMode) {
         setShowTooltip(true);
@@ -19,12 +18,11 @@ export default function SafeZoneButton({ clarityMode, onToggle }: SafeZoneButton
       }
     }, 10000);
     return () => clearTimeout(timer);
-  });
+  }, [clarityMode]);
 
   return (
     <div className="fixed bottom-4 left-4 z-[9999]">
       <div className="relative">
-        {/* Tooltip */}
         <AnimatePresence>
           {(isHovered || showTooltip) && (
             <motion.div
@@ -48,7 +46,6 @@ export default function SafeZoneButton({ clarityMode, onToggle }: SafeZoneButton
           )}
         </AnimatePresence>
 
-        {/* Кнопка */}
         <button
           onClick={onToggle}
           onMouseEnter={() => setIsHovered(true)}
@@ -89,7 +86,6 @@ export default function SafeZoneButton({ clarityMode, onToggle }: SafeZoneButton
           )}
         </button>
 
-        {/* Пульсирующее кольцо для привлечения внимания (только когда не в режиме ясности) */}
         {!clarityMode && (
           <div className="absolute inset-0 rounded-full pointer-events-none">
             <motion.div

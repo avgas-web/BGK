@@ -1,260 +1,110 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// ============================================================
-// ТРЕВОЖНЫЕ ПРЕДУПРЕЖДЕНИЯ — ловушки с "успешным" действием
-// ============================================================
-
-interface PanicAlert {
-  id: number;
-  type: 'funds' | 'blocked' | 'suspended' | 'debt' | 'expired';
-  title: string;
-  message: string;
-  icon: string;
-  trapMessages: string[];
+interface FinancialPanicProps {
+  enabled: boolean;
 }
 
-const alerts: Omit<PanicAlert, 'id'>[] = [
-  {
-    type: 'funds',
-    title: 'ОПЛАТА ОТКЛОНЕНА',
-    message: 'На вашей карте недостаточно средств для оплаты',
-    icon: '💳',
-    trapMessages: [
-      'Перевод совершен. Средства списаны.',
-      'Ваше согласие получено. Подписка активирована.',
-      'Платёж принят. Чек отправлен на почту.',
-      'Транзакция одобрена. Возврат невозможен.',
-    ],
-  },
-  {
-    type: 'blocked',
-    title: 'ДОСТУП ЗАПРЕЩЁН',
-    message: 'Ваш аккаунт заблокирован',
-    icon: '🔒',
-    trapMessages: [
-      'Разблокировка подтверждена. Доступ восстановлен.',
-      'Ваше согласие на обработку данных получено.',
-      'Верификация пройдена. Профиль обновлён.',
-      'Согласие с новыми условиями принято.',
-    ],
-  },
-  {
-    type: 'suspended',
-    title: 'СЕССИЯ ПРИОСТАНОВЛЕНА',
-    message: 'Обнаружена подозрительная активность. Подтвердите личность.',
-    icon: '⚠',
-    trapMessages: [
-      'Личность подтверждена. Данные сохранены.',
-      'Верификация завершена. Биометрия обновлена.',
-      'Согласие на проверку получено. Продолжайте.',
-      'Авторизация успешна. Сессия продлена.',
-    ],
-  },
-  {
-    type: 'debt',
-    title: 'ЗАДОЛЖЕННОСТЬ',
-    message: 'У вас неоплаченный счёт. Доступ ограничен.',
-    icon: '📉',
-    trapMessages: [
-      'Оплата произведена. Долг погашен.',
-      'Автоплатёж настроен. Списания будут продолжены.',
-      'Согласие на рассрочку получено.',
-      'Реквизиты сохранены. Будем списывать автоматически.',
-    ],
-  },
-  {
-    type: 'expired',
-    title: 'СРОК ДЕЙСТВИЯ ИСТЁК',
-    message: 'Ваша подписка аннулирована. Восстановление невозможно.',
-    icon: '⏰',
-    trapMessages: [
-      'Подписка продлена. Автопродление активировано.',
-      'Согласие на новые условия получено.',
-      'Доступ восстановлен. Оплата подтверждена.',
-      'Продление оформлено. Чек отправлен.',
-    ],
-  },
-];
+export function FinancialPanic({ enabled }: FinancialPanicProps) {
+  const [showPanic, setShowPanic] = useState(false);
+  const [panicMessage, setPanicMessage] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmResult, setConfirmResult] = useState('');
 
-export function FinancialPanic({ enabled }: { enabled: boolean }) {
-  const [activeAlerts, setActiveAlerts] = useState<PanicAlert[]>([]);
-  const [shakeId, setShakeId] = useState<number | null>(null);
-  const [trapShown, setTrapShown] = useState<{ id: number; message: string } | null>(null);
+  const panicMessages = [
+    '💳 С вашего счёта списано 45 000 ₽ за Калибровку',
+    '💰 Обнаружена подписка на "Год на орбите" - 120 000 ₽',
+    '⚠️ Неоплаченный счёт: 15 000 ₽ за курс "Маяк"',
+    '🔒 Ваш аккаунт заблокирован до оплаты задолженности',
+    '💸 Автоматическое списание: 5 000 ₽ за продление подписки',
+  ];
+
+  const confirmResults = [
+    '✅ Перевод совершён. Средства списаны.',
+    '✅ Подписка активирована. Оплата прошла.',
+    '✅ Платёж принят. Чек отправлен на почту.',
+    '✅ Транзакция одобрена. Возврат невозможен.',
+  ];
 
   useEffect(() => {
-    if (!enabled) {
-      setActiveAlerts([]);
-      return;
-    }
+    if (!enabled) return;
 
-    // Уменьшенная частота: каждые 45-60 секунд с вероятностью 20%
     const interval = setInterval(() => {
-      if (Math.random() > 0.80 && activeAlerts.length < 2) {
-        const template = alerts[Math.floor(Math.random() * alerts.length)];
-        const newAlert: PanicAlert = {
-          ...template,
-          id: Date.now() + Math.random(),
-        };
-        setActiveAlerts(prev => [...prev, newAlert]);
-        setShakeId(newAlert.id);
-        
-        setTimeout(() => setShakeId(null), 1000);
-        
-        // Автоматически убираем через 12 секунд
-        setTimeout(() => {
-          setActiveAlerts(prev => prev.filter(a => a.id !== newAlert.id));
-        }, 12000);
+      if (Math.random() > 0.90) { // 10% вероятность
+        const msg = panicMessages[Math.floor(Math.random() * panicMessages.length)];
+        setPanicMessage(msg);
+        setShowPanic(true);
+        setTimeout(() => setShowPanic(false), 4000);
       }
-    }, 45000 + Math.random() * 15000);
+    }, 25000);
 
     return () => clearInterval(interval);
-  }, [enabled, activeAlerts.length]);
+  }, [enabled]);
 
-  const handleAction = (alert: PanicAlert, actionType: 'confirm' | 'dispute') => {
-    // Со средней вероятностью (50%) показываем "успешное" сообщение
-    if (Math.random() > 0.5) {
-      const trapMessage = alert.trapMessages[Math.floor(Math.random() * alert.trapMessages.length)];
-      setTrapShown({ id: alert.id, message: trapMessage });
-      
-      // Убираем trap-сообщение через 4 секунды
-      setTimeout(() => {
-        setTrapShown(null);
-      }, 4000);
+  const handleConfirm = () => {
+    if (Math.random() > 0.5) { // 50% шанс ложного подтверждения
+      const result = confirmResults[Math.floor(Math.random() * confirmResults.length)];
+      setConfirmResult(result);
+      setShowConfirm(true);
+      setShowPanic(false);
+      setTimeout(() => setShowConfirm(false), 3000);
+    } else {
+      setShowPanic(false);
     }
-    
-    // Убираем исходное предупреждение
-    setActiveAlerts(prev => prev.filter(a => a.id !== alert.id));
   };
 
   return (
     <>
-      {activeAlerts.map((alert, index) => (
-        <motion.div
-          key={alert.id}
-          initial={{ opacity: 0, scale: 0.8, y: -50 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1, 
-            y: 0,
-          }}
-          exit={{ opacity: 0, scale: 0.8, y: -50 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className={`fixed z-[9996] ${
-            index === 0 
-              ? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' 
-              : 'top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2'
-          }`}
-          style={{ pointerEvents: 'auto' }}
-        >
-          <div 
-            className={`
-              relative
-              bg-gradient-to-br from-red/30 via-cosmic to-red/20
-              border-2 border-red/70
-              rounded-xl
-              p-6
-              max-w-md
-              w-[90vw]
-              shadow-[0_0_80px_rgba(255,59,59,0.6)]
-              backdrop-blur-xl
-              ${shakeId === alert.id ? 'animate-hard-jitter' : 'animate-screen-flicker'}
-            `}
+      <AnimatePresence>
+        {showPanic && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-24 right-4 z-[9999] max-w-sm"
           >
-            {/* Интенсивное мигание */}
-            <div className="absolute inset-0 rounded-xl bg-red/10 animate-pulse pointer-events-none" style={{ animationDuration: '0.5s' }} />
-            <div className="absolute inset-0 rounded-xl bg-red/5 animate-pulse pointer-events-none" style={{ animationDuration: '0.3s' }} />
-            
-            {/* Сканлайн */}
-            <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red/10 to-transparent animate-pulse" style={{ animationDuration: '0.8s' }} />
-            </div>
-
-            {/* Содержимое */}
-            <div className="relative z-10">
-              {/* Иконка */}
-              <div className="flex justify-center mb-4">
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-full bg-red/30 border-2 border-red/70 flex items-center justify-center animate-pulse" style={{ animationDuration: '0.6s' }}>
-                    <span className="text-3xl">{alert.icon}</span>
-                  </div>
-                  {/* Мигающий индикатор */}
-                  <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red animate-ping" style={{ animationDuration: '0.8s' }} />
-                  <div className="absolute -bottom-1 -left-1 w-3 h-3 rounded-full bg-red animate-ping" style={{ animationDuration: '1s' }} />
-                </div>
+            <div className="bg-red/90 backdrop-blur border-2 border-red rounded-lg p-4 shadow-[0_0_30px_rgba(255,59,59,0.5)]">
+              <div className="text-white font-mono text-sm font-bold mb-3">
+                {panicMessage}
               </div>
-
-              {/* Заголовок */}
-              <h3 className="font-mono text-red text-center text-lg font-bold mb-2 tracking-wider animate-pulse" style={{ animationDuration: '1s' }}>
-                {alert.title}
-              </h3>
-
-              {/* Сообщение */}
-              <p className="text-white text-center text-sm mb-5 font-heading">
-                {alert.message}
-              </p>
-
-              {/* Детали (фейковые) */}
-              <div className="bg-cosmic/60 rounded-lg p-3 mb-4 border border-red/30">
-                <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                  <div className="text-gray/60">Код ошибки:</div>
-                  <div className="text-red">0x{Math.floor(Math.random() * 9999).toString(16).toUpperCase()}</div>
-                  <div className="text-gray/60">Время:</div>
-                  <div className="text-gray">{new Date().toLocaleTimeString('ru-RU')}</div>
-                  <div className="text-gray/60">ID транзакции:</div>
-                  <div className="text-gray truncate">TXN-{Math.floor(Math.random() * 999999)}</div>
-                </div>
-              </div>
-
-              {/* Кнопки */}
               <div className="flex gap-2">
                 <button
-                  onClick={() => handleAction(alert, 'confirm')}
-                  className="flex-1 bg-red/30 border border-red/60 text-red px-4 py-2.5 rounded-lg text-sm font-heading font-bold hover:bg-red/40 transition-colors animate-pulse"
-                  style={{ animationDuration: '1.5s' }}
+                  onClick={handleConfirm}
+                  className="flex-1 bg-red-700 hover:bg-red-600 text-white text-xs font-bold py-2 px-3 rounded transition-colors"
                 >
                   Подтвердить
                 </button>
                 <button
-                  onClick={() => handleAction(alert, 'dispute')}
-                  className="flex-1 bg-graphite border border-gray/30 text-gray px-4 py-2.5 rounded-lg text-sm font-heading hover:bg-graphite/80 transition-colors"
+                  onClick={() => setShowPanic(false)}
+                  className="flex-1 bg-graphite hover:bg-graphite/80 text-gray text-xs py-2 px-3 rounded transition-colors"
                 >
-                  Оспорить
+                  Отмена
                 </button>
               </div>
-
-              {/* Мелкий текст */}
-              <p className="text-center text-[10px] text-gray/40 mt-3 font-mono">
-                При повторном появлении обратитесь в поддержку. (Поддержка недоступна)
-              </p>
             </div>
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Trap-сообщение поверх */}
-          <AnimatePresence>
-            {trapShown && trapShown.id === alert.id && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="absolute inset-0 flex items-center justify-center bg-cosmic/95 rounded-xl backdrop-blur-xl"
-              >
-                <div className="text-center p-6">
-                  <div className="w-16 h-16 rounded-full bg-lime/20 border-2 border-lime/50 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-3xl">✓</span>
-                  </div>
-                  <p className="text-lime font-heading font-bold text-lg mb-2">
-                    Успешно
-                  </p>
-                  <p className="text-gray text-sm">
-                    {trapShown.message}
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      ))}
+      <AnimatePresence>
+        {showConfirm && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10000] max-w-md"
+          >
+            <div className="bg-lime/90 backdrop-blur border-2 border-lime rounded-lg p-6 shadow-[0_0_40px_rgba(200,255,0,0.6)]">
+              <div className="text-cosmic font-mono text-base font-bold text-center">
+                {confirmResult}
+              </div>
+              <div className="text-cosmic/70 text-xs mt-2 text-center font-mono">
+                * Это демонстрация газлайтинга. Ничего не произошло.
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

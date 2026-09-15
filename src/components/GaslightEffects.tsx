@@ -1,471 +1,382 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { GASLIGHT_CONFIG, getDeviceCapabilities } from '../config/gaslightConfig';
 
-// ============ TYPES ============
-export interface GaslightState {
-  showWelcome: boolean;
-  setShowWelcome: (v: boolean) => void;
-  showCookie: boolean;
-  setShowCookie: (v: boolean) => void;
-  cookieSwapped: boolean;
-  whisper: string;
-  heroTextChanged: boolean;
-  counterValue: number;
-  scrollDirection: 'forward' | 'backward';
-  buttonText: string;
-  showExitModal: boolean;
-  setShowExitModal: (v: boolean) => void;
-  // New effects
-  showCrashScreen: boolean;
-  isFrozen: boolean;
-  jitterActive: boolean;
-  cursorDisplaced: boolean;
-  colorShiftActive: boolean;
-  doubleVisionActive: boolean;
-  vhsTrackingActive: boolean;
-  showNotification: { id: number; text: string; type: 'info' | 'warning' | 'system' } | null;
-  showMemoryGaslight: string | null;
-  screenRotated: boolean;
-  fakeLoader: boolean;
-  textScrambleActive: boolean;
-  invertedColors: boolean;
-  fakeInputText: string | null;
-}
-
-// ============ MAIN HOOK ============
+// Хук для управления всеми газлайтинг-эффектами
 export function useGaslighting(enabled: boolean) {
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showCookie, setShowCookie] = useState(false);
-  const [cookieSwapped, setCookieSwapped] = useState(false);
-  const [whisper, setWhisper] = useState('');
-  const [heroTextChanged, setHeroTextChanged] = useState(false);
-  const [counterValue, setCounterValue] = useState(40);
-  const [scrollDirection, setScrollDirection] = useState<'forward' | 'backward'>('forward');
-  const [buttonText, setButtonText] = useState('Записаться');
-  const [showExitModal, setShowExitModal] = useState(false);
-  
-  // New effects
-  const [showCrashScreen, setShowCrashScreen] = useState(false);
-  const [isFrozen, setIsFrozen] = useState(false);
-  const [jitterActive, setJitterActive] = useState(false);
-  const [cursorDisplaced, setCursorDisplaced] = useState(false);
-  const [colorShiftActive, setColorShiftActive] = useState(false);
-  const [doubleVisionActive, setDoubleVisionActive] = useState(false);
-  const [vhsTrackingActive, setVhsTrackingActive] = useState(false);
-  const [showNotification, setShowNotification] = useState<GaslightState['showNotification']>(null);
-  const [showMemoryGaslight, setShowMemoryGaslight] = useState<string | null>(null);
-  const [screenRotated, setScreenRotated] = useState(false);
-  const [fakeLoader, setFakeLoader] = useState(false);
-  const [textScrambleActive, setTextScrambleActive] = useState(false);
-  const [invertedColors, setInvertedColors] = useState(false);
-  const [fakeInputText, setFakeInputText] = useState<string | null>(null);
+  const [effects, setEffects] = useState({
+    showWelcome: false,
+    showCookie: false,
+    cookieSwapped: false,
+    whisper: '',
+    heroTextChanged: false,
+    counterValue: 40,
+    scrollDirection: 'forward' as 'forward' | 'backward',
+    buttonText: 'Записаться',
+    showExitModal: false,
+    showCrashScreen: false,
+    isFrozen: false,
+    jitterActive: false,
+    cursorDisplaced: false,
+    colorShiftActive: false,
+    doubleVisionActive: false,
+    vhsTrackingActive: false,
+    notification: null as { id: number; text: string; type: string } | null,
+    memoryGaslight: null as string | null,
+    screenRotated: false,
+    fakeLoader: false,
+    textScrambleActive: false,
+    invertedColors: false,
+  });
 
+  const timersRef = useRef<number[]>([]);
+  const intervalsRef = useRef<number[]>([]);
+  const isVisibleRef = useRef(true);
+
+  // Пауза при скрытой вкладке
   useEffect(() => {
-    if (!enabled) {
-      // Reset all
-      setShowCrashScreen(false);
-      setIsFrozen(false);
-      setJitterActive(false);
-      setCursorDisplaced(false);
-      setColorShiftActive(false);
-      setDoubleVisionActive(false);
-      setVhsTrackingActive(false);
-      setShowNotification(null);
-      setShowMemoryGaslight(null);
-      setScreenRotated(false);
-      setFakeLoader(false);
-      setTextScrambleActive(false);
-      setInvertedColors(false);
-      setFakeInputText(null);
-      return;
-    }
-
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    const intervals: ReturnType<typeof setInterval>[] = [];
-
-    // === WELCOME BACK (3s) ===
-    timers.push(setTimeout(() => setShowWelcome(true), 3000));
-
-    // === COOKIE BANNER (5s) ===
-    timers.push(setTimeout(() => setShowCookie(true), 5000));
-
-    // === HERO TEXT CHANGE (25s) ===
-    timers.push(setTimeout(() => setHeroTextChanged(true), 25000));
-
-    // === RANDOM WHISPERS ===
-    const whispers = [
-      'Ты сам это выбрал',
-      'Так было всегда',
-      'Ты уверен?',
-      'Это не первый раз',
-      'Ты уже видел это',
-      'Ничего не изменилось',
-      'Ты помнишь?',
-      'Это тебе снилось'
-    ];
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.65) {
-        setWhisper(whispers[Math.floor(Math.random() * whispers.length)]);
-        timers.push(setTimeout(() => setWhisper(''), 3000));
+    const handleVisibilityChange = () => {
+      isVisibleRef.current = document.visibilityState === 'visible';
+      
+      if (!isVisibleRef.current) {
+        timersRef.current.forEach(clearTimeout);
+        intervalsRef.current.forEach(clearInterval);
+        timersRef.current = [];
+        intervalsRef.current = [];
+      } else if (enabled) {
+        initializeEffects();
       }
-    }, 12000));
+    };
 
-    // === COUNTER FLUCTUATION ===
-    intervals.push(setInterval(() => {
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [enabled]);
+
+  const initializeEffects = () => {
+    if (!enabled || !isVisibleRef.current) return;
+
+    const capabilities = getDeviceCapabilities();
+    const { timings } = GASLIGHT_CONFIG;
+
+    // Welcome back (3s)
+    timersRef.current.push(setTimeout(() => {
+      setEffects(prev => ({ ...prev, showWelcome: true }));
+    }, 3000));
+
+    // Cookie banner (5s)
+    timersRef.current.push(setTimeout(() => {
+      setEffects(prev => ({ ...prev, showCookie: true }));
+    }, 5000));
+
+    // Hero text change (25s)
+    timersRef.current.push(setTimeout(() => {
+      setEffects(prev => ({ ...prev, heroTextChanged: true }));
+    }, 25000));
+
+    // Random whispers
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.65) {
+        const whispers = GASLIGHT_CONFIG.phrases.whispers;
+        const whisper = whispers[Math.floor(Math.random() * whispers.length)];
+        setEffects(prev => ({ ...prev, whisper }));
+        setTimeout(() => setEffects(prev => ({ ...prev, whisper: '' })), 3000);
+      }
+    }, timings.notifications.interval * capabilities.slowdownFactor));
+
+    // Counter fluctuation
+    intervalsRef.current.push(setInterval(() => {
       const change = Math.random() > 0.5 ? 1 : -1;
-      setCounterValue(prev => Math.max(35, Math.min(45, prev + change)));
+      setEffects(prev => ({
+        ...prev,
+        counterValue: Math.max(35, Math.min(45, prev.counterValue + change))
+      }));
     }, 4000));
 
-    // === SCROLL DIRECTION GLITCH ===
-    intervals.push(setInterval(() => {
+    // Scroll direction glitch
+    intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.8) {
-        setScrollDirection('backward');
-        timers.push(setTimeout(() => setScrollDirection('forward'), 2000));
+        setEffects(prev => ({ ...prev, scrollDirection: 'backward' as const }));
+        setTimeout(() => setEffects(prev => ({ ...prev, scrollDirection: 'forward' as const })), 2000);
       }
     }, 10000));
 
-    // === BUTTON TEXT CHANGE ===
-    intervals.push(setInterval(() => {
+    // Button text change
+    intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.6) {
-        setButtonText('Вы уже записаны');
-        timers.push(setTimeout(() => setButtonText('Записаться'), 3000));
+        setEffects(prev => ({ ...prev, buttonText: 'Вы уже записаны' }));
+        setTimeout(() => setEffects(prev => ({ ...prev, buttonText: 'Записаться' })), 3000);
       }
     }, 12000));
 
-    // === COOKIE BUTTON SWAP ===
-    intervals.push(setInterval(() => {
-      setCookieSwapped(prev => !prev);
+    // Cookie button swap
+    intervalsRef.current.push(setInterval(() => {
+      setEffects(prev => ({ ...prev, cookieSwapped: !prev.cookieSwapped }));
     }, 8000));
 
-    // === FAKE CRASH SCREEN ===
-    const scheduleCrash = () => {
-      const delay = 30000 + Math.random() * 60000; // 30-90s
-      timers.push(setTimeout(() => {
-        setShowCrashScreen(true);
-        timers.push(setTimeout(() => setShowCrashScreen(false), 2500));
-        scheduleCrash();
-      }, delay));
-    };
-    scheduleCrash();
-
-    // === FREEZE FRAMES ===
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.7) {
-        setIsFrozen(true);
-        timers.push(setTimeout(() => setIsFrozen(false), 400 + Math.random() * 800));
+    // Fake crash screen (5% вероятность раз в минуту)
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.95) {
+        setEffects(prev => ({ ...prev, showCrashScreen: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, showCrashScreen: false })), timings.crashScreen.duration);
       }
-    }, 15000));
+    }, 60000 * capabilities.slowdownFactor)); // 60 секунд
 
-    // === ELEMENT JITTER ===
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.75) {
-        setJitterActive(true);
-        timers.push(setTimeout(() => setJitterActive(false), 300 + Math.random() * 500));
+    // Freeze frames
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.95) {
+        setEffects(prev => ({ ...prev, isFrozen: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, isFrozen: false })), 400);
       }
-    }, 18000));
+    }, timings.freeze.interval * capabilities.slowdownFactor));
 
-    // === CURSOR DISPLACEMENT ===
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.8) {
-        setCursorDisplaced(true);
-        timers.push(setTimeout(() => setCursorDisplaced(false), 1500));
-      }
-    }, 25000));
-
-    // === COLOR SHIFT ===
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.85) {
-        setColorShiftActive(true);
-        timers.push(setTimeout(() => setColorShiftActive(false), 600));
-      }
-    }, 20000));
-
-    // === DOUBLE VISION ===
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.85) {
-        setDoubleVisionActive(true);
-        timers.push(setTimeout(() => setDoubleVisionActive(false), 800));
-      }
-    }, 22000));
-
-    // === VHS TRACKING ===
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.8) {
-        setVhsTrackingActive(true);
-        timers.push(setTimeout(() => setVhsTrackingActive(false), 1200));
-      }
-    }, 28000));
-
-    // === FAKE NOTIFICATIONS ===
-    const notifications = [
-      { text: 'Калибровка завершена. Результаты сохранены.', type: 'system' as const },
-      { text: 'Вы уже проходили тест 12.04.2025', type: 'info' as const },
-      { text: 'Обнаружена аномалия восприятия', type: 'warning' as const },
-      { text: 'Синхронизация памяти...', type: 'system' as const },
-      { text: 'Ваш прогресс: 98%', type: 'info' as const },
-      { text: 'Попытка №3 за сегодня', type: 'info' as const },
-      { text: 'Сессия восстановлена', type: 'system' as const },
-    ];
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.7) {
-        const n = notifications[Math.floor(Math.random() * notifications.length)];
-        setShowNotification({ id: Date.now(), ...n });
-        timers.push(setTimeout(() => setShowNotification(null), 4000));
-      }
-    }, 20000));
-
-    // === MEMORY GASLIGHT ===
-    const memories = [
-      'Вы уже нажали эту кнопку',
-      'Вы читали этот абзац',
-      'Вы были здесь 5 минут назад',
-      'Вы уже отвечали на этот вопрос',
-      'Вы уже видели этот экран',
-    ];
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.8) {
-        setShowMemoryGaslight(memories[Math.floor(Math.random() * memories.length)]);
-        timers.push(setTimeout(() => setShowMemoryGaslight(null), 3000));
-      }
-    }, 25000));
-
-    // === SCREEN ROTATION (very subtle) ===
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.9) {
-        setScreenRotated(true);
-        timers.push(setTimeout(() => setScreenRotated(false), 2000));
-      }
-    }, 40000));
-
-    // === FAKE LOADER ===
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.85) {
-        setFakeLoader(true);
-        timers.push(setTimeout(() => setFakeLoader(false), 1500));
-      }
-    }, 35000));
-
-    // === TEXT SCRAMBLE ===
-    intervals.push(setInterval(() => {
-      if (Math.random() > 0.85) {
-        setTextScrambleActive(true);
-        timers.push(setTimeout(() => setTextScrambleActive(false), 400));
-      }
-    }, 30000));
-
-    // === INVERTED COLORS (rare) ===
-    intervals.push(setInterval(() => {
+    // Element jitter
+    intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.92) {
-        setInvertedColors(true);
-        timers.push(setTimeout(() => setInvertedColors(false), 200));
+        setEffects(prev => ({ ...prev, jitterActive: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, jitterActive: false })), 300);
       }
-    }, 45000));
+    }, timings.jitter.interval * capabilities.slowdownFactor));
+
+    // Cursor displacement
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.9) {
+        setEffects(prev => ({ ...prev, cursorDisplaced: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, cursorDisplaced: false })), 1500);
+      }
+    }, timings.cursorDisplace.interval * capabilities.slowdownFactor));
+
+    // Color shift
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.93) {
+        setEffects(prev => ({ ...prev, colorShiftActive: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, colorShiftActive: false })), 600);
+      }
+    }, timings.colorShift.interval * capabilities.slowdownFactor));
+
+    // Double vision
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.94) {
+        setEffects(prev => ({ ...prev, doubleVisionActive: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, doubleVisionActive: false })), 800);
+      }
+    }, timings.doubleVision.interval * capabilities.slowdownFactor));
+
+    // VHS tracking
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.91) {
+        setEffects(prev => ({ ...prev, vhsTrackingActive: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, vhsTrackingActive: false })), 1200);
+      }
+    }, timings.vhsTracking.interval * capabilities.slowdownFactor));
+
+    // Fake notifications
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > (1 - timings.notifications.probability)) {
+        const notifications = GASLIGHT_CONFIG.phrases.notifications;
+        const n = notifications[Math.floor(Math.random() * notifications.length)];
+        setEffects(prev => ({ ...prev, notification: { id: Date.now(), ...n } }));
+        setTimeout(() => setEffects(prev => ({ ...prev, notification: null })), 4000);
+      }
+    }, timings.notifications.interval * capabilities.slowdownFactor));
+
+    // Memory gaslight
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > (1 - timings.memoryGaslight.probability)) {
+        const memories = GASLIGHT_CONFIG.phrases.memoryGaslight;
+        const memory = memories[Math.floor(Math.random() * memories.length)];
+        setEffects(prev => ({ ...prev, memoryGaslight: memory }));
+        setTimeout(() => setEffects(prev => ({ ...prev, memoryGaslight: null })), 3000);
+      }
+    }, timings.memoryGaslight.interval * capabilities.slowdownFactor));
+
+    // Screen rotation
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.95) {
+        setEffects(prev => ({ ...prev, screenRotated: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, screenRotated: false })), 2000);
+      }
+    }, timings.screenRotate.interval * capabilities.slowdownFactor));
+
+    // Fake loader
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.92) {
+        setEffects(prev => ({ ...prev, fakeLoader: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, fakeLoader: false })), 1500);
+      }
+    }, timings.fakeLoader.interval * capabilities.slowdownFactor));
+
+    // Text scramble
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.9) {
+        setEffects(prev => ({ ...prev, textScrambleActive: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, textScrambleActive: false })), 400);
+      }
+    }, timings.textScramble.interval * capabilities.slowdownFactor));
+
+    // Inverted colors
+    intervalsRef.current.push(setInterval(() => {
+      if (Math.random() > 0.96) {
+        setEffects(prev => ({ ...prev, invertedColors: true }));
+        setTimeout(() => setEffects(prev => ({ ...prev, invertedColors: false })), 200);
+      }
+    }, timings.invertedColors.interval * capabilities.slowdownFactor));
+
+  };
+
+  useEffect(() => {
+    if (enabled) {
+      initializeEffects();
+    } else {
+      setEffects({
+        showWelcome: false,
+        showCookie: false,
+        cookieSwapped: false,
+        whisper: '',
+        heroTextChanged: false,
+        counterValue: 40,
+        scrollDirection: 'forward',
+        buttonText: 'Записаться',
+        showExitModal: false,
+        showCrashScreen: false,
+        isFrozen: false,
+        jitterActive: false,
+        cursorDisplaced: false,
+        colorShiftActive: false,
+        doubleVisionActive: false,
+        vhsTrackingActive: false,
+        notification: null,
+        memoryGaslight: null,
+        screenRotated: false,
+        fakeLoader: false,
+        textScrambleActive: false,
+        invertedColors: false,
+      });
+    }
 
     return () => {
-      timers.forEach(clearTimeout);
-      intervals.forEach(clearInterval);
+      timersRef.current.forEach(clearTimeout);
+      intervalsRef.current.forEach(clearInterval);
+      timersRef.current = [];
+      intervalsRef.current = [];
     };
   }, [enabled]);
 
-  // === EXIT INTENT ===
+  // Exit intent (desktop only)
   useEffect(() => {
     if (!enabled) return;
     
-    // Отключаем на мобильных устройствах
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isMobile = getDeviceCapabilities().isMobile;
     if (isMobile) return;
     
     let shown = false;
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 0 && !shown) {
         shown = true;
-        setShowExitModal(true);
-        setTimeout(() => { shown = false; }, 30000);
+        setEffects(prev => ({ ...prev, showExitModal: true }));
+        setTimeout(() => {
+          shown = false;
+        }, 30000);
       }
     };
+    
     document.addEventListener('mouseleave', handleMouseLeave);
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
   }, [enabled]);
 
   return {
-    showWelcome, setShowWelcome,
-    showCookie, setShowCookie,
-    cookieSwapped,
-    whisper,
-    heroTextChanged,
-    counterValue,
-    scrollDirection,
-    buttonText,
-    showExitModal, setShowExitModal,
-    showCrashScreen,
-    isFrozen,
-    jitterActive,
-    cursorDisplaced,
-    colorShiftActive,
-    doubleVisionActive,
-    vhsTrackingActive,
-    showNotification,
-    showMemoryGaslight,
-    screenRotated,
-    fakeLoader,
-    textScrambleActive,
-    invertedColors,
-    fakeInputText,
-    setFakeInputText,
+    ...effects,
+    setShowWelcome: (value: boolean) => setEffects(prev => ({ ...prev, showWelcome: value })),
+    setShowCookie: (value: boolean) => setEffects(prev => ({ ...prev, showCookie: value })),
+    setShowExitModal: (value: boolean) => setEffects(prev => ({ ...prev, showExitModal: value })),
   };
 }
 
-// ============ VISUAL EFFECTS COMPONENT ============
-
-export function GaslightEffects({ gaslight, enabled }: { 
-  gaslight: ReturnType<typeof useGaslighting>;
-  enabled: boolean;
-}) {
+// Компонент визуальных эффектов
+export function GaslightEffects({ effects }: { effects: ReturnType<typeof useGaslighting> }) {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (!enabled) return;
     const handleMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
     window.addEventListener('mousemove', handleMove);
     return () => window.removeEventListener('mousemove', handleMove);
-  }, [enabled]);
-
-  if (!enabled) return null;
+  }, []);
 
   return (
     <>
       {/* Crash screen */}
-      <AnimatePresence>
-        {gaslight.showCrashScreen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="crash-screen"
-          >
-            <div className="relative z-10 text-center px-4">
-              <div className="text-6xl mb-4 animate-hard-jitter">⚠</div>
-              <div className="text-xl md:text-2xl mb-2 font-mono">CONNECTION_LOST</div>
-              <div className="text-sm text-gray mb-4 font-mono">
-                Нестабильное соединение. Восстановление...
-              </div>
-              <div className="w-48 h-1 bg-graphite mx-auto rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: '0%' }}
-                  animate={{ width: '100%' }}
-                  transition={{ duration: 2 }}
-                  className="h-full bg-red"
-                />
-              </div>
-              <div className="text-xs text-gray/50 mt-4 font-mono">
-                error: 0x7F3A // packet_loss: 98%
-              </div>
+      {effects.showCrashScreen && (
+        <div className="fixed inset-0 z-[10000] bg-black flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-6xl mb-4 animate-hard-jitter">⚠</div>
+            <div className="text-xl md:text-2xl mb-2 font-mono text-red">CONNECTION_LOST</div>
+            <div className="text-sm text-gray mb-4 font-mono">Нестабильное соединение. Восстановление...</div>
+            <div className="w-48 h-1 bg-graphite mx-auto rounded-full overflow-hidden">
+              <div className="h-full bg-red animate-pulse" style={{ width: '100%' }} />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="text-xs text-gray/50 mt-4 font-mono">error: 0x7F3A // packet_loss: 98%</div>
+          </div>
+        </div>
+      )}
 
       {/* Freeze overlay */}
-      {gaslight.isFrozen && (
-        <div className="fixed inset-0 pointer-events-none z-[9997] freeze-effect" 
-             style={{ background: 'rgba(7, 7, 18, 0.3)' }} />
+      {effects.isFrozen && (
+        <div className="fixed inset-0 pointer-events-none z-[9997]" style={{ background: 'rgba(7, 7, 18, 0.3)' }} />
       )}
 
       {/* Fake loader */}
-      <AnimatePresence>
-        {gaslight.fakeLoader && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9996] pointer-events-none"
-          >
-            <div className="glass rounded-full p-4">
-              <div className="w-8 h-8 border-2 border-lime border-t-transparent rounded-full animate-spin" />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {effects.fakeLoader && (
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9996]">
+          <div className="glass rounded-full p-4">
+            <div className="w-8 h-8 border-2 border-lime border-t-transparent rounded-full animate-spin" />
+          </div>
+        </div>
+      )}
 
-      {/* Fake notification */}
-      <AnimatePresence>
-        {gaslight.showNotification && (
-          <motion.div
-            key={gaslight.showNotification.id}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            className="fixed top-20 right-4 z-[9995] notification-toast"
-          >
-            <div className={`glass rounded-lg px-4 py-3 max-w-xs border-l-2 ${
-              gaslight.showNotification.type === 'warning' ? 'border-orange' :
-              gaslight.showNotification.type === 'system' ? 'border-purple' : 'border-lime'
-            }`}>
-              <div className="flex items-start gap-2">
-                <span className="text-sm">
-                  {gaslight.showNotification.type === 'warning' ? '⚠' : 
-                   gaslight.showNotification.type === 'system' ? '◉' : 'ℹ'}
-                </span>
-                <div>
-                  <div className="font-mono text-xs text-gray mb-0.5">СИСТЕМА</div>
-                  <div className="text-sm">{gaslight.showNotification.text}</div>
-                </div>
-              </div>
+      {/* Notification */}
+      {effects.notification && (
+        <div className="fixed top-20 right-4 z-[9995] glass rounded-lg px-4 py-3 max-w-xs border-l-2 border-purple/50" role="status" aria-live="polite">
+          <div className="flex items-start gap-2">
+            <span className="text-sm">
+              {effects.notification.type === 'warning' ? '⚠' : effects.notification.type === 'system' ? '◉' : 'ℹ'}
+            </span>
+            <div>
+              <div className="font-mono text-xs text-gray mb-0.5">СИСТЕМА</div>
+              <div className="text-sm">{effects.notification.text}</div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
 
       {/* Memory gaslight */}
-      <AnimatePresence>
-        {gaslight.showMemoryGaslight && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 0.7, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9994] pointer-events-none"
-          >
-            <div className="font-mono text-sm text-purple bg-graphite/80 backdrop-blur px-4 py-2 rounded-full border border-purple/30">
-              {gaslight.showMemoryGaslight}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {effects.memoryGaslight && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9994] font-mono text-sm text-purple bg-graphite/80 backdrop-blur px-4 py-2 rounded-full border border-purple/30" role="status" aria-live="polite">
+          {effects.memoryGaslight}
+        </div>
+      )}
 
       {/* Cursor displacement ghost */}
-      {gaslight.cursorDisplaced && (
+      {effects.cursorDisplaced && (
         <div 
           className="fixed pointer-events-none z-[9998]"
-          style={{ 
-            left: mousePos.x + 15, 
-            top: mousePos.y - 10,
-          }}
+          style={{ left: mousePos.x + 15, top: mousePos.y - 10 }}
         >
           <div className="w-4 h-4 rounded-full bg-lime/50 blur-sm animate-pulse" />
         </div>
       )}
 
       {/* Whisper */}
-      <AnimatePresence>
-        {gaslight.whisper && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 flex items-center justify-center pointer-events-none z-[9993]"
-          >
-            <span className="font-mono text-2xl text-purple animate-whisper">{gaslight.whisper}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {effects.whisper && (
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[9993]" role="status" aria-live="polite">
+          <span className="font-mono text-2xl text-purple animate-whisper">{effects.whisper}</span>
+        </div>
+      )}
+
     </>
   );
 }
 
-// ============ TEXT SCRAMBLER ============
-
+// Компонент скрамблирования текста
 export function ScrambledText({ text, active }: { text: string; active: boolean }) {
   const [display, setDisplay] = useState(text);
 

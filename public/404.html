@@ -9,8 +9,8 @@
       html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #070712; color: #F4F6F8; font-family: sans-serif; }
     </style>
     <script>
-      // Redirect to index.html preserving the path for SPA routing
-      var pathSegmentsToKeep = 1; // For GitHub Pages: keep repo name
+      // SPA fallback для GitHub Pages
+      var pathSegmentsToKeep = 1;
       var l = window.location;
       l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
         l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +

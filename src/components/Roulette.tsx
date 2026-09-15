@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface RouletteProps {
@@ -134,7 +134,7 @@ export default function Roulette({ onComplete }: RouletteProps) {
                     Скидка 90% применена автоматически к вашей Калибровке.
                   </p>
                   <p className="mb-3">
-                    Итоговая стоимость: <span className="text-lime font-bold">45 000 ₽</span>
+                    Итоговая стоимость: <span className="text-lime font-bold">50 000 ₽</span>
                   </p>
                   <p className="text-xs text-gray/60 italic">
                     * Это не лотерея. Никто ничем не рискует. Цена не изменилась. Вы просто увидели демонстрацию того, как работает газлайтинг.
