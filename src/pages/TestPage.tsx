@@ -6,6 +6,41 @@ import { FinancialPanic } from '../components/FinancialPanic';
 import { InternetBlame } from '../components/GaslightPatterns';
 import { BSOD } from '../components/ScaryEffects';
 
+// Компонент для отображения системных сообщений
+function SystemMessage({ messages }: { messages: string[] }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsVisible(false);
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % messages.length);
+        setIsVisible(true);
+      }, 500);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [messages.length]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isVisible ? 1 : 0 }}
+      transition={{ duration: 0.5 }}
+      className="glass rounded-lg p-4 border border-purple/30 max-w-2xl mx-auto"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-2 h-2 rounded-full bg-purple animate-pulse" />
+        <div className="font-mono text-xs text-purple">СИСТЕМА:</div>
+      </div>
+      <div className="font-mono text-sm text-gray mt-2">
+        {messages[currentIndex]}
+      </div>
+    </motion.div>
+  );
+}
+
 interface Question {
   id: number;
   question: string;
@@ -433,10 +468,24 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
             </p>
             <button
               onClick={startTest}
-              className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg"
+              className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg mb-12"
             >
               Начать тест
             </button>
+            
+            {/* Манипулятивные фразы */}
+            <div className="mt-16 space-y-4">
+              <SystemMessage messages={[
+                'Инициализация протокола калибровки...',
+                'Сканирование нейронных связей...',
+                'Обнаружены аномалии в восприятии...',
+                'Загрузка модулей газлайтинга...',
+                'Подготовка к тестированию...',
+                'Калибровка сенсоров реальности...',
+                'Проверка стабильности психики...',
+                'Активация защитных механизмов...',
+              ]} />
+            </div>
           </motion.div>
         )}
 
