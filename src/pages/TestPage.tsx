@@ -79,6 +79,48 @@ const allQuestions: Question[] = [
   { id: 58, question: 'Что такое ДНК-репликация?', options: ['Процесс удвоения ДНК', 'Процесс разрушения ДНК', 'Процесс синтеза белка', 'Процесс мутации'], correct: 0 },
   { id: 59, question: 'Что такое экосистема?', options: ['Совокупность живых организмов и среды их обитания', 'Только живые организмы', 'Только среда обитания', 'Искусственная среда'], correct: 0 },
   { id: 60, question: 'Что такое социальный контракт?', options: ['Соглашение между гражданами и государством', 'Договор между компаниями', 'Международный договор', 'Семейное соглашение'], correct: 0 },
+  // Вопросы по математическому анализу (61-80)
+  { id: 61, question: 'Что такое предел функции?', options: ['Значение, к которому стремится функция', 'Максимальное значение функции', 'Минимальное значение функции', 'Не знаю'], correct: 0 },
+  { id: 62, question: 'Чему равен предел sin(x)/x при x→0?', options: ['0', '1', '∞', 'Не существует'], correct: 1 },
+  { id: 63, question: 'Что такое производная функции?', options: ['Скорость изменения функции', 'Площадь под графиком', 'Значение функции', 'Не знаю'], correct: 0 },
+  { id: 64, question: 'Чему равна производная константы?', options: ['0', '1', 'Константа', '∞'], correct: 0 },
+  { id: 65, question: 'Что такое интеграл?', options: ['Площадь под кривой', 'Производная функция', 'Предел функции', 'Не знаю'], correct: 0 },
+  { id: 66, question: 'Чему равен интеграл от 0 до 1 от x dx?', options: ['0', '1/2', '1', '2'], correct: 1 },
+  { id: 67, question: 'Что такое ряд Тейлора?', options: ['Разложение функции в степенной ряд', 'Сумма чисел', 'Произведение чисел', 'Не знаю'], correct: 0 },
+  { id: 68, question: 'Чему равна производная e^x?', options: ['e^x', 'x*e^(x-1)', 'ln(x)', '1/x'], correct: 0 },
+  { id: 69, question: 'Что такое непрерывность функции?', options: ['Функция без разрывов', 'Функция с разрывами', 'Постоянная функция', 'Не знаю'], correct: 0 },
+  { id: 70, question: 'Что такое точка разрыва?', options: ['Точка, где функция не непрерывна', 'Точка максимума', 'Точка минимума', 'Не знаю'], correct: 0 },
+  { id: 71, question: 'Чему равна производная sin(x)?', options: ['cos(x)', '-cos(x)', 'sin(x)', '-sin(x)'], correct: 0 },
+  { id: 72, question: 'Чему равна производная cos(x)?', options: ['sin(x)', '-sin(x)', 'cos(x)', '-cos(x)'], correct: 1 },
+  { id: 73, question: 'Что такое дифференциал функции?', options: ['Главная линейная часть приращения', 'Производная', 'Интеграл', 'Не знаю'], correct: 0 },
+  { id: 74, question: 'Что такое функция многих переменных?', options: ['Функция зависящая от нескольких переменных', 'Функция одной переменной', 'Константа', 'Не знаю'], correct: 0 },
+  { id: 75, question: 'Что такое частная производная?', options: ['Производная по одной переменной', 'Производная по всем переменным', 'Интеграл', 'Не знаю'], correct: 0 },
+  { id: 76, question: 'Что такое градиент функции?', options: ['Вектор частных производных', 'Скаляр', 'Матрица', 'Не знаю'], correct: 0 },
+  { id: 77, question: 'Что такое двойной интеграл?', options: ['Интеграл по двум переменным', 'Два одинаковых интеграла', 'Производная', 'Не знаю'], correct: 0 },
+  { id: 78, question: 'Что такое сходимость ряда?', options: ['Ряд имеет конечную сумму', 'Ряд расходится', 'Ряд бесконечен', 'Не знаю'], correct: 0 },
+  { id: 79, question: 'Что такое признак Даламбера?', options: ['Признак сходимости ряда', 'Признак расходимости', 'Формула суммы', 'Не знаю'], correct: 0 },
+  { id: 80, question: 'Что такое степенной ряд?', options: ['Ряд вида Σaₙxⁿ', 'Ряд чисел', 'Последовательность', 'Не знаю'], correct: 0 },
+  // Дополнительные вопросы (81-100)
+  { id: 81, question: 'Что такое логарифм?', options: ['Показатель степени', 'Основание степени', 'Степень числа', 'Не знаю'], correct: 0 },
+  { id: 82, question: 'Чему равен log₂(8)?', options: ['2', '3', '4', '8'], correct: 1 },
+  { id: 83, question: 'Что такое матрица?', options: ['Прямоугольная таблица чисел', 'Квадратное число', 'Вектор', 'Не знаю'], correct: 0 },
+  { id: 84, question: 'Что такое определитель матрицы?', options: ['Число, характеризующее матрицу', 'Сумма элементов', 'Произведение элементов', 'Не знаю'], correct: 0 },
+  { id: 85, question: 'Что такое вектор?', options: ['Направленный отрезок', 'Число', 'Матрица', 'Не знаю'], correct: 0 },
+  { id: 86, question: 'Что такое скалярное произведение векторов?', options: ['Число', 'Вектор', 'Матрица', 'Не знаю'], correct: 0 },
+  { id: 87, question: 'Что такое комплексное число?', options: ['Число вида a+bi', 'Действительное число', 'Натуральное число', 'Не знаю'], correct: 0 },
+  { id: 88, question: 'Чему равно i²?', options: ['-1', '1', 'i', '0'], correct: 0 },
+  { id: 89, question: 'Что такое дифференциальное уравнение?', options: ['Уравнение с производной', 'Алгебраическое уравнение', 'Система уравнений', 'Не знаю'], correct: 0 },
+  { id: 90, question: 'Что такое порядок дифференциального уравнения?', options: ['Порядок старшей производной', 'Количество переменных', 'Количество решений', 'Не знаю'], correct: 0 },
+  { id: 91, question: 'Что такое теорема Rolle?', options: ['О существовании точки с нулевой производной', 'О сумме ряда', 'О пределе', 'Не знаю'], correct: 0 },
+  { id: 92, question: 'Что такое теорема Лагранжа?', options: ['О существовании точки с производной, равной среднему', 'О пределе', 'О интеграле', 'Не знаю'], correct: 0 },
+  { id: 93, question: 'Что такое формула Ньютона-Лейбница?', options: ['Формула для вычисления определенного интеграла', 'Формула производной', 'Формула предела', 'Не знаю'], correct: 0 },
+  { id: 94, question: 'Что такое несобственный интеграл?', options: ['Интеграл с бесконечными пределами', 'Определенный интеграл', 'Неопределенный интеграл', 'Не знаю'], correct: 0 },
+  { id: 95, question: 'Что такое функция Лапласа?', options: ['Преобразование функции', 'Производная', 'Интеграл', 'Не знаю'], correct: 0 },
+  { id: 96, question: 'Что такое ряд Фурье?', options: ['Разложение периодической функции', 'Степенной ряд', 'Числовой ряд', 'Не знаю'], correct: 0 },
+  { id: 97, question: 'Что такое преобразование Фурье?', options: ['Переход от функции к её спектру', 'Производная', 'Интеграл', 'Не знаю'], correct: 0 },
+  { id: 98, question: 'Что такое тензор?', options: ['Многомерный массив', 'Матрица', 'Вектор', 'Не знаю'], correct: 0 },
+  { id: 99, question: 'Что такое многообразие?', options: ['Пространство, локально похожее на евклидово', 'Множество', 'Функция', 'Не знаю'], correct: 0 },
+  { id: 100, question: 'Что такое топология?', options: ['Раздел математики о свойствах пространств', 'Алгебра', 'Анализ', 'Не знаю'], correct: 0 },
 ];
 
 interface TestPageProps {
@@ -100,6 +142,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const [answerChanged, setAnswerChanged] = useState(false);
   const [showMemoryMessage, setShowMemoryMessage] = useState<string | null>(null);
   const [showDenyMessage, setShowDenyMessage] = useState<string | null>(null);
+  const [showQuestionChangeMessage, setShowQuestionChangeMessage] = useState(false);
   const [testCrashed, setTestCrashed] = useState(false);
   const [manipulations, setManipulations] = useState<Manipulation[]>([]);
   const [showDebrief, setShowDebrief] = useState(false);
@@ -199,6 +242,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
             i === currentQuestion ? { ...q, question: alt.question, options: alt.options, correct: alt.correct } : q
           ));
           setQuestionRewritten(true);
+          setShowQuestionChangeMessage(true);
+          setTimeout(() => setShowQuestionChangeMessage(false), 3000);
           if (answers[currentQuestion] !== null) {
             setAnswers(prev => prev.map((a, i) => i === currentQuestion ? null : a));
             setAnswerChanged(true);
@@ -404,6 +449,9 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
               </h2>
               {answerChanged && (
                 <div className="font-mono text-xs text-orange mt-2">* ваш ответ был сброшен</div>
+              )}
+              {showQuestionChangeMessage && (
+                <div className="font-mono text-xs text-purple mt-2 animate-pulse">* вопрос изменился</div>
               )}
             </div>
 

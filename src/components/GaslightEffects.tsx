@@ -26,7 +26,6 @@ export function useGaslighting(enabled: boolean) {
     fakeLoader: false,
     textScrambleActive: false,
     invertedColors: false,
-    falseUrgencyTimer: null as number | null,
   });
 
   const timersRef = useRef<number[]>([]);
@@ -221,14 +220,6 @@ export function useGaslighting(enabled: boolean) {
       }
     }, timings.invertedColors.interval * capabilities.slowdownFactor));
 
-    // False urgency timer
-    intervalsRef.current.push(setInterval(() => {
-      if (Math.random() > 0.7) {
-        const timerValue = timings.falseUrgency.start - Math.floor(Math.random() * timings.falseUrgency.start);
-        setEffects(prev => ({ ...prev, falseUrgencyTimer: timerValue }));
-        setTimeout(() => setEffects(prev => ({ ...prev, falseUrgencyTimer: null })), 5000);
-      }
-    }, 15000 * capabilities.slowdownFactor));
   };
 
   useEffect(() => {
@@ -258,7 +249,6 @@ export function useGaslighting(enabled: boolean) {
         fakeLoader: false,
         textScrambleActive: false,
         invertedColors: false,
-        falseUrgencyTimer: null,
       });
     }
 
@@ -382,15 +372,6 @@ export function GaslightEffects({ effects }: { effects: ReturnType<typeof useGas
         </div>
       )}
 
-      {/* False urgency timer */}
-      {effects.falseUrgencyTimer !== null && (
-        <div className="fixed top-32 right-4 z-[9992] glass rounded-lg px-4 py-3 border-l-2 border-orange/50" role="status" aria-live="polite">
-          <div className="font-mono text-xs text-orange mb-1">⏰ ОСТАЛОСЬ:</div>
-          <div className="font-mono text-lg text-orange font-bold">
-            {Math.floor(effects.falseUrgencyTimer / 60)}:{(effects.falseUrgencyTimer % 60).toString().padStart(2, '0')}
-          </div>
-        </div>
-      )}
     </>
   );
 }

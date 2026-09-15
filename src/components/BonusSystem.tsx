@@ -6,6 +6,7 @@ export default function BonusSystem() {
   const [showUpdate, setShowUpdate] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const [updateCount, setUpdateCount] = useState(0);
+  const [showBurnMessage, setShowBurnMessage] = useState(false);
 
   // Накопление бонусов
   useEffect(() => {
@@ -15,6 +16,17 @@ export default function BonusSystem() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Проверка достижения 5000 бонусов и сброс
+  useEffect(() => {
+    if (bonusPoints >= 5000) {
+      setShowBurnMessage(true);
+      setTimeout(() => {
+        setBonusPoints(0);
+        setShowBurnMessage(false);
+      }, 3000);
+    }
+  }, [bonusPoints]);
 
   // Обновление лицензионных условий
   useEffect(() => {
@@ -91,6 +103,31 @@ export default function BonusSystem() {
                   </div>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Сообщение о сгорании бонусов */}
+      <AnimatePresence>
+        {showBurnMessage && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9996]"
+          >
+            <div className="glass rounded-xl p-6 border-2 border-red/50 text-center">
+              <div className="text-4xl mb-3">🔥</div>
+              <h3 className="font-heading text-xl font-bold text-red mb-2">
+                БОНУСЫ СГОРЕЛИ!
+              </h3>
+              <p className="text-gray text-sm">
+                Вы достигли 5000 бонусов, но они сгорели из-за изменения условий программы.
+              </p>
+              <p className="text-gray/60 text-xs mt-2">
+                Начисление начинается заново...
+              </p>
             </div>
           </motion.div>
         )}
