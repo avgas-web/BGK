@@ -1,130 +1,210 @@
 import { useState, useEffect } from 'react';
 
 export default function BGCLogo3D() {
-  const [rotation, setRotation] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
-  const [showKGB, setShowKGB] = useState(false);
+  const [showCracks, setShowCracks] = useState(false);
 
-  // Анимация вращения
+  // Периодический переворот букв каждые 25 секунд
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRotation(prev => {
-        const newRotation = prev + 0.5;
-        
-        // Каждые 30 секунд показываем КГБ на 3 секунды
-        if (newRotation % 360 === 180) {
-          setShowKGB(true);
-          setIsShaking(true);
-          setTimeout(() => {
-            setShowKGB(false);
-            setIsShaking(false);
-          }, 3000);
-        }
-        
-        return newRotation % 360;
-      });
-    }, 50);
-    return () => clearInterval(interval);
+    const flipInterval = setInterval(() => {
+      // Переворачиваем буквы
+      setIsFlipped(true);
+      setIsShaking(true);
+      setShowCracks(true);
+      
+      // Возвращаем в нормальное состояние через 2.5 секунды
+      setTimeout(() => {
+        setIsFlipped(false);
+        setIsShaking(false);
+        setShowCracks(false);
+      }, 2500);
+    }, 25000);
+
+    return () => clearInterval(flipInterval);
   }, []);
 
   return (
-    <div className={`relative w-80 h-80 ${isShaking ? 'animate-screen-shake' : ''}`}>
-      {/* Разбитое стекло при показе КГБ */}
-      {showKGB && (
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          <svg viewBox="0 0 400 400" className="w-full h-full">
-            {/* Трещины */}
-            <path d="M 200 200 L 150 100 L 120 50" stroke="#FF3B3B" strokeWidth="2" fill="none" opacity="0.8" />
-            <path d="M 200 200 L 250 100 L 280 50" stroke="#FF3B3B" strokeWidth="2" fill="none" opacity="0.8" />
-            <path d="M 200 200 L 100 250 L 50 280" stroke="#FF3B3B" strokeWidth="2" fill="none" opacity="0.8" />
-            <path d="M 200 200 L 300 250 L 350 280" stroke="#FF3B3B" strokeWidth="2" fill="none" opacity="0.8" />
-            <path d="M 200 200 L 150 300 L 120 350" stroke="#FF3B3B" strokeWidth="1.5" fill="none" opacity="0.6" />
-            <path d="M 200 200 L 250 300 L 280 350" stroke="#FF3B3B" strokeWidth="1.5" fill="none" opacity="0.6" />
-            <path d="M 200 200 L 100 150 L 50 120" stroke="#FF3B3B" strokeWidth="1.5" fill="none" opacity="0.6" />
-            <path d="M 200 200 L 300 150 L 350 120" stroke="#FF3B3B" strokeWidth="1.5" fill="none" opacity="0.6" />
+    <div className={`relative ${isShaking ? 'animate-screen-shake' : ''}`}>
+      {/* Эффект разбитого стекла */}
+      {showCracks && (
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          <svg 
+            viewBox="0 0 1920 1080" 
+            className="w-full h-full"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            {/* Основные трещины из центра */}
+            <path 
+              d="M 960 540 L 800 300 L 700 150 L 650 50" 
+              stroke="#FF3B3B" 
+              strokeWidth="3" 
+              fill="none" 
+              opacity="0.9"
+            />
+            <path 
+              d="M 960 540 L 1120 300 L 1220 150 L 1270 50" 
+              stroke="#FF3B3B" 
+              strokeWidth="3" 
+              fill="none" 
+              opacity="0.9"
+            />
+            <path 
+              d="M 960 540 L 700 700 L 550 850 L 450 1000" 
+              stroke="#FF3B3B" 
+              strokeWidth="3" 
+              fill="none" 
+              opacity="0.9"
+            />
+            <path 
+              d="M 960 540 L 1220 700 L 1370 850 L 1470 1000" 
+              stroke="#FF3B3B" 
+              strokeWidth="3" 
+              fill="none" 
+              opacity="0.9"
+            />
+            
+            {/* Горизонтальные трещины */}
+            <path 
+              d="M 960 540 L 500 540 L 200 540 L 0 540" 
+              stroke="#FF3B3B" 
+              strokeWidth="2.5" 
+              fill="none" 
+              opacity="0.8"
+            />
+            <path 
+              d="M 960 540 L 1420 540 L 1720 540 L 1920 540" 
+              stroke="#FF3B3B" 
+              strokeWidth="2.5" 
+              fill="none" 
+              opacity="0.8"
+            />
+            
+            {/* Вертикальные трещины */}
+            <path 
+              d="M 960 540 L 960 200 L 960 0" 
+              stroke="#FF3B3B" 
+              strokeWidth="2.5" 
+              fill="none" 
+              opacity="0.8"
+            />
+            <path 
+              d="M 960 540 L 960 880 L 960 1080" 
+              stroke="#FF3B3B" 
+              strokeWidth="2.5" 
+              fill="none" 
+              opacity="0.8"
+            />
+            
+            {/* Диагональные трещины */}
+            <path 
+              d="M 960 540 L 600 200 L 300 0" 
+              stroke="#FF3B3B" 
+              strokeWidth="2" 
+              fill="none" 
+              opacity="0.7"
+            />
+            <path 
+              d="M 960 540 L 1320 200 L 1620 0" 
+              stroke="#FF3B3B" 
+              strokeWidth="2" 
+              fill="none" 
+              opacity="0.7"
+            />
+            <path 
+              d="M 960 540 L 600 880 L 300 1080" 
+              stroke="#FF3B3B" 
+              strokeWidth="2" 
+              fill="none" 
+              opacity="0.7"
+            />
+            <path 
+              d="M 960 540 L 1320 880 L 1620 1080" 
+              stroke="#FF3B3B" 
+              strokeWidth="2" 
+              fill="none" 
+              opacity="0.7"
+            />
             
             {/* Дополнительные мелкие трещины */}
-            <path d="M 150 100 L 130 80" stroke="#FF3B3B" strokeWidth="1" fill="none" opacity="0.5" />
-            <path d="M 250 100 L 270 80" stroke="#FF3B3B" strokeWidth="1" fill="none" opacity="0.5" />
-            <path d="M 100 250 L 80 270" stroke="#FF3B3B" strokeWidth="1" fill="none" opacity="0.5" />
-            <path d="M 300 250 L 320 270" stroke="#FF3B3B" strokeWidth="1" fill="none" opacity="0.5" />
+            <path 
+              d="M 800 300 L 750 250 L 720 200" 
+              stroke="#FF3B3B" 
+              strokeWidth="1.5" 
+              fill="none" 
+              opacity="0.6"
+            />
+            <path 
+              d="M 1120 300 L 1170 250 L 1200 200" 
+              stroke="#FF3B3B" 
+              strokeWidth="1.5" 
+              fill="none" 
+              opacity="0.6"
+            />
+            <path 
+              d="M 700 700 L 650 750 L 620 800" 
+              stroke="#FF3B3B" 
+              strokeWidth="1.5" 
+              fill="none" 
+              opacity="0.6"
+            />
+            <path 
+              d="M 1220 700 L 1270 750 L 1300 800" 
+              stroke="#FF3B3B" 
+              strokeWidth="1.5" 
+              fill="none" 
+              opacity="0.6"
+            />
+            
+            {/* Еще больше мелких трещин для реалистичности */}
+            <path 
+              d="M 500 540 L 450 500 L 420 450" 
+              stroke="#FF3B3B" 
+              strokeWidth="1" 
+              fill="none" 
+              opacity="0.5"
+            />
+            <path 
+              d="M 1420 540 L 1470 580 L 1500 630" 
+              stroke="#FF3B3B" 
+              strokeWidth="1" 
+              fill="none" 
+              opacity="0.5"
+            />
+            <path 
+              d="M 960 200 L 920 150 L 900 100" 
+              stroke="#FF3B3B" 
+              strokeWidth="1" 
+              fill="none" 
+              opacity="0.5"
+            />
+            <path 
+              d="M 960 880 L 1000 930 L 1020 980" 
+              stroke="#FF3B3B" 
+              strokeWidth="1" 
+              fill="none" 
+              opacity="0.5"
+            />
           </svg>
         </div>
       )}
       
-      {/* Минималистичный шлем */}
-      <svg viewBox="0 0 400 400" className="w-full h-full">
-        {/* Черный фон */}
-        <rect width="400" height="400" fill="#070712" />
-        
-        {/* Основной контур шлема - минималистичный */}
-        <path
-          d="M 200 80 
-             C 150 80, 120 110, 110 160
-             L 105 220
-             L 110 280
-             L 130 320
-             L 170 340
-             L 200 345
-             L 230 340
-             L 270 320
-             L 290 280
-             L 295 220
-             L 290 160
-             C 280 110, 250 80, 200 80 Z"
-          fill="none"
-          stroke="#C8FF00"
-          strokeWidth="3"
-        />
-
-        {/* Козырек - простая линия */}
-        <path
-          d="M 140 120
-             Q 200 100, 260 120"
-          fill="none"
-          stroke="#C8FF00"
-          strokeWidth="2.5"
-        />
-
-        {/* Визор - трапеция */}
-        <path
-          d="M 150 160
-             L 250 160
-             L 260 220
-             L 250 270
-             L 150 270
-             L 140 220 Z"
-          fill="none"
-          stroke="#C8FF00"
-          strokeWidth="3"
-        />
-
-        {/* Буквы БГК или КГБ */}
-        <text
-          x="200"
-          y="225"
-          fontFamily="monospace"
-          fontSize="56"
-          fontWeight="bold"
-          fill={showKGB ? '#FF3B3B' : '#C8FF00'}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          style={{
-            transition: 'fill 0.3s ease',
-          }}
-        >
-          {showKGB ? 'КГБ' : 'БГК'}
-        </text>
-
-        {/* Боковые элементы - минималистичные */}
-        <line x1="110" y1="180" x2="90" y2="160" stroke="#7B61FF" strokeWidth="2" />
-        <line x1="290" y1="180" x2="310" y2="160" stroke="#7B61FF" strokeWidth="2" />
-
-        {/* Подбородочная секция - простые линии */}
-        <line x1="160" y1="300" x2="240" y2="300" stroke="#7B61FF" strokeWidth="2" />
-        <line x1="165" y1="315" x2="235" y2="315" stroke="#7B61FF" strokeWidth="1.5" />
-        <line x1="170" y1="330" x2="230" y2="330" stroke="#7B61FF" strokeWidth="1.5" />
-      </svg>
+      {/* Крупные буквы БГК / КГБ */}
+      <div 
+        className={`text-[200px] font-black font-heading tracking-tighter transition-all duration-300 ${
+          isShaking ? 'animate-tilt' : ''
+        }`}
+        style={{
+          color: isFlipped ? '#FF3B3B' : '#C8FF00',
+          WebkitTextStroke: isFlipped ? '3px #C8FF00' : '3px #FF3B3B',
+          transform: isFlipped ? 'scaleX(-1)' : 'scaleX(1)',
+          textShadow: isFlipped 
+            ? '0 0 30px rgba(255, 59, 59, 0.8), 0 0 60px rgba(255, 59, 59, 0.4)' 
+            : '0 0 30px rgba(200, 255, 0, 0.8), 0 0 60px rgba(200, 255, 0, 0.4)',
+        }}
+      >
+        {isFlipped ? 'КГБ' : 'БГК'}
+      </div>
     </div>
   );
 }

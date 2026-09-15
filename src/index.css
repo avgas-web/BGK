@@ -173,6 +173,19 @@ body {
   90% { transform: translate(-5px, -3px) rotate(-0.5deg); }
 }
 
+@keyframes tilt {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  10% { transform: rotate(-8deg) scale(1.05); }
+  20% { transform: rotate(6deg) scale(0.98); }
+  30% { transform: rotate(-5deg) scale(1.03); }
+  40% { transform: rotate(4deg) scale(0.99); }
+  50% { transform: rotate(-3deg) scale(1.02); }
+  60% { transform: rotate(2deg) scale(1); }
+  70% { transform: rotate(-1deg) scale(1.01); }
+  80% { transform: rotate(1deg) scale(1); }
+  90% { transform: rotate(0deg) scale(1); }
+}
+
 /* ====== UTILITY CLASSES ====== */
 .glitch-text { position: relative; }
 .glitch-text::before,
@@ -209,6 +222,7 @@ body {
 .animate-rotate-slight { animation: rotate-slight 2s ease-in-out infinite; }
 .animate-scale-breathe { animation: scale-breathe 4s ease-in-out infinite; }
 .animate-screen-shake { animation: screen-shake 0.5s ease-in-out; }
+.animate-tilt { animation: tilt 2.5s ease-in-out; }
 
 /* Glass effect */
 .glass {
