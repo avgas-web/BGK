@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { motion } from 'framer-motion';
 import { GaslightEffects } from './GaslightEffects';
 import SafeZoneButton from './SafeZoneButton';
@@ -34,6 +34,7 @@ export default function Layout({
   checkStopWord,
   onNavigate,
 }: LayoutProps) {
+  const [showPhoneGaslight, setShowPhoneGaslight] = useState(false);
   const containerClass = clarityMode ? 'clarity-mode' : '';
 
   return (
@@ -182,7 +183,14 @@ export default function Layout({
             <div>
               <h4 className="font-heading text-sm font-bold mb-3">Контакты</h4>
               <ul className="space-y-2 text-xs text-gray">
-                <li>avgas85@mail.ru</li>
+                <li>
+                  <button
+                    onClick={() => setShowPhoneGaslight(!showPhoneGaslight)}
+                    className="hover:text-lime transition-colors"
+                  >
+                    {showPhoneGaslight ? 'avgas85@mail.ru (вам показалось)' : 'Показать телефон'}
+                  </button>
+                </li>
                 <li>Санкт-Петербург</li>
               </ul>
             </div>
