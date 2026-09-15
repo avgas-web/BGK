@@ -1,18 +1,36 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 export default function BGCLogo3D() {
+  const [rotation, setRotation] = useState(0);
+  const [isShaking, setIsShaking] = useState(false);
+
+  // Анимация вращения с тряской при 180°
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRotation(prev => {
+        const newRotation = prev + 1;
+        // Тряска при достижении 180 градусов (переворот букв)
+        if (newRotation % 360 === 180) {
+          setIsShaking(true);
+          setTimeout(() => setIsShaking(false), 500);
+        }
+        return newRotation % 360;
+      });
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="relative w-64 h-64" style={{ perspective: '1000px' }}>
-      <motion.div
+    <div 
+      className={`relative w-64 h-64 ${isShaking ? 'animate-screen-shake' : ''}`} 
+      style={{ perspective: '1000px' }}
+    >
+      <div
         className="relative w-full h-full"
-        style={{ transformStyle: 'preserve-3d' }}
-        animate={{
-          rotateY: [0, 360],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: 'linear',
+        style={{ 
+          transformStyle: 'preserve-3d',
+          transform: `rotateY(${rotation}deg)`,
         }}
       >
         {/* Основной шлем/визор */}
@@ -176,28 +194,23 @@ export default function BGCLogo3D() {
             opacity="0.5"
           />
         </svg>
-      </motion.div>
+      </div>
 
-      {/* Буквы БГК под логотипом */}
-      <motion.div
+      {/* Буквы БГК под логотипом с 3D-эффектом и боковыми гранями */}
+      <div 
         className="absolute -bottom-16 left-1/2 -translate-x-1/2 flex gap-2"
         style={{ transformStyle: 'preserve-3d' }}
       >
         {['Б', 'Г', 'К'].map((letter, i) => (
-          <motion.div
+          <div
             key={i}
             className="relative"
-            style={{ transformStyle: 'preserve-3d' }}
-            animate={{
-              rotateY: [0, 360],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: 'linear',
-              delay: i * 0.2,
+            style={{ 
+              transformStyle: 'preserve-3d',
+              transform: `rotateY(${rotation}deg)`,
             }}
           >
+            {/* Передняя грань */}
             <div
               className="text-5xl font-bold font-heading"
               style={{
@@ -208,6 +221,8 @@ export default function BGCLogo3D() {
             >
               {letter}
             </div>
+            
+            {/* Задняя грань */}
             <div
               className="absolute inset-0 text-5xl font-bold font-heading"
               style={{
@@ -217,9 +232,61 @@ export default function BGCLogo3D() {
             >
               {letter}
             </div>
-          </motion.div>
+            
+            {/* Левая боковая грань */}
+            <div
+              className="absolute inset-0 text-5xl font-bold font-heading"
+              style={{
+                color: '#A00000',
+                transform: `translateX(-3px) translateZ(-5px) rotateY(-90deg)`,
+                transformOrigin: 'left center',
+                opacity: 0.7,
+              }}
+            >
+              {letter}
+            </div>
+            
+            {/* Правая боковая грань */}
+            <div
+              className="absolute inset-0 text-5xl font-bold font-heading"
+              style={{
+                color: '#A00000',
+                transform: `translateX(3px) translateZ(-5px) rotateY(90deg)`,
+                transformOrigin: 'right center',
+                opacity: 0.7,
+              }}
+            >
+              {letter}
+            </div>
+            
+            {/* Верхняя боковая грань */}
+            <div
+              className="absolute inset-0 text-5xl font-bold font-heading"
+              style={{
+                color: '#C00000',
+                transform: `translateY(-3px) translateZ(-5px) rotateX(90deg)`,
+                transformOrigin: 'center top',
+                opacity: 0.6,
+              }}
+            >
+              {letter}
+            </div>
+            
+            {/* Нижняя боковая грань */}
+            <div
+              className="absolute inset-0 text-5xl font-bold font-heading"
+              style={{
+                color: '#600000',
+                transform: `translateY(3px) translateZ(-5px) rotateX(-90deg)`,
+                transformOrigin: 'center bottom',
+                opacity: 0.8,
+              }}
+            >
+              {letter}
+            </div>
+          </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,8 @@ import { ReactNode, useState } from 'react';
 import { motion } from 'framer-motion';
 import { GaslightEffects } from './GaslightEffects';
 import SafeZoneButton from './SafeZoneButton';
+import UrgencyTimer from './UrgencyTimer';
+import BonusSystem from './BonusSystem';
 
 interface LayoutProps {
   children: ReactNode;
@@ -42,6 +44,12 @@ export default function Layout({
       gaslight.jitterActive ? 'animate-jitter' : ''
     } ${gaslight.colorShiftActive ? 'animate-color-shift' : ''}`}>
       <GaslightEffects effects={gaslight} />
+
+      {/* Таймер обратного отсчёта с продлением */}
+      {effectsActive && <UrgencyTimer />}
+
+      {/* Система бонусов с обновлением условий */}
+      {effectsActive && <BonusSystem />}
 
       {/* Safe Zone Button */}
       <SafeZoneButton
