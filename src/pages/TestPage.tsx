@@ -2,6 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGaslighting, GaslightEffects } from '../components/GaslightEffects';
 import TestDebrief, { Manipulation } from '../components/TestDebrief';
+import { FinancialPanic } from '../components/FinancialPanic';
+import { InternetBlame } from '../components/GaslightPatterns';
+import { BSOD } from '../components/ScaryEffects';
 
 interface Question {
   id: number;
@@ -17,9 +20,9 @@ const allQuestions: Question[] = [
   { id: 2, question: 'Сколько секунд длится «Десятисекундный люк»?', options: ['5 секунд', '10 секунд', '15 секунд', '30 секунд'], correct: 1 },
   { id: 3, question: 'Какое стоп-слово используется в проекте?', options: ['Бесконечность', 'Свобода', 'Ясность', 'Выход'], correct: 0 },
   { id: 4, question: 'Сколько актов в методе «Калибровка»?', options: ['Два', 'Три', 'Четыре', 'Пять'], correct: 1 },
-  { id: 5, question: 'Что вы чувствуете прямо сейчас?', options: ['Уверенность', 'Лёгкое сомнение', 'Дезориентацию', 'Всё перечисленное'] },
-  { id: 6, question: 'Какой вопрос был первым?', options: ['О цвете заголовка', 'О стоп-слове', 'О длительности люка', 'Не помню'], correct: 0 },
-  { id: 7, question: 'Вы проходили этот тест раньше?', options: ['Да', 'Нет', 'Не уверен', 'Мне кажется, да'] },
+  { id: 5, question: 'Какой закон описывает взаимосвязь между давлением, объёмом и температурой газа?', options: ['Закон Бойля-Мариотта', 'Закон Ома', 'Закон Ньютона', 'Закон Кулона'], correct: 0 },
+  { id: 6, question: 'Какой процесс происходит при делении ядра урана-235?', options: ['Синтез', 'Деление', 'Ионизация', 'Нейтрализация'], correct: 1 },
+  { id: 7, question: 'Что является основным источником энергии на Земле?', options: ['Луна', 'Солнце', 'Ядро Земли', 'Ветер'], correct: 1 },
   // Вопросы 1-5 классы
   { id: 8, question: 'Сколько будет 2 + 2?', options: ['3', '4', '5', 'Не помню'], correct: 1 },
   { id: 9, question: 'Какая планета ближе всего к Солнцу?', options: ['Венера', 'Земля', 'Меркурий', 'Марс'], correct: 2 },
@@ -55,12 +58,27 @@ const allQuestions: Question[] = [
   { id: 38, question: 'Что такое инфляция?', options: ['Повышение общего уровня цен', 'Снижение общего уровня цен', 'Стабильность цен', 'Не помню'], correct: 0 },
   { id: 39, question: 'Кто написал "Войну и мир"?', options: ['Достоевский', 'Толстой', 'Чехов', 'Не помню'], correct: 1 },
   { id: 40, question: 'Что такое гравитация?', options: ['Сила притяжения между массами', 'Сила отталкивания', 'Электромагнитная сила', 'Не помню'], correct: 0 },
-  // Дополнительные вопросы
-  ...Array.from({ length: 20 }, (_, i) => ({
-    id: 41 + i,
-    question: `Дополнительный вопрос ${i + 1}. Вы уверены в своём ответе?`,
-    options: ['Да', 'Нет', 'Не знаю', 'Это неважно'],
-  })),
+  // Вопросы из 11 класса (физика, химия, биология, литература, история, обществознание)
+  { id: 41, question: 'Что такое электромагнитная индукция?', options: ['Явление возникновения электрического тока при изменении магнитного поля', 'Процесс намагничивания', 'Процесс размагничивания', 'Не помню'], correct: 0 },
+  { id: 42, question: 'Какая формула описывает энергию фотона?', options: ['E = mc²', 'E = hν', 'E = mv²/2', 'E = kx'], correct: 1 },
+  { id: 43, question: 'Что такое квантовая механика?', options: ['Раздел физики, изучающий поведение макроскопических тел', 'Раздел физики, изучающий поведение микроскопических частиц', 'Раздел химии', 'Раздел биологии'], correct: 1 },
+  { id: 44, question: 'Какой тип химической связи возникает между атомами металлов?', options: ['Ионная', 'Ковалентная', 'Металлическая', 'Водородная'], correct: 2 },
+  { id: 45, question: 'Что такое окислительно-восстановительная реакция?', options: ['Реакция с изменением степеней окисления элементов', 'Реакция нейтрализации', 'Реакция обмена', 'Реакция разложения'], correct: 0 },
+  { id: 46, question: 'Какой орган вырабатывает инсулин?', options: ['Печень', 'Поджелудочная железа', 'Почки', 'Надпочечники'], correct: 1 },
+  { id: 47, question: 'Что такое мутация?', options: ['Изменение окружающей среды', 'Изменение генетического материала', 'Изменение поведения', 'Изменение климата'], correct: 1 },
+  { id: 48, question: 'Кто написал "Анна Каренина"?', options: ['Достоевский', 'Толстой', 'Тургенев', 'Чехов'], correct: 1 },
+  { id: 49, question: 'Что такое нигилизм в философии?', options: ['Отрицание общепринятых ценностей', 'Признание абсолютных истин', 'Вера в прогресс', 'Вера в бога'], correct: 0 },
+  { id: 50, question: 'Когда произошла Октябрьская революция?', options: ['1905 год', '1914 год', '1917 год', '1920 год'], correct: 2 },
+  { id: 51, question: 'Что такое тоталитаризм?', options: ['Политическая система с полным контролем государства над обществом', 'Демократическое правление', 'Анархия', 'Монархия'], correct: 0 },
+  { id: 52, question: 'Что такое ВВП?', options: ['Валовой внутренний продукт', 'Внешний валютный поток', 'Внутренний валютный продукт', 'Всемирный валютный фонд'], correct: 0 },
+  { id: 53, question: 'Что такое инфляция?', options: ['Устойчивое повышение общего уровня цен', 'Снижение цен', 'Стабильность цен', 'Колебание курса валют'], correct: 0 },
+  { id: 54, question: 'Какой закон описывает сохранение энергии?', options: ['Первый закон термодинамики', 'Второй закон термодинамики', 'Третий закон Ньютона', 'Закон Ома'], correct: 0 },
+  { id: 55, question: 'Что такое радиоактивный распад?', options: ['Самопроизвольное превращение нестабильных ядер', 'Ускорение частиц', 'Синтез ядер', 'Деление молекул'], correct: 0 },
+  { id: 56, question: 'Что такое естественный отбор?', options: ['Процесс выживания наиболее приспособленных организмов', 'Искусственный отбор животных', 'Случайный процесс', 'Процесс размножения'], correct: 0 },
+  { id: 57, question: 'Кто автор теории относительности?', options: ['Ньютон', 'Эйнштейн', 'Бор', 'Планк'], correct: 1 },
+  { id: 58, question: 'Что такое ДНК-репликация?', options: ['Процесс удвоения ДНК', 'Процесс разрушения ДНК', 'Процесс синтеза белка', 'Процесс мутации'], correct: 0 },
+  { id: 59, question: 'Что такое экосистема?', options: ['Совокупность живых организмов и среды их обитания', 'Только живые организмы', 'Только среда обитания', 'Искусственная среда'], correct: 0 },
+  { id: 60, question: 'Что такое социальный контракт?', options: ['Соглашение между гражданами и государством', 'Договор между компаниями', 'Международный договор', 'Семейное соглашение'], correct: 0 },
 ];
 
 interface TestPageProps {
@@ -87,6 +105,36 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const [showDebrief, setShowDebrief] = useState(false);
 
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
+
+  // Дополнительные газлайт-эффекты для теста
+  const [showMockery, setShowMockery] = useState(false);
+  const [mockeryMessage, setMockeryMessage] = useState('');
+
+  const mockeryMessages = [
+    '🤡 Вы серьёзно думали, что ответите правильно? Смешно.',
+    '😂 Даже мой кот знает ответ на этот вопрос. И он мёртв.',
+    '🙄 Опять неправильный ответ? Может, вам стоит вернуться в школу?',
+    '💀 Этот вопрос были в программе 5 класса. Вы точно заканчивали школу?',
+    '🎭 Вы либо гений, либо просто не читали вопрос. Ставлю на второе.',
+    '📚 Откройте учебник. Нет, серьёзно. Прямо сейчас.',
+    '🤦‍♂️ Я видел много глупых ответов, но этот... этот особенный.',
+  ];
+
+  // Периодически показываем насмешки
+  useEffect(() => {
+    if (!gaslightingEnabled || clarityMode) return;
+
+    const interval = setInterval(() => {
+      if (Math.random() > 0.80) {
+        const msg = mockeryMessages[Math.floor(Math.random() * mockeryMessages.length)];
+        setMockeryMessage(msg);
+        setShowMockery(true);
+        setTimeout(() => setShowMockery(false), 3500);
+      }
+    }, 20000);
+
+    return () => clearInterval(interval);
+  }, [gaslightingEnabled, clarityMode]);
 
   // Выбираем вопросы один раз при старте (Math.random() вне рендера)
   const startTest = () => {
@@ -226,6 +274,29 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       gaslight.jitterActive ? 'animate-jitter' : ''
     } ${gaslight.colorShiftActive ? 'animate-color-shift' : ''}`}>
       <GaslightEffects effects={gaslight} />
+      
+      {/* Дополнительные газлайт-эффекты */}
+      <FinancialPanic enabled={gaslightingEnabled && !clarityMode && !stopWordActive} />
+      <InternetBlame enabled={gaslightingEnabled && !clarityMode && !stopWordActive} />
+      <BSOD enabled={gaslightingEnabled && !clarityMode && !stopWordActive} />
+
+      {/* Насмешливые комментарии */}
+      <AnimatePresence>
+        {showMockery && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed top-1/4 left-1/2 -translate-x-1/2 z-[9997] max-w-md"
+          >
+            <div className="bg-purple/90 backdrop-blur border-2 border-purple rounded-lg p-4 shadow-[0_0_30px_rgba(123,97,255,0.5)]">
+              <div className="text-white font-mono text-sm font-bold">
+                {mockeryMessage}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Stop word input */}
       <div className="fixed bottom-4 right-4 z-50">
