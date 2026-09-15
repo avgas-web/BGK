@@ -17,6 +17,7 @@ export function BSOD({ enabled, forceShowBSOD = false, forceShowBIOS = false }: 
   useEffect(() => {
     if (forceShowBSOD) {
       setShowBSOD(true);
+      setTimeout(() => setShowBSOD(false), 2000);
     }
   }, [forceShowBSOD]);
   
@@ -24,8 +25,27 @@ export function BSOD({ enabled, forceShowBSOD = false, forceShowBIOS = false }: 
   useEffect(() => {
     if (forceShowBIOS) {
       setShowBIOS(true);
+      setTimeout(() => setShowBIOS(false), 2000);
     }
   }, [forceShowBIOS]);
+  
+  // Обработчик нажатия клавиш для закрытия
+  useEffect(() => {
+    const handleKeyPress = () => {
+      if (showBSOD) setShowBSOD(false);
+      if (showBIOS) setShowBIOS(false);
+    };
+    
+    if (showBSOD || showBIOS) {
+      window.addEventListener('keydown', handleKeyPress);
+      window.addEventListener('click', handleKeyPress);
+    }
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+      window.removeEventListener('click', handleKeyPress);
+    };
+  }, [showBSOD, showBIOS]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -34,7 +54,7 @@ export function BSOD({ enabled, forceShowBSOD = false, forceShowBIOS = false }: 
     const bsodInterval = setInterval(() => {
       if (Math.random() > 0.95) {
         setShowBSOD(true);
-        setTimeout(() => setShowBSOD(false), 3000);
+        setTimeout(() => setShowBSOD(false), 2000);
       }
     }, 60000);
 
@@ -58,7 +78,7 @@ export function BSOD({ enabled, forceShowBSOD = false, forceShowBIOS = false }: 
     const biosInterval = setInterval(() => {
       if (Math.random() > 0.97) {
         setShowBIOS(true);
-        setTimeout(() => setShowBIOS(false), 4000);
+        setTimeout(() => setShowBIOS(false), 2000);
       }
     }, 120000);
 
