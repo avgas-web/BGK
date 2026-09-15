@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import BGCLogo3D from './BGCLogo3D';
 
 interface WarningPageProps {
   onAccept: () => void;
@@ -7,65 +8,17 @@ interface WarningPageProps {
 
 export default function WarningPage({ onAccept }: WarningPageProps) {
   const [checked, setChecked] = useState(false);
-  const [rotation, setRotation] = useState(0);
-  const [isShaking, setIsShaking] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRotation(prev => {
-        const newRotation = prev + 1;
-        if (newRotation % 360 === 180) {
-          setIsShaking(true);
-          setTimeout(() => setIsShaking(false), 500);
-        }
-        return newRotation % 360;
-      });
-    }, 50);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
-    <div className={`min-h-screen bg-cosmic text-white flex items-center justify-center p-6 ${isShaking ? 'animate-screen-shake' : ''}`}>
+    <div className="min-h-screen bg-cosmic text-white flex items-center justify-center p-6">
       <div className="max-w-2xl w-full">
         {/* 3D Логотип */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-24"
         >
-          <div className="relative" style={{ perspective: '1000px' }}>
-            <div
-              className="flex gap-4"
-              style={{
-                transformStyle: 'preserve-3d',
-                transform: `rotateY(${rotation}deg)`,
-              }}
-            >
-              {['Б', 'Г', 'К'].map((letter, i) => (
-                <div key={i} className="relative" style={{ transformStyle: 'preserve-3d' }}>
-                  <div
-                    className="text-8xl font-bold font-heading"
-                    style={{
-                      color: '#FF3B3B',
-                      transform: `translateZ(${20 - i * 5}px)`,
-                      textShadow: '0 0 10px rgba(255, 59, 59, 0.5)',
-                    }}
-                  >
-                    {letter}
-                  </div>
-                  <div
-                    className="absolute inset-0 text-8xl font-bold font-heading"
-                    style={{
-                      color: '#8B0000',
-                      transform: 'translateZ(-20px)',
-                    }}
-                  >
-                    {letter}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <BGCLogo3D />
         </motion.div>
 
         {/* Предупреждение */}

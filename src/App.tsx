@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useGaslighting, GaslightEffects } from './components/GaslightEffects';
-import { FocusTrap } from './components/FocusTrap';
+import { motion } from 'framer-motion';
+import { useGaslighting } from './components/GaslightEffects';
 import Layout from './components/Layout';
 
 // Code splitting - ленивая загрузка страниц

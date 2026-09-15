@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGaslighting, GaslightEffects } from '../components/GaslightEffects';
 import TestDebrief, { Manipulation } from '../components/TestDebrief';
