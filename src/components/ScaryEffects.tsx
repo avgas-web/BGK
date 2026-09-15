@@ -30,9 +30,9 @@ export function BSOD({ enabled }: BSODProps) {
       }
     }, 60000);
 
-    // Трещины на экране - раз в минуту с 5% вероятности
+    // Трещины на экране - раз в минуту с 15% вероятности
     const cracksInterval = setInterval(() => {
-      if (Math.random() > 0.95) {
+      if (Math.random() > 0.85) {
         setShowCracks(true);
         setTimeout(() => setShowCracks(false), 4000);
       }

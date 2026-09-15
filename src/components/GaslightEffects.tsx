@@ -171,7 +171,7 @@ export function useGaslighting(enabled: boolean) {
 
     // Fake notifications
     intervalsRef.current.push(setInterval(() => {
-      if (Math.random() > 0.85) {
+      if (Math.random() > (1 - timings.notifications.probability)) {
         const notifications = GASLIGHT_CONFIG.phrases.notifications;
         const n = notifications[Math.floor(Math.random() * notifications.length)];
         setEffects(prev => ({ ...prev, notification: { id: Date.now(), ...n } }));
@@ -181,7 +181,7 @@ export function useGaslighting(enabled: boolean) {
 
     // Memory gaslight
     intervalsRef.current.push(setInterval(() => {
-      if (Math.random() > 0.88) {
+      if (Math.random() > (1 - timings.memoryGaslight.probability)) {
         const memories = GASLIGHT_CONFIG.phrases.memoryGaslight;
         const memory = memories[Math.floor(Math.random() * memories.length)];
         setEffects(prev => ({ ...prev, memoryGaslight: memory }));
