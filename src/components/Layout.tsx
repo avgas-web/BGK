@@ -115,6 +115,15 @@ export default function Layout({
             <button onClick={() => onNavigate('b2b')} className="hover:text-lime transition-colors">B2B</button>
             <button onClick={() => onNavigate('team')} className="hover:text-lime transition-colors">Команда</button>
             <button onClick={() => onNavigate('faq')} className="hover:text-lime transition-colors">FAQ</button>
+            <button
+              onClick={() => {
+                setClarityMode(!clarityMode);
+                setGaslightingEnabled(!clarityMode);
+              }}
+              className="ml-4 px-3 py-1 rounded-full text-xs font-mono border border-purple/30 hover:border-lime/50 transition-colors"
+            >
+              {clarityMode ? '✦ Спектакль' : '◎ Тишина'}
+            </button>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => onNavigate('test')} className="bg-lime/10 border border-lime/30 text-lime px-4 py-2 rounded-full text-sm font-heading">

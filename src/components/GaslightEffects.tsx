@@ -113,13 +113,13 @@ export function useGaslighting(enabled: boolean) {
       setEffects(prev => ({ ...prev, cookieSwapped: !prev.cookieSwapped }));
     }, 8000));
 
-    // Fake crash screen
+    // Fake crash screen (5% вероятность раз в минуту)
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.95) {
         setEffects(prev => ({ ...prev, showCrashScreen: true }));
         setTimeout(() => setEffects(prev => ({ ...prev, showCrashScreen: false })), timings.crashScreen.duration);
       }
-    }, timings.crashScreen.interval * capabilities.slowdownFactor));
+    }, 60000 * capabilities.slowdownFactor)); // 60 секунд
 
     // Freeze frames
     intervalsRef.current.push(setInterval(() => {
