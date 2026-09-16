@@ -30,7 +30,10 @@ export default function Roulette({ onComplete }: RouletteProps) {
     // Всегда выигрывает скидку 90% (индекс 0)
     const winningIndex = 0;
     const segmentAngle = 360 / segments.length;
-    const targetRotation = 360 * 5 + (360 - winningIndex * segmentAngle - segmentAngle / 2);
+    // Добавляем случайное смещение и накапливаем вращение
+    const randomOffset = Math.random() * 30 - 15; // ±15 градусов
+    const spins = 5 + Math.floor(Math.random() * 3); // 5-7 полных оборотов
+    const targetRotation = rotation + spins * 360 + (360 - winningIndex * segmentAngle - segmentAngle / 2) + randomOffset;
 
     setRotation(targetRotation);
 
