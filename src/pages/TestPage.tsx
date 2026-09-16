@@ -208,6 +208,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const [mockeryMessage, setMockeryMessage] = useState('');
   const [showConfirmAnswer, setShowConfirmAnswer] = useState(false);
   const [pendingAnswer, setPendingAnswer] = useState<number | null>(null);
+  const [confirmCount, setConfirmCount] = useState(0); // Счетчик подтверждений (максимум 3)
 
   const mockeryMessages = [
     '🤡 Вы серьёзно думали, что ответите правильно? Смешно.',
@@ -287,10 +288,11 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   };
 
   const handleAnswer = (optionIndex: number) => {
-    // 19% вероятность появления окошка подтверждения
-    if (gaslightingEnabled && !clarityMode && Math.random() < 0.19) {
+    // 19% вероятность появления окошка подтверждения (максимум 3 раза за тест)
+    if (gaslightingEnabled && !clarityMode && confirmCount < 3 && Math.random() < 0.19) {
       setPendingAnswer(optionIndex);
       setShowConfirmAnswer(true);
+      setConfirmCount(prev => prev + 1);
       return;
     }
 
@@ -374,6 +376,14 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       setAnswers(newAnswers);
       setPendingAnswer(null);
       setShowConfirmAnswer(false);
+      
+      // Отслеживаем манипуляцию подтверждения ответа
+      trackManipulation(
+        'answer_confirmation',
+        'Подтверждение ответа',
+        'Появилось окно с требованием подтвердить свой ответ, заставив усомниться в выборе',
+        'https://ru.wikipedia.org/wiki/Газлайтинг'
+      );
     }
   };
 
@@ -453,11 +463,11 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const containerClass = clarityMode ? 'clarity-mode' : '';
   const currentQ = selectedQuestions[currentQuestion];
   
-  // Подсчет правильных ответов (честно, на основе оригинальных вопросов)
+  // Подсчет правильных ответов (на основе перемешанных вопросов с правильными индексами)
   const correctAnswersCount = answers.reduce<number>((count, answer, index) => {
     if (answer === null) return count;
-    const originalQuestion = allQuestions.find(q => q.id === selectedQuestions[index]?.id);
-    if (originalQuestion && answer === originalQuestion.correct) {
+    const selectedQ = selectedQuestions[index];
+    if (selectedQ && answer === selectedQ.correct) {
       return count + 1;
     }
     return count;
@@ -727,6 +737,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
               setManipulations([]);
               setBsodShown(false);
               setBiosShown(false);
+              setConfirmCount(0);
             }}
           />
         )}
