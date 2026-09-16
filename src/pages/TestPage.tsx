@@ -549,19 +549,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
         )}
       </AnimatePresence>
 
-      {/* Stop word input */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <div className="flex flex-col items-end gap-1">
-          <label className="text-[10px] text-gray/60 font-mono">СТОП-СЛОВО:</label>
-          <input
-            type="text"
-            value={stopInput}
-            onChange={(e) => { setStopInput(e.target.value); checkStopWord(e.target.value); }}
-            placeholder="Введите для остановки..."
-            className="bg-graphite/80 backdrop-blur border border-purple/30 rounded px-3 py-2 text-xs text-gray w-48 focus:w-64 transition-all focus:outline-none focus:border-lime font-mono"
-          />
-        </div>
-      </div>
+
 
       {/* Clarity mode toggle */}
       <button
