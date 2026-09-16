@@ -63,24 +63,24 @@ export default function Layout({
         </ErrorBoundary>
       )}
 
-      {/* Stop word panel - перемещено в правый верхний угол */}
-      <div className="fixed top-6 right-6 z-50">
+      {/* Stop word panel - в правом нижнем углу */}
+      <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => setShowStopPanel(!showStopPanel)}
           className="group relative w-16 h-16 rounded-full bg-red/90 backdrop-blur border-4 border-red flex items-center justify-center shadow-[0_0_30px_rgba(255,59,59,0.5)] hover:shadow-[0_0_40px_rgba(255,59,59,0.8)] transition-all hover:scale-110"
           aria-label="Открыть панель стоп-слова"
         >
           <span className="text-white text-2xl font-bold">⏹</span>
-          <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-red/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-red/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
             СТОП-СЛОВО
           </span>
         </button>
         {showStopPanel && (
           <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            className="absolute top-20 right-0 bg-graphite/95 backdrop-blur border-2 border-red/50 rounded-lg p-4 w-72 shadow-[0_0_30px_rgba(255,59,59,0.3)]"
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute bottom-20 right-0 bg-graphite/95 backdrop-blur border-2 border-red/50 rounded-lg p-4 w-72 shadow-[0_0_30px_rgba(255,59,59,0.3)]"
           >
             <div className="text-sm text-red font-mono mb-3 font-bold">🛑 СТОП-СЛОВО:</div>
             <input

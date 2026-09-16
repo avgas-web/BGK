@@ -206,6 +206,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   // Дополнительные газлайт-эффекты для теста
   const [showMockery, setShowMockery] = useState(false);
   const [mockeryMessage, setMockeryMessage] = useState('');
+  const [showConfirmAnswer, setShowConfirmAnswer] = useState(false);
+  const [pendingAnswer, setPendingAnswer] = useState<number | null>(null);
 
   const mockeryMessages = [
     '🤡 Вы серьёзно думали, что ответите правильно? Смешно.',
@@ -285,6 +287,13 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   };
 
   const handleAnswer = (optionIndex: number) => {
+    // 19% вероятность появления окошка подтверждения
+    if (gaslightingEnabled && !clarityMode && Math.random() < 0.19) {
+      setPendingAnswer(optionIndex);
+      setShowConfirmAnswer(true);
+      return;
+    }
+
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = optionIndex;
     setAnswers(newAnswers);
@@ -356,6 +365,21 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
         setTimeout(() => setShowMemoryMessage(null), 3000);
       }, 2000);
     }
+  };
+
+  const confirmAnswer = () => {
+    if (pendingAnswer !== null) {
+      const newAnswers = [...answers];
+      newAnswers[currentQuestion] = pendingAnswer;
+      setAnswers(newAnswers);
+      setPendingAnswer(null);
+      setShowConfirmAnswer(false);
+    }
+  };
+
+  const cancelAnswer = () => {
+    setPendingAnswer(null);
+    setShowConfirmAnswer(false);
   };
 
   const nextQuestion = () => {
@@ -468,6 +492,49 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
                 {mockeryMessage}
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Окошко подтверждения ответа - 19% вероятность */}
+      <AnimatePresence>
+        {showConfirmAnswer && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9998] bg-black/70 backdrop-blur-sm flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-graphite border-2 border-orange/50 rounded-xl p-6 max-w-md mx-4 shadow-[0_0_40px_rgba(255,107,53,0.4)]"
+            >
+              <div className="text-center mb-4">
+                <div className="text-4xl mb-3">⚠️</div>
+                <h3 className="text-xl font-bold text-orange mb-2">
+                  Вы уверены в своём ответе?
+                </h3>
+                <p className="text-gray text-sm">
+                  Подумайте ещё раз. Уверены ли вы в выбранном варианте?
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={confirmAnswer}
+                  className="flex-1 bg-orange/20 border border-orange/50 text-orange py-2 px-4 rounded-lg hover:bg-orange/30 transition-colors font-bold"
+                >
+                  Да, уверен
+                </button>
+                <button
+                  onClick={cancelAnswer}
+                  className="flex-1 bg-graphite border border-gray/50 text-gray py-2 px-4 rounded-lg hover:bg-graphite/80 transition-colors"
+                >
+                  Передумать
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

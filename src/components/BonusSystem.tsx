@@ -17,16 +17,20 @@ export default function BonusSystem() {
     return () => clearInterval(interval);
   }, []);
 
-  // Проверка достижения 5000 бонусов и сброс
+  // Проверка достижения 401-528 бонусов и сброс
+  const [burnThreshold, setBurnThreshold] = useState(Math.floor(Math.random() * 128) + 401); // 401-528
+  
   useEffect(() => {
-    if (bonusPoints >= 5000) {
+    if (bonusPoints >= burnThreshold) {
       setShowBurnMessage(true);
-      setTimeout(() => {
-        setBonusPoints(0);
-        setShowBurnMessage(false);
-      }, 3000);
     }
-  }, [bonusPoints]);
+  }, [bonusPoints, burnThreshold]);
+  
+  const handleBurnConfirm = () => {
+    setBonusPoints(0);
+    setShowBurnMessage(false);
+    setBurnThreshold(Math.floor(Math.random() * 128) + 401); // Новый порог
+  };
 
   // Обновление лицензионных условий
   useEffect(() => {
@@ -108,26 +112,54 @@ export default function BonusSystem() {
         )}
       </AnimatePresence>
 
-      {/* Сообщение о сгорании бонусов */}
+      {/* Сообщение о сгорании бонусов - на весь экран */}
       <AnimatePresence>
         {showBurnMessage && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9996]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-gradient-to-br from-red/90 via-red/80 to-red/90 flex items-center justify-center"
           >
-            <div className="glass rounded-xl p-6 border-2 border-red/50 text-center">
-              <div className="text-4xl mb-3">🔥</div>
-              <h3 className="font-heading text-xl font-bold text-red mb-2">
+            <div className="text-center p-8">
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, -5, 5, 0]
+                }}
+                transition={{ duration: 0.5, repeat: Infinity }}
+                className="text-8xl mb-8"
+              >
+                🔥
+              </motion.div>
+              <motion.h2
+                animate={{ 
+                  scale: [1, 1.05, 1],
+                  textShadow: [
+                    '0 0 20px rgba(255,0,0,0.8)',
+                    '0 0 40px rgba(255,0,0,1)',
+                    '0 0 20px rgba(255,0,0,0.8)'
+                  ]
+                }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+                className="text-6xl font-bold text-white mb-6 font-heading"
+              >
                 БОНУСЫ СГОРЕЛИ!
-              </h3>
-              <p className="text-gray text-sm">
-                Вы достигли 5000 бонусов, но они сгорели из-за изменения условий программы.
+              </motion.h2>
+              <p className="text-white text-xl mb-4">
+                Вы достигли {burnThreshold} бонусов, но они сгорели.
               </p>
-              <p className="text-gray/60 text-xs mt-2">
-                Начисление начинается заново...
+              <p className="text-white/80 text-lg mb-8">
+                Условия программы изменились. Начисление начинается заново.
               </p>
+              <motion.button
+                onClick={handleBurnConfirm}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white text-red px-12 py-4 rounded-full font-bold text-xl hover:bg-red-100 transition-all shadow-2xl"
+              >
+                Согласен
+              </motion.button>
             </div>
           </motion.div>
         )}
