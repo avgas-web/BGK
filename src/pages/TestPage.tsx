@@ -206,6 +206,9 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   // Дополнительные газлайт-эффекты для теста
   const [showMockery, setShowMockery] = useState(false);
   const [mockeryMessage, setMockeryMessage] = useState('');
+  const [showConfirmAnswer, setShowConfirmAnswer] = useState(false);
+  const [pendingAnswer, setPendingAnswer] = useState<number | null>(null);
+  const [confirmCount, setConfirmCount] = useState(0); // Счетчик подтверждений (максимум 3)
 
   const mockeryMessages = [
     '🤡 Вы серьёзно думали, что ответите правильно? Смешно.',
@@ -285,6 +288,14 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   };
 
   const handleAnswer = (optionIndex: number) => {
+    // 19% вероятность появления окошка подтверждения (максимум 3 раза за тест)
+    if (gaslightingEnabled && !clarityMode && confirmCount < 3 && Math.random() < 0.19) {
+      setPendingAnswer(optionIndex);
+      setShowConfirmAnswer(true);
+      setConfirmCount(prev => prev + 1);
+      return;
+    }
+
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = optionIndex;
     setAnswers(newAnswers);
@@ -358,6 +369,29 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     }
   };
 
+  const confirmAnswer = () => {
+    if (pendingAnswer !== null) {
+      const newAnswers = [...answers];
+      newAnswers[currentQuestion] = pendingAnswer;
+      setAnswers(newAnswers);
+      setPendingAnswer(null);
+      setShowConfirmAnswer(false);
+      
+      // Отслеживаем манипуляцию подтверждения ответа
+      trackManipulation(
+        'answer_confirmation',
+        'Подтверждение ответа',
+        'Появилось окно с требованием подтвердить свой ответ, заставив усомниться в выборе',
+        'https://ru.wikipedia.org/wiki/Газлайтинг'
+      );
+    }
+  };
+
+  const cancelAnswer = () => {
+    setPendingAnswer(null);
+    setShowConfirmAnswer(false);
+  };
+
   const nextQuestion = () => {
     // Отслеживаем манипуляции
     if (questionRewritten) {
@@ -429,11 +463,11 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const containerClass = clarityMode ? 'clarity-mode' : '';
   const currentQ = selectedQuestions[currentQuestion];
   
-  // Подсчет правильных ответов (честно, на основе оригинальных вопросов)
+  // Подсчет правильных ответов (на основе перемешанных вопросов с правильными индексами)
   const correctAnswersCount = answers.reduce<number>((count, answer, index) => {
     if (answer === null) return count;
-    const originalQuestion = allQuestions.find(q => q.id === selectedQuestions[index]?.id);
-    if (originalQuestion && answer === originalQuestion.correct) {
+    const selectedQ = selectedQuestions[index];
+    if (selectedQ && answer === selectedQ.correct) {
       return count + 1;
     }
     return count;
@@ -454,9 +488,9 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
         forceShowBIOS={showBIOS}
       />
 
-      {/* Насмешливые комментарии */}
+      {/* Насмешливые комментарии - только во время теста */}
       <AnimatePresence>
-        {showMockery && (
+        {showMockery && testStarted && !showResult && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -468,6 +502,49 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
                 {mockeryMessage}
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Окошко подтверждения ответа - 19% вероятность */}
+      <AnimatePresence>
+        {showConfirmAnswer && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9998] bg-black/70 backdrop-blur-sm flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-graphite border-2 border-orange/50 rounded-xl p-6 max-w-md mx-4 shadow-[0_0_40px_rgba(255,107,53,0.4)]"
+            >
+              <div className="text-center mb-4">
+                <div className="text-4xl mb-3">⚠️</div>
+                <h3 className="text-xl font-bold text-orange mb-2">
+                  Вы уверены в своём ответе?
+                </h3>
+                <p className="text-gray text-sm">
+                  Подумайте ещё раз. Уверены ли вы в выбранном варианте?
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={confirmAnswer}
+                  className="flex-1 bg-orange/20 border border-orange/50 text-orange py-2 px-4 rounded-lg hover:bg-orange/30 transition-colors font-bold"
+                >
+                  Да, уверен
+                </button>
+                <button
+                  onClick={cancelAnswer}
+                  className="flex-1 bg-graphite border border-gray/50 text-gray py-2 px-4 rounded-lg hover:bg-graphite/80 transition-colors"
+                >
+                  Передумать
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -660,6 +737,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
               setManipulations([]);
               setBsodShown(false);
               setBiosShown(false);
+              setConfirmCount(0);
             }}
           />
         )}

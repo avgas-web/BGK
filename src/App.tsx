@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import { motion } from 'framer-motion';
+import { motion, LazyMotion, domAnimation } from 'framer-motion';
 import { useGaslighting } from './components/GaslightEffects';
 import Layout from './components/Layout';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { FocusTrap } from './components/FocusTrap';
 
 // Code splitting - ленивая загрузка страниц
 const WarningPage = lazy(() => import('./components/WarningPage'));
@@ -388,9 +390,10 @@ export default function App() {
     navigators[page]?.();
   }, [navigateToHome, navigateToTest, navigateToRoulette, navigateToMethod, navigateToProducts, navigateToTeam, navigateToB2B, navigateToFAQ, navigateToEthics]);
 
-  // Stop word
+  // Stop word - убираем зависимость от регистра
   const checkStopWord = useCallback((value: string) => {
-    if (value.toLowerCase().includes('бесконечность')) {
+    const normalizedValue = value.toLowerCase().trim();
+    if (normalizedValue.includes('бесконечность')) {
       setStopWordActive(true);
       setGaslightingEnabled(false);
       setClarityMode(true);
