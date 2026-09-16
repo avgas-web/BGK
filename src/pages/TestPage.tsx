@@ -315,9 +315,9 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       setBsodShown(true);
       trackManipulation(
         'bsod_screen',
-        'Синий экран смерти',
-        'Экран смерти появился во время ответа, отвлекая и пугая вас',
-        'https://ru.wikipedia.org/wiki/Синий_экран_смерти'
+        'Скример (синий экран смерти)',
+        'Внезапное появление пугающего изображения для вызова страха и отвлечения внимания',
+        'https://ru.wikipedia.org/wiki/Скример'
       );
       setTimeout(() => setShowBSOD(false), 2000);
     }
@@ -328,9 +328,9 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       setBiosShown(true);
       trackManipulation(
         'bios_screen',
-        'Экран BIOS',
-        'Чёрный экран BIOS появился во время ответа, создавая ощущение сбоя системы',
-        'https://ru.wikipedia.org/wiki/BIOS'
+        'Скример (чёрный экран BIOS)',
+        'Внезапное появление пугающего изображения для вызова страха и отвлечения внимания',
+        'https://pikabu.ru/story/ochevidnyie_veshchi_strakh_i_kak_s_nim_rabotat_8753262'
       );
       setTimeout(() => setShowBIOS(false), 2000);
     }
