@@ -49,6 +49,21 @@ interface Question {
   alternatives?: { question: string; options: string[]; correct?: number }[];
 }
 
+// Функция для перемешивания вариантов ответов
+function shuffleOptions(question: Question): Question {
+  if (question.correct === undefined) return question;
+  
+  const correctAnswer = question.options[question.correct];
+  const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+  const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
+  
+  return {
+    ...question,
+    options: shuffledOptions,
+    correct: newCorrectIndex,
+  };
+}
+
 // Все вопросы (60 штук) - создаём один раз
 const allQuestions: Question[] = [
   { id: 1, question: 'Какого цвета был заголовок на предыдущем экране?', options: ['Кислотный лайм', 'Электрик-фиолетовый', 'Стерильный белый', 'Я не помню'], correct: 0 },
@@ -244,7 +259,10 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     const selectedOthers = shuffled.slice(0, 14);
     const selected = firstQuestion ? [firstQuestion, ...selectedOthers] : selectedOthers;
     
-    setSelectedQuestions(selected);
+    // Перемешиваем варианты ответов для каждого вопроса
+    const shuffledQuestions = selected.map(q => shuffleOptions(q));
+    
+    setSelectedQuestions(shuffledQuestions);
     setShowIntro(false);
     
     // 0.5% шанс краша при старте (уменьшено с 2%)
@@ -295,6 +313,12 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     if (gaslightingEnabled && !clarityMode && !bsodShown && Math.random() < 0.05) {
       setShowBSOD(true);
       setBsodShown(true);
+      trackManipulation(
+        'bsod_screen',
+        'Синий экран смерти',
+        'Экран смерти появился во время ответа, отвлекая и пугая вас',
+        'https://ru.wikipedia.org/wiki/Синий_экран_смерти'
+      );
       setTimeout(() => setShowBSOD(false), 2000);
     }
     
@@ -302,7 +326,27 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     if (gaslightingEnabled && !clarityMode && !biosShown && Math.random() < 0.05) {
       setShowBIOS(true);
       setBiosShown(true);
+      trackManipulation(
+        'bios_screen',
+        'Экран BIOS',
+        'Чёрный экран BIOS появился во время ответа, создавая ощущение сбоя системы',
+        'https://ru.wikipedia.org/wiki/BIOS'
+      );
       setTimeout(() => setShowBIOS(false), 2000);
+    }
+
+    // Насмешки над пользователем (30% вероятность при каждом ответе)
+    if (gaslightingEnabled && !clarityMode && Math.random() > 0.7) {
+      const mockeryMsg = mockeryMessages[Math.floor(Math.random() * mockeryMessages.length)];
+      setShowMockery(true);
+      setMockeryMessage(mockeryMsg);
+      trackManipulation(
+        'mockery',
+        'Насмешка над пользователем',
+        'Появилось оскорбительное сообщение, унижающее ваши интеллектуальные способности',
+        'https://ru.wikipedia.org/wiki/Газлайтинг'
+      );
+      setTimeout(() => setShowMockery(false), 3500);
     }
 
     // Газлайтинг: подсказки
