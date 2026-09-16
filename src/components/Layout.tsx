@@ -1,5 +1,5 @@
 import { ReactNode, useState } from 'react';
-import { motion, LazyMotion, domAnimation } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { GaslightEffects } from './GaslightEffects';
 import SafeZoneButton from './SafeZoneButton';
 import UrgencyTimer from './UrgencyTimer';
@@ -41,28 +41,27 @@ export default function Layout({
   const containerClass = clarityMode ? 'clarity-mode' : '';
 
   return (
-    <LazyMotion features={domAnimation} strict>
-      <div className={`min-h-screen bg-cosmic text-white ${containerClass} scanline-overlay noise-bg ${
-        gaslight.jitterActive ? 'animate-jitter' : ''
-      } ${gaslight.colorShiftActive ? 'animate-color-shift' : ''}`}>
-        {/* Оборачиваем эффекты в ErrorBoundary для защиты от падений */}
-        <ErrorBoundary fallback={<div className="fixed inset-0 pointer-events-none" />}>
-          <GaslightEffects effects={gaslight} />
+    <div className={`min-h-screen bg-cosmic text-white ${containerClass} scanline-overlay noise-bg ${
+      gaslight.jitterActive ? 'animate-jitter' : ''
+    } ${gaslight.colorShiftActive ? 'animate-color-shift' : ''}`}>
+      {/* Оборачиваем эффекты в ErrorBoundary для защиты от падений */}
+      <ErrorBoundary fallback={<div className="fixed inset-0 pointer-events-none" />}>
+        <GaslightEffects effects={gaslight} />
+      </ErrorBoundary>
+
+      {/* Таймер обратного отсчёта с продлением */}
+      {effectsActive && (
+        <ErrorBoundary fallback={<div />}>
+          <UrgencyTimer />
         </ErrorBoundary>
+      )}
 
-        {/* Таймер обратного отсчёта с продлением */}
-        {effectsActive && (
-          <ErrorBoundary fallback={<div />}>
-            <UrgencyTimer />
-          </ErrorBoundary>
-        )}
-
-        {/* Система бонусов с обновлением условий */}
-        {effectsActive && (
-          <ErrorBoundary fallback={<div />}>
-            <BonusSystem />
-          </ErrorBoundary>
-        )}
+      {/* Система бонусов с обновлением условий */}
+      {effectsActive && (
+        <ErrorBoundary fallback={<div />}>
+          <BonusSystem />
+        </ErrorBoundary>
+      )}
 
       {/* Safe Zone Button */}
       <SafeZoneButton
@@ -243,7 +242,6 @@ export default function Layout({
           </div>
         </div>
       </footer>
-      </div>
-    </LazyMotion>
+    </div>
   );
 }
