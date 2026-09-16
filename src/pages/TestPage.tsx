@@ -686,6 +686,14 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
                     if (gaslightingEnabled && !clarityMode) {
                       setShowDenyMessage('Попытка возврата. Это нечестная сдача теста.');
                       setTimeout(() => setShowDenyMessage(null), 3000);
+                      
+                      // Отслеживаем манипуляцию обвинения в нечестности
+                      trackManipulation(
+                        'dishonesty_accusation',
+                        'Обвинение в нечестности',
+                        'При возврате на предыдущий вопрос появилось обвинение в нечестной сдаче теста, заставившее усомниться в своих действиях',
+                        'https://ru.wikipedia.org/wiki/Газлайтинг'
+                      );
                     }
                   }
                 }}

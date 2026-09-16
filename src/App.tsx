@@ -4,6 +4,7 @@ import { useGaslighting } from './components/GaslightEffects';
 import Layout from './components/Layout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { FocusTrap } from './components/FocusTrap';
+import ManipulationGuide from './components/ManipulationGuide';
 
 // Code splitting - ленивая загрузка страниц
 const WarningPage = lazy(() => import('./components/WarningPage'));
@@ -352,6 +353,7 @@ export default function App() {
   const [stopWordActive, setStopWordActive] = useState(false);
   const [stopInput, setStopInput] = useState('');
   const [showStopPanel, setShowStopPanel] = useState(false);
+  const [showManipulationGuide, setShowManipulationGuide] = useState(false);
 
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
 
@@ -450,6 +452,21 @@ export default function App() {
       ) : (
         <Layout {...layoutProps}>
           {renderPage()}
+          
+          {/* Кнопка для открытия справочника манипуляций в режиме ясности */}
+          {clarityMode && (
+            <button
+              onClick={() => setShowManipulationGuide(true)}
+              className="fixed bottom-6 left-6 z-50 bg-lime/20 border-2 border-lime/50 text-lime px-4 py-2 rounded-lg hover:bg-lime/30 transition-colors font-bold text-sm"
+            >
+              📖 Справочник манипуляций
+            </button>
+          )}
+          
+          {/* Справочник манипуляций */}
+          {showManipulationGuide && (
+            <ManipulationGuide onClose={() => setShowManipulationGuide(false)} />
+          )}
         </Layout>
       )}
     </Suspense>
