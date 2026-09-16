@@ -1,9 +1,10 @@
 import { ReactNode, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, LazyMotion, domAnimation } from 'framer-motion';
 import { GaslightEffects } from './GaslightEffects';
 import SafeZoneButton from './SafeZoneButton';
 import UrgencyTimer from './UrgencyTimer';
 import BonusSystem from './BonusSystem';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface LayoutProps {
   children: ReactNode;
@@ -40,16 +41,28 @@ export default function Layout({
   const containerClass = clarityMode ? 'clarity-mode' : '';
 
   return (
-    <div className={`min-h-screen bg-cosmic text-white ${containerClass} scanline-overlay noise-bg ${
-      gaslight.jitterActive ? 'animate-jitter' : ''
-    } ${gaslight.colorShiftActive ? 'animate-color-shift' : ''}`}>
-      <GaslightEffects effects={gaslight} />
+    <LazyMotion features={domAnimation} strict>
+      <div className={`min-h-screen bg-cosmic text-white ${containerClass} scanline-overlay noise-bg ${
+        gaslight.jitterActive ? 'animate-jitter' : ''
+      } ${gaslight.colorShiftActive ? 'animate-color-shift' : ''}`}>
+        {/* Оборачиваем эффекты в ErrorBoundary для защиты от падений */}
+        <ErrorBoundary fallback={<div className="fixed inset-0 pointer-events-none" />}>
+          <GaslightEffects effects={gaslight} />
+        </ErrorBoundary>
 
-      {/* Таймер обратного отсчёта с продлением */}
-      {effectsActive && <UrgencyTimer />}
+        {/* Таймер обратного отсчёта с продлением */}
+        {effectsActive && (
+          <ErrorBoundary fallback={<div />}>
+            <UrgencyTimer />
+          </ErrorBoundary>
+        )}
 
-      {/* Система бонусов с обновлением условий */}
-      {effectsActive && <BonusSystem />}
+        {/* Система бонусов с обновлением условий */}
+        {effectsActive && (
+          <ErrorBoundary fallback={<div />}>
+            <BonusSystem />
+          </ErrorBoundary>
+        )}
 
       {/* Safe Zone Button */}
       <SafeZoneButton
@@ -60,30 +73,37 @@ export default function Layout({
         }}
       />
 
-      {/* Stop word panel */}
-      <div className="fixed bottom-4 right-4 z-50">
+      {/* Stop word panel - более заметная кнопка */}
+      <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => setShowStopPanel(!showStopPanel)}
-          className="w-12 h-12 rounded-full bg-graphite/80 backdrop-blur border-2 border-red/50 flex items-center justify-center"
+          className="group relative w-16 h-16 rounded-full bg-red/90 backdrop-blur border-4 border-red flex items-center justify-center shadow-[0_0_30px_rgba(255,59,59,0.5)] hover:shadow-[0_0_40px_rgba(255,59,59,0.8)] transition-all hover:scale-110"
           aria-label="Открыть панель стоп-слова"
         >
-          <span className="text-red text-xl">⏹</span>
+          <span className="text-white text-2xl font-bold">⏹</span>
+          <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-red/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            СТОП-СЛОВО
+          </span>
         </button>
         {showStopPanel && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute bottom-14 right-0 bg-graphite/95 backdrop-blur border border-red/30 rounded-lg p-3 w-64"
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute bottom-20 right-0 bg-graphite/95 backdrop-blur border-2 border-red/50 rounded-lg p-4 w-72 shadow-[0_0_30px_rgba(255,59,59,0.3)]"
           >
-            <div className="text-xs text-red font-mono mb-2">СТОП-СЛОВО:</div>
+            <div className="text-sm text-red font-mono mb-3 font-bold">🛑 СТОП-СЛОВО:</div>
             <input
               type="text"
               value={stopInput}
               onChange={(e) => { setStopInput(e.target.value); checkStopWord(e.target.value); }}
               placeholder="Введите слово..."
-              className="w-full bg-cosmic border border-red/20 rounded px-3 py-2 text-xs text-gray focus:outline-none focus:border-red font-mono"
+              className="w-full bg-cosmic border-2 border-red/30 rounded px-3 py-2 text-sm text-gray focus:outline-none focus:border-red font-mono"
               autoFocus
             />
+            <div className="text-xs text-gray/60 mt-2">
+              Подсказка: бесконечность
+            </div>
           </motion.div>
         )}
       </div>
@@ -200,6 +220,16 @@ export default function Layout({
                   </button>
                 </li>
                 <li>Санкт-Петербург</li>
+                <li>
+                  <a href="mailto:avgas85@mail.ru" className="hover:text-lime transition-colors">
+                    avgas85@mail.ru
+                  </a>
+                </li>
+                <li>
+                  <a href="mailto:avgas85@mail.ru?subject=Психологическая помощь" className="text-orange hover:text-lime transition-colors">
+                    🆘 Психологическая помощь
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -213,6 +243,7 @@ export default function Layout({
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </LazyMotion>
   );
 }
