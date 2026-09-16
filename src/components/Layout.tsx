@@ -1,7 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { motion } from 'framer-motion';
 import { GaslightEffects } from './GaslightEffects';
-import SafeZoneButton from './SafeZoneButton';
 import UrgencyTimer from './UrgencyTimer';
 import BonusSystem from './BonusSystem';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -38,6 +37,7 @@ export default function Layout({
   onNavigate,
 }: LayoutProps) {
   const [showPhoneGaslight, setShowPhoneGaslight] = useState(false);
+  const [showHelpEmail, setShowHelpEmail] = useState(false);
   const containerClass = clarityMode ? 'clarity-mode' : '';
 
   return (
@@ -63,33 +63,24 @@ export default function Layout({
         </ErrorBoundary>
       )}
 
-      {/* Safe Zone Button */}
-      <SafeZoneButton
-        clarityMode={clarityMode}
-        onToggle={() => {
-          setClarityMode(!clarityMode);
-          setGaslightingEnabled(!clarityMode);
-        }}
-      />
-
-      {/* Stop word panel - более заметная кнопка */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Stop word panel - перемещено в правый верхний угол */}
+      <div className="fixed top-6 right-6 z-50">
         <button
           onClick={() => setShowStopPanel(!showStopPanel)}
           className="group relative w-16 h-16 rounded-full bg-red/90 backdrop-blur border-4 border-red flex items-center justify-center shadow-[0_0_30px_rgba(255,59,59,0.5)] hover:shadow-[0_0_40px_rgba(255,59,59,0.8)] transition-all hover:scale-110"
           aria-label="Открыть панель стоп-слова"
         >
           <span className="text-white text-2xl font-bold">⏹</span>
-          <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-red/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-red/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
             СТОП-СЛОВО
           </span>
         </button>
         {showStopPanel && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute bottom-20 right-0 bg-graphite/95 backdrop-blur border-2 border-red/50 rounded-lg p-4 w-72 shadow-[0_0_30px_rgba(255,59,59,0.3)]"
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            className="absolute top-20 right-0 bg-graphite/95 backdrop-blur border-2 border-red/50 rounded-lg p-4 w-72 shadow-[0_0_30px_rgba(255,59,59,0.3)]"
           >
             <div className="text-sm text-red font-mono mb-3 font-bold">🛑 СТОП-СЛОВО:</div>
             <input
@@ -225,9 +216,12 @@ export default function Layout({
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:avgas85@mail.ru?subject=Психологическая помощь" className="text-orange hover:text-lime transition-colors">
-                    🆘 Психологическая помощь
-                  </a>
+                  <button
+                    onClick={() => setShowHelpEmail(!showHelpEmail)}
+                    className="text-orange hover:text-lime transition-colors"
+                  >
+                    {showHelpEmail ? 'avgas85@mail.ru' : '🆘 Психологическая помощь'}
+                  </button>
                 </li>
               </ul>
             </div>

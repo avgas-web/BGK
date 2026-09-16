@@ -454,9 +454,9 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
         forceShowBIOS={showBIOS}
       />
 
-      {/* Насмешливые комментарии */}
+      {/* Насмешливые комментарии - только во время теста */}
       <AnimatePresence>
-        {showMockery && (
+        {showMockery && testStarted && !showResult && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
