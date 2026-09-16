@@ -49,6 +49,21 @@ interface Question {
   alternatives?: { question: string; options: string[]; correct?: number }[];
 }
 
+// Функция для перемешивания вариантов ответов
+function shuffleOptions(question: Question): Question {
+  if (question.correct === undefined) return question;
+  
+  const correctAnswer = question.options[question.correct];
+  const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+  const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
+  
+  return {
+    ...question,
+    options: shuffledOptions,
+    correct: newCorrectIndex,
+  };
+}
+
 // Все вопросы (60 штук) - создаём один раз
 const allQuestions: Question[] = [
   { id: 1, question: 'Какого цвета был заголовок на предыдущем экране?', options: ['Кислотный лайм', 'Электрик-фиолетовый', 'Стерильный белый', 'Я не помню'], correct: 0 },
@@ -183,6 +198,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const [showDebrief, setShowDebrief] = useState(false);
   const [showBSOD, setShowBSOD] = useState(false);
   const [showBIOS, setShowBIOS] = useState(false);
+  const [bsodShown, setBsodShown] = useState(false);
+  const [biosShown, setBiosShown] = useState(false);
 
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
 
@@ -242,11 +259,14 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     const selectedOthers = shuffled.slice(0, 14);
     const selected = firstQuestion ? [firstQuestion, ...selectedOthers] : selectedOthers;
     
-    setSelectedQuestions(selected);
+    // Перемешиваем варианты ответов для каждого вопроса
+    const shuffledQuestions = selected.map(q => shuffleOptions(q));
+    
+    setSelectedQuestions(shuffledQuestions);
     setShowIntro(false);
     
-    // 2% шанс краша при старте (уменьшено с 5%)
-    if (Math.random() < 0.02) {
+    // 0.5% шанс краша при старте (уменьшено с 2%)
+    if (Math.random() < 0.005) {
       setTestCrashed(true);
       return;
     }
@@ -289,16 +309,44 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       }
     }
     
-    // BSOD при ответе на вопрос (5% вероятность)
-    if (gaslightingEnabled && !clarityMode && Math.random() < 0.05) {
+    // BSOD при ответе на вопрос (5% вероятность, только один раз)
+    if (gaslightingEnabled && !clarityMode && !bsodShown && Math.random() < 0.05) {
       setShowBSOD(true);
+      setBsodShown(true);
+      trackManipulation(
+        'bsod_screen',
+        'Скример (синий экран смерти)',
+        'Внезапное появление пугающего изображения для вызова страха и отвлечения внимания',
+        'https://ru.wikipedia.org/wiki/Скример'
+      );
       setTimeout(() => setShowBSOD(false), 2000);
     }
     
-    // Черный экран BIOS при ответе на вопрос (5% вероятность)
-    if (gaslightingEnabled && !clarityMode && Math.random() < 0.05) {
+    // Черный экран BIOS при ответе на вопрос (5% вероятность, только один раз)
+    if (gaslightingEnabled && !clarityMode && !biosShown && Math.random() < 0.05) {
       setShowBIOS(true);
+      setBiosShown(true);
+      trackManipulation(
+        'bios_screen',
+        'Скример (чёрный экран BIOS)',
+        'Внезапное появление пугающего изображения для вызова страха и отвлечения внимания',
+        'https://pikabu.ru/story/ochevidnyie_veshchi_strakh_i_kak_s_nim_rabotat_8753262'
+      );
       setTimeout(() => setShowBIOS(false), 2000);
+    }
+
+    // Насмешки над пользователем (30% вероятность при каждом ответе)
+    if (gaslightingEnabled && !clarityMode && Math.random() > 0.7) {
+      const mockeryMsg = mockeryMessages[Math.floor(Math.random() * mockeryMessages.length)];
+      setShowMockery(true);
+      setMockeryMessage(mockeryMsg);
+      trackManipulation(
+        'mockery',
+        'Насмешка над пользователем',
+        'Появилось оскорбительное сообщение, унижающее ваши интеллектуальные способности',
+        'https://ru.wikipedia.org/wiki/Газлайтинг'
+      );
+      setTimeout(() => setShowMockery(false), 3500);
     }
 
     // Газлайтинг: подсказки
@@ -337,8 +385,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       );
     }
 
-    // 3% шанс краша в середине
-    if (currentQuestion > 2 && currentQuestion < selectedQuestions.length - 2 && Math.random() < 0.03) {
+    // 0.5% шанс краша в середине
+    if (currentQuestion > 2 && currentQuestion < selectedQuestions.length - 2 && Math.random() < 0.005) {
       trackManipulation(
         'test_crash',
         'Краш теста',
@@ -380,6 +428,16 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
 
   const containerClass = clarityMode ? 'clarity-mode' : '';
   const currentQ = selectedQuestions[currentQuestion];
+  
+  // Подсчет правильных ответов (честно, на основе оригинальных вопросов)
+  const correctAnswersCount = answers.reduce<number>((count, answer, index) => {
+    if (answer === null) return count;
+    const originalQuestion = allQuestions.find(q => q.id === selectedQuestions[index]?.id);
+    if (originalQuestion && answer === originalQuestion.correct) {
+      return count + 1;
+    }
+    return count;
+  }, 0);
 
   return (
     <div className={`min-h-screen bg-cosmic text-white ${containerClass} scanline-overlay ${
@@ -445,7 +503,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
             <p className="text-gray mb-2">Произошла критическая ошибка</p>
             <p className="text-gray text-sm mb-6">Возможно, вы не были готовы.</p>
             <button
-              onClick={() => { setTestCrashed(false); setTestStarted(true); setCurrentQuestion(0); setAnswers(Array(15).fill(null)); }}
+              onClick={() => { setTestCrashed(false); setTestStarted(true); setCurrentQuestion(0); setAnswers(Array(15).fill(null)); setBsodShown(false); setBiosShown(false); }}
               className="bg-lime text-cosmic px-6 py-3 rounded-full font-bold"
             >
               Попробовать снова
@@ -589,6 +647,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
         {showResult && showDebrief && (
           <TestDebrief
             manipulations={manipulations}
+            correctAnswers={correctAnswersCount}
+            totalQuestions={selectedQuestions.length}
             onBackToHome={onBackToHome}
             onRetakeTest={() => {
               setCurrentQuestion(0);
@@ -598,6 +658,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
               setTestStarted(false);
               setShowIntro(true);
               setManipulations([]);
+              setBsodShown(false);
+              setBiosShown(false);
             }}
           />
         )}
