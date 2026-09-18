@@ -64,15 +64,104 @@ function shuffleOptions(question: Question): Question {
   };
 }
 
+// Функция для добавления alternatives к вопросам
+function addAlternatives(question: Question): Question {
+  if (question.alternatives && question.alternatives.length > 0) {
+    return question;
+  }
+  
+  // Создаём альтернативные вопросы на основе оригинального
+  const alternatives = [
+    {
+      question: `Альтернатива 1: ${question.question}`,
+      options: [...question.options].sort(() => Math.random() - 0.5),
+      correct: Math.floor(Math.random() * question.options.length)
+    },
+    {
+      question: `Альтернатива 2: ${question.question}`,
+      options: [...question.options].sort(() => Math.random() - 0.5),
+      correct: Math.floor(Math.random() * question.options.length)
+    }
+  ];
+  
+  return {
+    ...question,
+    alternatives
+  };
+}
+
 // Все вопросы (60 штук) - создаём один раз
 const allQuestions: Question[] = [
-  { id: 1, question: 'Какого цвета был заголовок на предыдущем экране?', options: ['Кислотный лайм', 'Электрик-фиолетовый', 'Стерильный белый', 'Я не помню'], correct: 0 },
-  { id: 2, question: 'Сколько секунд длится «Десятисекундный люк»?', options: ['5 секунд', '10 секунд', '15 секунд', '30 секунд'], correct: 1 },
-  { id: 3, question: 'Какое стоп-слово используется в проекте?', options: ['Бесконечность', 'Свобода', 'Ясность', 'Выход'], correct: 0 },
-  { id: 4, question: 'Сколько актов в методе «Калибровка»?', options: ['Два', 'Три', 'Четыре', 'Пять'], correct: 1 },
-  { id: 5, question: 'Какой закон описывает взаимосвязь между давлением, объёмом и температурой газа?', options: ['Закон Бойля-Мариотта', 'Закон Ома', 'Закон Ньютона', 'Закон Кулона'], correct: 0 },
-  { id: 6, question: 'Какой процесс происходит при делении ядра урана-235?', options: ['Синтез', 'Деление', 'Ионизация', 'Нейтрализация'], correct: 1 },
-  { id: 7, question: 'Что является основным источником энергии на Земле?', options: ['Луна', 'Солнце', 'Ядро Земли', 'Ветер'], correct: 1 },
+  { 
+    id: 1, 
+    question: 'Какого цвета был заголовок на предыдущем экране?', 
+    options: ['Кислотный лайм', 'Электрик-фиолетовый', 'Стерильный белый', 'Я не помню'], 
+    correct: 0,
+    alternatives: [
+      { question: 'Какой шрифт использовался в заголовке?', options: ['Space Grotesk', 'Inter', 'JetBrains Mono', 'Не помню'], correct: 0 },
+      { question: 'Сколько орбитальных кругов было на экране?', options: ['Два', 'Три', 'Четыре', 'Не считал'], correct: 1 }
+    ]
+  },
+  { 
+    id: 2, 
+    question: 'Сколько секунд длится «Десятисекундный люк»?', 
+    options: ['5 секунд', '10 секунд', '15 секунд', '30 секунд'], 
+    correct: 1,
+    alternatives: [
+      { question: 'Сколько минут длится вся Калибровка?', options: ['2 часа', '4 часа', '6 часов', 'Не помню'], correct: 1 },
+      { question: 'Что происходит за 10 секунд?', options: ['Люк открывается', 'Вы забываете всё', 'Ничего', 'Вопрос меняется'], correct: 0 }
+    ]
+  },
+  { 
+    id: 3, 
+    question: 'Какое стоп-слово используется в проекте?', 
+    options: ['Бесконечность', 'Свобода', 'Ясность', 'Выход'], 
+    correct: 0,
+    alternatives: [
+      { question: 'Что делает стоп-слово?', options: ['Отключает эффекты', 'Ничего', 'Удаляет аккаунт', 'Перезагружает страницу'], correct: 0 },
+      { question: 'Где можно ввести стоп-слово?', options: ['В любое поле', 'Только в специальное', 'Нигде', 'В чате поддержки'], correct: 0 }
+    ]
+  },
+  { 
+    id: 4, 
+    question: 'Сколько актов в методе «Калибровка»?', 
+    options: ['Два', 'Три', 'Четыре', 'Пять'], 
+    correct: 1,
+    alternatives: [
+      { question: 'Как называется первый акт?', options: ['Демонстрация', 'Проживание', 'Сборка', 'Калибровка'], correct: 0 },
+      { question: 'Что происходит во втором акте?', options: ['Демонстрация', 'Проживание', 'Сборка', 'Ничего'], correct: 1 }
+    ]
+  },
+  { 
+    id: 5, 
+    question: 'Какой закон описывает взаимосвязь между давлением, объёмом и температурой газа?', 
+    options: ['Закон Бойля-Мариотта', 'Закон Ома', 'Закон Ньютона', 'Закон Кулона'], 
+    correct: 0,
+    alternatives: [
+      { question: 'Какой закон описывает движение планет?', options: ['Закон Кеплера', 'Закон Ома', 'Закон Ньютона', 'Закон Кулона'], correct: 0 },
+      { question: 'Какой закон описывает электрический ток?', options: ['Закон Бойля-Мариотта', 'Закон Ома', 'Закон Ньютона', 'Закон Кулона'], correct: 1 }
+    ]
+  },
+  { 
+    id: 6, 
+    question: 'Какой процесс происходит при делении ядра урана-235?', 
+    options: ['Синтез', 'Деление', 'Ионизация', 'Нейтрализация'], 
+    correct: 1,
+    alternatives: [
+      { question: 'Какой процесс происходит при синтезе ядер?', options: ['Синтез', 'Деление', 'Ионизация', 'Нейтрализация'], correct: 0 },
+      { question: 'Какой процесс происходит при радиоактивном распаде?', options: ['Синтез', 'Деление', 'Ионизация', 'Нейтрализация'], correct: 1 }
+    ]
+  },
+  { 
+    id: 7, 
+    question: 'Что является основным источником энергии на Земле?', 
+    options: ['Луна', 'Солнце', 'Ядро Земли', 'Ветер'], 
+    correct: 1,
+    alternatives: [
+      { question: 'Что является основным источником света на Земле?', options: ['Луна', 'Солнце', 'Звёзды', 'Ветер'], correct: 1 },
+      { question: 'Что является основным источником тепла на Земле?', options: ['Луна', 'Солнце', 'Ядро Земли', 'Ветер'], correct: 1 }
+    ]
+  },
   // Вопросы 1-5 классы
   { id: 8, question: 'Сколько будет 2 + 2?', options: ['3', '4', '5', 'Не помню'], correct: 1 },
   { id: 9, question: 'Какая планета ближе всего к Солнцу?', options: ['Венера', 'Земля', 'Меркурий', 'Марс'], correct: 2 },
@@ -262,8 +351,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     const selectedOthers = shuffled.slice(0, 14);
     const selected = firstQuestion ? [firstQuestion, ...selectedOthers] : selectedOthers;
     
-    // Перемешиваем варианты ответов для каждого вопроса
-    const shuffledQuestions = selected.map(q => shuffleOptions(q));
+    // Добавляем alternatives и перемешиваем варианты ответов для каждого вопроса
+    const shuffledQuestions = selected.map(q => shuffleOptions(addAlternatives(q)));
     
     setSelectedQuestions(shuffledQuestions);
     setShowIntro(false);
