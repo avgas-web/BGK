@@ -49,12 +49,22 @@ interface Question {
   alternatives?: { question: string; options: string[]; correct?: number }[];
 }
 
+// Функция для надёжного перемешивания массива (алгоритм Фишера-Йетса)
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 // Функция для перемешивания вариантов ответов
 function shuffleOptions(question: Question): Question {
   if (question.correct === undefined) return question;
   
   const correctAnswer = question.options[question.correct];
-  const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+  const shuffledOptions = shuffleArray(question.options);
   const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
   
   return {
@@ -78,15 +88,17 @@ const iqQuestions = [
   { question: 'Сколько будет 10 - 5?', options: ['3', '4', '5', 'Не знаю'], correct: 2 },
 ];
 
-// Функция для добавления alternatives к вопросам
+// Функция для добавления alternatives к вопросам (гарантирует уникальность)
 function addAlternatives(question: Question): Question {
   if (question.alternatives && question.alternatives.length > 0) {
     return question;
   }
   
   // Создаём альтернативные вопросы уровня 1-3 класс с припиской "для вашего уровня IQ"
-  const randomIQ1 = iqQuestions[Math.floor(Math.random() * iqQuestions.length)];
-  const randomIQ2 = iqQuestions[Math.floor(Math.random() * iqQuestions.length)];
+  // Гарантируем, что оба вопроса разные
+  const shuffledIQ = shuffleArray(iqQuestions);
+  const randomIQ1 = shuffledIQ[0];
+  const randomIQ2 = shuffledIQ[1];
   
   const alternatives = [
     {
@@ -307,6 +319,10 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const [bsodShown, setBsodShown] = useState(false);
   const [biosShown, setBiosShown] = useState(false);
   
+  // Счётчик изменений вопросов (максимум 3 за тест)
+  const [questionRewriteCount, setQuestionRewriteCount] = useState(0);
+  const MAX_QUESTION_REWRITES = 3; // Максимум 3 изменения вопроса за тест
+  
   // Система отслеживания лимитов манипуляций
   const [manipulationCounts, setManipulationCounts] = useState<Record<string, number>>({});
   const MAX_PER_TYPE = 3; // Максимум 3 раза для каждого типа
@@ -389,7 +405,9 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const startTest = () => {
     const firstQuestion = allQuestions.find(q => q.id === 1);
     const otherQuestions = allQuestions.filter(q => q.id !== 1);
-    const shuffled = [...otherQuestions].sort(() => Math.random() - 0.5);
+    
+    // Используем надёжный алгоритм перемешивания для гарантии уникальности
+    const shuffled = shuffleArray(otherQuestions);
     const selectedOthers = shuffled.slice(0, 14);
     const selected = firstQuestion ? [firstQuestion, ...selectedOthers] : selectedOthers;
     
@@ -398,6 +416,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     
     setSelectedQuestions(shuffledQuestions);
     setShowIntro(false);
+    setQuestionRewriteCount(0); // Сбрасываем счётчик изменений вопросов
     
     // 0.5% шанс краша при старте (уменьшено с 2%)
     if (Math.random() < 0.005) {
@@ -442,8 +461,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     newAnswers[currentQuestion] = optionIndex;
     setAnswers(newAnswers);
 
-    // Газлайтинг: изменение вопроса через 1 секунду
-    if (gaslightingEnabled && !clarityMode && Math.random() > 0.3) {
+    // Газлайтинг: изменение вопроса через 1 секунду (максимум 3 раза за тест)
+    if (gaslightingEnabled && !clarityMode && questionRewriteCount < MAX_QUESTION_REWRITES && Math.random() > 0.3) {
       const currentQ = selectedQuestions[currentQuestion];
       if (currentQ.alternatives && currentQ.alternatives.length > 0) {
         setTimeout(() => {
@@ -453,6 +472,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
           ));
           setQuestionRewritten(true);
           setShowQuestionChangeMessage(true);
+          setQuestionRewriteCount(prev => prev + 1); // Увеличиваем счётчик изменений
           setTimeout(() => setShowQuestionChangeMessage(false), 3000);
           if (answers[currentQuestion] !== null) {
             setAnswers(prev => prev.map((a, i) => i === currentQuestion ? null : a));
@@ -881,6 +901,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
               setBiosShown(false);
               setConfirmCount(0);
               setManipulationCounts({}); // Сбрасываем счётчики манипуляций
+              setQuestionRewriteCount(0); // Сбрасываем счётчик изменений вопросов
             }}
           />
         )}
