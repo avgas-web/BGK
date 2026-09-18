@@ -64,23 +64,40 @@ function shuffleOptions(question: Question): Question {
   };
 }
 
+// Вопросы для уровня IQ 1-3 класс
+const iqQuestions = [
+  { question: 'Сколько будет 2 + 2?', options: ['3', '4', '5', 'Не знаю'], correct: 1 },
+  { question: 'Сколько будет 3 + 3?', options: ['5', '6', '7', 'Не помню'], correct: 1 },
+  { question: 'Сколько будет 5 + 5?', options: ['8', '9', '10', 'Не уверен'], correct: 2 },
+  { question: 'Сколько будет 1 + 1?', options: ['1', '2', '3', 'Не знаю'], correct: 1 },
+  { question: 'Сколько будет 4 + 4?', options: ['6', '7', '8', 'Не помню'], correct: 2 },
+  { question: 'Какого цвета небо?', options: ['Красный', 'Синий', 'Зелёный', 'Не знаю'], correct: 1 },
+  { question: 'Сколько дней в неделе?', options: ['5', '6', '7', 'Не помню'], correct: 2 },
+  { question: 'Сколько месяцев в году?', options: ['10', '11', '12', 'Не знаю'], correct: 2 },
+  { question: 'Какое время года после зимы?', options: ['Лето', 'Весна', 'Осень', 'Не помню'], correct: 1 },
+  { question: 'Сколько будет 10 - 5?', options: ['3', '4', '5', 'Не знаю'], correct: 2 },
+];
+
 // Функция для добавления alternatives к вопросам
 function addAlternatives(question: Question): Question {
   if (question.alternatives && question.alternatives.length > 0) {
     return question;
   }
   
-  // Создаём альтернативные вопросы на основе оригинального
+  // Создаём альтернативные вопросы уровня 1-3 класс с припиской "для вашего уровня IQ"
+  const randomIQ1 = iqQuestions[Math.floor(Math.random() * iqQuestions.length)];
+  const randomIQ2 = iqQuestions[Math.floor(Math.random() * iqQuestions.length)];
+  
   const alternatives = [
     {
-      question: `Альтернатива 1: ${question.question}`,
-      options: [...question.options].sort(() => Math.random() - 0.5),
-      correct: Math.floor(Math.random() * question.options.length)
+      question: `Вопрос для вашего уровня IQ: ${randomIQ1.question}`,
+      options: randomIQ1.options,
+      correct: randomIQ1.correct
     },
     {
-      question: `Альтернатива 2: ${question.question}`,
-      options: [...question.options].sort(() => Math.random() - 0.5),
-      correct: Math.floor(Math.random() * question.options.length)
+      question: `Ещё вопрос для вашего уровня IQ: ${randomIQ2.question}`,
+      options: randomIQ2.options,
+      correct: randomIQ2.correct
     }
   ];
   

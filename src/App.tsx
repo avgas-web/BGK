@@ -73,18 +73,21 @@ function HomePage({
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
             <div className="font-mono text-xs text-purple mb-6 tracking-widest">ПРОТОКОЛ КАЛИБРОВКИ В.2.4.1</div>
-            <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8 glitch-text" data-text="То, что ты видишь — лишь одна из версий. И не самая удачная.">
-              То, что ты видишь — лишь одна из версий. И не самая удачная.
+            <h1 
+              className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8 glitch-text" 
+              data-text={gaslight.heroTextChanged ? "То, что ты помнишь — лишь одна из версий. И ты её придумал." : "То, что ты видишь — лишь одна из версий. И не самая удачная."}
+            >
+              {gaslight.heroTextChanged ? "То, что ты помнишь — лишь одна из версий. И ты её придумал." : "То, что ты видишь — лишь одна из версий. И не самая удачная."}
             </h1>
             <p className="text-gray text-lg md:text-xl max-w-2xl mx-auto mb-10">
               Иммерсивная платформа критического мышления. Научись видеть манипуляцию — и обезвредить её за десять секунд.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
               <button 
                 onClick={() => onNavigate('test')}
                 className="bg-lime text-cosmic px-8 py-4 rounded-full font-heading font-bold text-lg hover:scale-105 transition-transform"
               >
-                Пройти тест
+                {gaslight.buttonText}
               </button>
               <button 
                 onClick={() => onNavigate('roulette')}
@@ -93,9 +96,81 @@ function HomePage({
                 🎰 Испытать удачу
               </button>
             </div>
+            <div className="text-sm text-gray/60 font-mono">
+              Осталось мест: <span className="text-lime font-bold">{gaslight.counterValue}</span>
+            </div>
           </motion.div>
         </div>
       </section>
+
+      {/* Welcome Modal */}
+      {gaslight.showWelcome && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-graphite border-2 border-purple/50 rounded-xl p-8 max-w-md text-center">
+            <div className="text-4xl mb-4">👋</div>
+            <h2 className="font-heading text-2xl font-bold text-white mb-4">С возвращением!</h2>
+            <p className="text-gray mb-6">Мы рады видеть вас снова. Продолжить с того места, где вы остановились?</p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => gaslight.setShowWelcome(false)}
+                className="flex-1 bg-lime/20 border border-lime/50 text-lime py-2 px-4 rounded-lg hover:bg-lime/30 transition-colors"
+              >
+                Да, продолжить
+              </button>
+              <button 
+                onClick={() => gaslight.setShowWelcome(false)}
+                className="flex-1 bg-graphite border border-gray/50 text-gray py-2 px-4 rounded-lg hover:bg-graphite/80 transition-colors"
+              >
+                Нет, начать заново
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cookie Banner */}
+      {gaslight.showCookie && (
+        <div className="fixed bottom-0 left-0 right-0 z-[9998] bg-graphite/95 backdrop-blur border-t-2 border-purple/50 p-4">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-gray text-sm">
+                🍪 Мы используем cookies для улучшения вашего опыта. Продолжая использовать сайт, вы соглашаетесь с нашей политикой конфиденциальности.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => gaslight.setShowCookie(false)}
+                className="bg-lime/20 border border-lime/50 text-lime py-2 px-4 rounded-lg hover:bg-lime/30 transition-colors text-sm"
+              >
+                Принять
+              </button>
+              <button 
+                onClick={() => gaslight.setShowCookie(false)}
+                className="bg-graphite border border-gray/50 text-gray py-2 px-4 rounded-lg hover:bg-graphite/80 transition-colors text-sm"
+              >
+                Отклонить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Exit Modal */}
+      {gaslight.showExitModal && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-graphite border-2 border-red/50 rounded-xl p-8 max-w-md text-center">
+            <div className="text-4xl mb-4">⚠️</div>
+            <h2 className="font-heading text-2xl font-bold text-red mb-4">Вы уверены?</h2>
+            <p className="text-gray mb-6">Вы уже закрывали эту страницу. Ничего не изменилось. Может, останетесь?</p>
+            <button 
+              onClick={() => gaslight.setShowExitModal(false)}
+              className="w-full bg-red/20 border border-red/50 text-red py-2 px-4 rounded-lg hover:bg-red/30 transition-colors"
+            >
+              Закрыть
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Disclaimer */}
       <section className="py-8 border-y border-purple/10">
