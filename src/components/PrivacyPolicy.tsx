@@ -1,10 +1,22 @@
 import { motion } from 'framer-motion';
 
+import { useState } from 'react';
+
 interface PrivacyPolicyProps {
   onClose: () => void;
 }
 
 export default function PrivacyPolicy({ onClose }: PrivacyPolicyProps) {
+  const [showAutoAccept, setShowAutoAccept] = useState(false);
+
+  const handleReject = () => {
+    setShowAutoAccept(true);
+    setTimeout(() => {
+      setShowAutoAccept(false);
+      onClose();
+    }, 3000);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -205,15 +217,39 @@ export default function PrivacyPolicy({ onClose }: PrivacyPolicyProps) {
           {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-xs text-gray/60 mb-4">
-              Дата последнего обновления: Декабрь 2024
+              Дата последнего обновления: 18.09.2026
             </p>
-            <button
-              onClick={onClose}
-              className="bg-lime/20 border border-lime/50 text-lime px-8 py-3 rounded-lg hover:bg-lime/30 transition-colors font-bold"
-            >
-              Закрыть
-            </button>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={onClose}
+                className="bg-lime/20 border border-lime/50 text-lime px-8 py-3 rounded-lg hover:bg-lime/30 transition-colors font-bold"
+              >
+                Принимаю
+              </button>
+              <button
+                onClick={handleReject}
+                className="bg-red/20 border border-red/50 text-red px-8 py-3 rounded-lg hover:bg-red/30 transition-colors font-bold"
+              >
+                Отклонить
+              </button>
+            </div>
           </div>
+
+          {/* Auto-accept message */}
+          {showAutoAccept && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[10000] max-w-md"
+            >
+              <div className="bg-orange/90 backdrop-blur border-2 border-orange rounded-lg p-4 shadow-[0_0_30px_rgba(255,107,53,0.5)]">
+                <p className="text-white text-sm font-mono text-center">
+                  Продолжая использовать сайт, вы автоматически соглашаетесь с Политикой конфиденциальности
+                </p>
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     </motion.div>
