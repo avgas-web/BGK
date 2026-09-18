@@ -306,6 +306,31 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   const [showBIOS, setShowBIOS] = useState(false);
   const [bsodShown, setBsodShown] = useState(false);
   const [biosShown, setBiosShown] = useState(false);
+  
+  // Система отслеживания лимитов манипуляций
+  const [manipulationCounts, setManipulationCounts] = useState<Record<string, number>>({});
+  const MAX_PER_TYPE = 3; // Максимум 3 раза для каждого типа
+  const MAX_TOTAL = 15; // Максимум 15 манипуляций всего
+
+  // Функция проверки лимитов
+  const canApplyManipulation = (type: string): boolean => {
+    const currentCount = manipulationCounts[type] || 0;
+    const totalCount = Object.values(manipulationCounts).reduce((sum, count) => sum + count, 0);
+    
+    // Проверяем лимиты
+    if (currentCount >= MAX_PER_TYPE) return false;
+    if (totalCount >= MAX_TOTAL) return false;
+    
+    return true;
+  };
+
+  // Функция увеличения счётчика манипуляции
+  const incrementManipulationCount = (type: string) => {
+    setManipulationCounts(prev => ({
+      ...prev,
+      [type]: (prev[type] || 0) + 1
+    }));
+  };
 
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
 
@@ -384,6 +409,15 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   };
 
   const trackManipulation = (type: string, name: string, description: string, wikiLink: string) => {
+    // Проверяем лимиты перед добавлением манипуляции
+    if (!canApplyManipulation(type)) {
+      return false; // Манипуляция не добавлена из-за лимитов
+    }
+    
+    // Увеличиваем счётчик для этого типа
+    incrementManipulationCount(type);
+    
+    // Добавляем манипуляцию в список
     setManipulations(prev => {
       const existing = prev.find(m => m.type === type);
       if (existing) {
@@ -391,6 +425,8 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       }
       return [...prev, { type, name, description, count: 1, wikiLink }];
     });
+    
+    return true; // Манипуляция успешно добавлена
   };
 
   const handleAnswer = (optionIndex: number) => {
@@ -428,42 +464,45 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
     
     // BSOD при ответе на вопрос (5% вероятность, только один раз)
     if (gaslightingEnabled && !clarityMode && !bsodShown && Math.random() < 0.05) {
-      setShowBSOD(true);
-      setBsodShown(true);
-      trackManipulation(
+      if (trackManipulation(
         'bsod_screen',
         'Скример (синий экран смерти)',
         'Внезапное появление пугающего изображения для вызова страха и отвлечения внимания',
         'https://ru.wikipedia.org/wiki/Скример'
-      );
-      setTimeout(() => setShowBSOD(false), 2000);
+      )) {
+        setShowBSOD(true);
+        setBsodShown(true);
+        setTimeout(() => setShowBSOD(false), 2000);
+      }
     }
     
     // Черный экран BIOS при ответе на вопрос (5% вероятность, только один раз)
     if (gaslightingEnabled && !clarityMode && !biosShown && Math.random() < 0.05) {
-      setShowBIOS(true);
-      setBiosShown(true);
-      trackManipulation(
+      if (trackManipulation(
         'bios_screen',
         'Скример (чёрный экран BIOS)',
         'Внезапное появление пугающего изображения для вызова страха и отвлечения внимания',
         'https://pikabu.ru/story/ochevidnyie_veshchi_strakh_i_kak_s_nim_rabotat_8753262'
-      );
-      setTimeout(() => setShowBIOS(false), 2000);
+      )) {
+        setShowBIOS(true);
+        setBiosShown(true);
+        setTimeout(() => setShowBIOS(false), 2000);
+      }
     }
 
     // Насмешки над пользователем (30% вероятность при каждом ответе)
     if (gaslightingEnabled && !clarityMode && Math.random() > 0.7) {
-      const mockeryMsg = mockeryMessages[Math.floor(Math.random() * mockeryMessages.length)];
-      setShowMockery(true);
-      setMockeryMessage(mockeryMsg);
-      trackManipulation(
+      if (trackManipulation(
         'mockery',
         'Насмешка над пользователем',
         'Появилось оскорбительное сообщение, унижающее ваши интеллектуальные способности',
         'https://ru.wikipedia.org/wiki/Газлайтинг'
-      );
-      setTimeout(() => setShowMockery(false), 3500);
+      )) {
+        const mockeryMsg = mockeryMessages[Math.floor(Math.random() * mockeryMessages.length)];
+        setShowMockery(true);
+        setMockeryMessage(mockeryMsg);
+        setTimeout(() => setShowMockery(false), 3500);
+      }
     }
 
     // Газлайтинг: подсказки
@@ -483,7 +522,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       setPendingAnswer(null);
       setShowConfirmAnswer(false);
       
-      // Отслеживаем манипуляцию подтверждения ответа
+      // Отслеживаем манипуляцию подтверждения ответа с проверкой лимитов
       trackManipulation(
         'answer_confirmation',
         'Подтверждение ответа',
@@ -499,7 +538,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
   };
 
   const nextQuestion = () => {
-    // Отслеживаем манипуляции
+    // Отслеживаем манипуляции с проверкой лимитов
     if (questionRewritten) {
       trackManipulation(
         'question_rewrite',
@@ -525,16 +564,17 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
       );
     }
 
-    // 0.5% шанс краша в середине
+    // 0.5% шанс краша в середине (с проверкой лимитов)
     if (currentQuestion > 2 && currentQuestion < selectedQuestions.length - 2 && Math.random() < 0.005) {
-      trackManipulation(
+      if (trackManipulation(
         'test_crash',
         'Краш теста',
         'Тест "сломался", заставив вас начать заново',
         'https://ru.wikipedia.org/wiki/Техническая_манипуляция'
-      );
-      setTestCrashed(true);
-      return;
+      )) {
+        setTestCrashed(true);
+        return;
+      }
     }
 
     if (currentQuestion < selectedQuestions.length - 1) {
@@ -778,16 +818,16 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
                   if (currentQuestion > 0) {
                     setCurrentQuestion(currentQuestion - 1);
                     if (gaslightingEnabled && !clarityMode) {
-                      setShowDenyMessage('Попытка возврата. Это нечестная сдача теста.');
-                      setTimeout(() => setShowDenyMessage(null), 3000);
-                      
-                      // Отслеживаем манипуляцию обвинения в нечестности
-                      trackManipulation(
+                      // Отслеживаем манипуляцию обвинения в нечестности с проверкой лимитов
+                      if (trackManipulation(
                         'dishonesty_accusation',
                         'Обвинение в нечестности',
                         'При возврате на предыдущий вопрос появилось обвинение в нечестной сдаче теста, заставившее усомниться в своих действиях',
                         'https://ru.wikipedia.org/wiki/Газлайтинг'
-                      );
+                      )) {
+                        setShowDenyMessage('Попытка возврата. Это нечестная сдача теста.');
+                        setTimeout(() => setShowDenyMessage(null), 3000);
+                      }
                     }
                   }
                 }}
@@ -840,6 +880,7 @@ export default function TestPage({ onBackToHome }: TestPageProps) {
               setBsodShown(false);
               setBiosShown(false);
               setConfirmCount(0);
+              setManipulationCounts({}); // Сбрасываем счётчики манипуляций
             }}
           />
         )}
