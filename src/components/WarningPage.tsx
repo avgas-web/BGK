@@ -88,9 +88,20 @@ export default function WarningPage({ onAccept }: WarningPageProps) {
               </ul>
             </div>
 
+            {/* Age Gate */}
+            <div className="bg-red/10 rounded-lg p-4 border-l-2 border-red/50">
+              <p className="text-sm font-bold text-red mb-2">⚠️ Возрастное ограничение:</p>
+              <p className="text-sm text-gray mb-2">
+                Этот сайт содержит элементы психологического воздействия и предназначен только для лиц <strong className="text-white">старше 18 лет</strong>.
+              </p>
+              <p className="text-xs text-gray/80">
+                Если вам меньше 18 лет, пожалуйста, покиньте сайт.
+              </p>
+            </div>
+
             <p className="text-xs text-gray/60 italic">
-              Не рекомендуется людям с повышенной тревожностью, эпилепсией 
-              или чувствительностью к визуальным эффектам.
+              Не рекомендуется людям с повышенной тревожностью, эпилепсией, 
+              чувствительностью к визуальным эффектам или психическими расстройствами.
             </p>
           </div>
 

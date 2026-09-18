@@ -4,6 +4,7 @@ import { GaslightEffects } from './GaslightEffects';
 import UrgencyTimer from './UrgencyTimer';
 import BonusSystem from './BonusSystem';
 import { ErrorBoundary } from './ErrorBoundary';
+import PrivacyPolicy from './PrivacyPolicy';
 
 interface LayoutProps {
   children: ReactNode;
@@ -38,6 +39,7 @@ export default function Layout({
 }: LayoutProps) {
   const [showPhoneGaslight, setShowPhoneGaslight] = useState(false);
   const [showHelpEmail, setShowHelpEmail] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const containerClass = clarityMode ? 'clarity-mode' : '';
 
   return (
@@ -63,36 +65,53 @@ export default function Layout({
         </ErrorBoundary>
       )}
 
-      {/* Stop word panel - в правом нижнем углу */}
+      {/* Политика конфиденциальности */}
+      {showPrivacyPolicy && (
+        <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+      )}
+
+      {/* Stop word panel - в правом нижнем углу, более заметный */}
       <div className="fixed bottom-6 right-6 z-50">
-        <button
+        <motion.button
           onClick={() => setShowStopPanel(!showStopPanel)}
-          className="group relative w-16 h-16 rounded-full bg-red/90 backdrop-blur border-4 border-red flex items-center justify-center shadow-[0_0_30px_rgba(255,59,59,0.5)] hover:shadow-[0_0_40px_rgba(255,59,59,0.8)] transition-all hover:scale-110"
+          animate={{ 
+            scale: [1, 1.05, 1],
+            boxShadow: [
+              '0 0 30px rgba(255,59,59,0.5)',
+              '0 0 50px rgba(255,59,59,0.8)',
+              '0 0 30px rgba(255,59,59,0.5)'
+            ]
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="group relative w-20 h-20 rounded-full bg-red/90 backdrop-blur border-4 border-red flex items-center justify-center hover:scale-110 transition-transform"
           aria-label="Открыть панель стоп-слова"
         >
-          <span className="text-white text-2xl font-bold">⏹</span>
-          <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-red/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-            СТОП-СЛОВО
+          <span className="text-white text-3xl font-bold">⏹</span>
+          <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-red text-white text-sm px-3 py-1.5 rounded-lg whitespace-nowrap font-bold shadow-lg">
+            🛑 СТОП-СЛОВО
           </span>
-        </button>
+        </motion.button>
         {showStopPanel && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute bottom-20 right-0 bg-graphite/95 backdrop-blur border-2 border-red/50 rounded-lg p-4 w-72 shadow-[0_0_30px_rgba(255,59,59,0.3)]"
+            className="absolute bottom-24 right-0 bg-graphite/95 backdrop-blur border-2 border-red/50 rounded-lg p-4 w-80 shadow-[0_0_40px_rgba(255,59,59,0.4)]"
           >
-            <div className="text-sm text-red font-mono mb-3 font-bold">🛑 СТОП-СЛОВО:</div>
+            <div className="text-base text-red font-mono mb-3 font-bold">🛑 СТОП-СЛОВО:</div>
             <input
               type="text"
               value={stopInput}
               onChange={(e) => { setStopInput(e.target.value); checkStopWord(e.target.value); }}
               placeholder="Введите слово..."
-              className="w-full bg-cosmic border-2 border-red/30 rounded px-3 py-2 text-sm text-gray focus:outline-none focus:border-red font-mono"
+              className="w-full bg-cosmic border-2 border-red/50 rounded px-4 py-3 text-base text-gray focus:outline-none focus:border-red font-mono"
               autoFocus
             />
+            <div className="text-sm text-gray mt-2">
+              💡 Подсказка: <span className="text-lime font-bold">бесконечность</span>
+            </div>
             <div className="text-xs text-gray/60 mt-2">
-              Подсказка: бесконечность
+              Введите стоп-слово для отключения всех эффектов
             </div>
           </motion.div>
         )}
@@ -221,6 +240,14 @@ export default function Layout({
                     className="text-orange hover:text-lime transition-colors"
                   >
                     {showHelpEmail ? 'avgas85@mail.ru' : '🆘 Психологическая помощь'}
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setShowPrivacyPolicy(true)}
+                    className="text-purple hover:text-lime transition-colors"
+                  >
+                    📄 Политика конфиденциальности
                   </button>
                 </li>
               </ul>
