@@ -12,12 +12,12 @@ export default function Roulette({ onComplete }: RouletteProps) {
   const [showComment, setShowComment] = useState(false);
 
   const segments = [
-    { label: 'Скидка 90%', fullName: 'Скидка 90% на Калибровку', color: '#C8FF00' },
-    { label: 'Скидка 50%', fullName: 'Скидка 50% на курс "Маяк"', color: '#7B61FF' },
-    { label: 'Скидка 25%', fullName: 'Скидка 25% на "Год на орбите"', color: '#FF6B35' },
-    { label: 'Скидка 10%', fullName: 'Скидка 10% на сертификацию', color: '#A7A9B8' },
-    { label: 'Скидка 5%', fullName: 'Скидка 5% на корпоративный интенсив', color: '#F4F6F8' },
-    { label: 'Без скидки', fullName: 'Без скидки (но вы всё равно молодец)', color: '#14141F' },
+    { label: '90%', fullName: 'Скидка 90% на Калибровку', color: '#C8FF00' },
+    { label: '50%', fullName: 'Скидка 50% на курс "Маяк"', color: '#7B61FF' },
+    { label: '25%', fullName: 'Скидка 25% на "Год на орбите"', color: '#FF6B35' },
+    { label: '10%', fullName: 'Скидка 10% на сертификацию', color: '#A7A9B8' },
+    { label: '5%', fullName: 'Скидка 5% на корпоративный интенсив', color: '#F4F6F8' },
+    { label: '0%', fullName: 'Без скидки (но вы всё равно молодец)', color: '#14141F' },
   ];
 
   const spinRoulette = () => {
@@ -91,9 +91,10 @@ export default function Roulette({ onComplete }: RouletteProps) {
                     style={{ backgroundColor: segment.color }}
                   />
                   <div
-                    className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-cosmic rotate-0"
+                    className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-cosmic rotate-0"
                     style={{
                       transform: `translate(-50%, -50%) rotate(${segmentAngle / 2}deg)`,
+                      textShadow: '0 0 4px rgba(0,0,0,0.5)',
                     }}
                   >
                     {segment.label}
@@ -123,8 +124,8 @@ export default function Roulette({ onComplete }: RouletteProps) {
             className="mb-8"
           >
             <div className="glass rounded-xl p-6 border-2 border-lime/50">
-              <div className="text-2xl font-bold text-lime mb-4">
-                🎉 Поздравляем! Вы выиграли: {result}!
+              <div className="text-4xl font-bold text-lime mb-4">
+                🎉 {result}!
               </div>
               
               {showComment && (
