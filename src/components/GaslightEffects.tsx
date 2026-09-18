@@ -32,17 +32,30 @@ export function useGaslighting(enabled: boolean) {
   const intervalsRef = useRef<number[]>([]);
   const isVisibleRef = useRef(true);
 
+  // Функция для безопасного создания setTimeout с сохранением в ref
+  const safeSetTimeout = (callback: () => void, delay: number) => {
+    const timer = setTimeout(() => {
+      callback();
+      // Удаляем таймер из ref после выполнения
+      timersRef.current = timersRef.current.filter(t => t !== timer);
+    }, delay);
+    timersRef.current.push(timer);
+    return timer;
+  };
+
   // Пауза при скрытой вкладке
   useEffect(() => {
     const handleVisibilityChange = () => {
       isVisibleRef.current = document.visibilityState === 'visible';
       
       if (!isVisibleRef.current) {
+        // Очищаем все таймеры при скрытии вкладки
         timersRef.current.forEach(clearTimeout);
         intervalsRef.current.forEach(clearInterval);
         timersRef.current = [];
         intervalsRef.current = [];
       } else if (enabled) {
+        // Перезапускаем эффекты при возврате
         initializeEffects();
       }
     };
@@ -58,19 +71,19 @@ export function useGaslighting(enabled: boolean) {
     const { timings } = GASLIGHT_CONFIG;
 
     // Welcome back (3s)
-    timersRef.current.push(setTimeout(() => {
+    safeSetTimeout(() => {
       setEffects(prev => ({ ...prev, showWelcome: true }));
-    }, 3000));
+    }, 3000);
 
     // Cookie banner (5s)
-    timersRef.current.push(setTimeout(() => {
+    safeSetTimeout(() => {
       setEffects(prev => ({ ...prev, showCookie: true }));
-    }, 5000));
+    }, 5000);
 
     // Hero text change (25s)
-    timersRef.current.push(setTimeout(() => {
+    safeSetTimeout(() => {
       setEffects(prev => ({ ...prev, heroTextChanged: true }));
-    }, 25000));
+    }, 25000);
 
     // Random whispers
     intervalsRef.current.push(setInterval(() => {
@@ -78,7 +91,7 @@ export function useGaslighting(enabled: boolean) {
         const whispers = GASLIGHT_CONFIG.phrases.whispers;
         const whisper = whispers[Math.floor(Math.random() * whispers.length)];
         setEffects(prev => ({ ...prev, whisper }));
-        setTimeout(() => setEffects(prev => ({ ...prev, whisper: '' })), 3000);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, whisper: '' })), 3000);
       }
     }, timings.notifications.interval * capabilities.slowdownFactor));
 
@@ -95,7 +108,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.8) {
         setEffects(prev => ({ ...prev, scrollDirection: 'backward' as const }));
-        setTimeout(() => setEffects(prev => ({ ...prev, scrollDirection: 'forward' as const })), 2000);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, scrollDirection: 'forward' as const })), 2000);
       }
     }, 10000));
 
@@ -103,7 +116,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.6) {
         setEffects(prev => ({ ...prev, buttonText: 'Вы уже записаны' }));
-        setTimeout(() => setEffects(prev => ({ ...prev, buttonText: 'Записаться' })), 3000);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, buttonText: 'Записаться' })), 3000);
       }
     }, 12000));
 
@@ -116,15 +129,15 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.95) {
         setEffects(prev => ({ ...prev, showCrashScreen: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, showCrashScreen: false })), timings.crashScreen.duration);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, showCrashScreen: false })), timings.crashScreen.duration);
       }
-    }, 60000 * capabilities.slowdownFactor)); // 60 секунд
+    }, 60000 * capabilities.slowdownFactor));
 
     // Freeze frames
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.95) {
         setEffects(prev => ({ ...prev, isFrozen: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, isFrozen: false })), 400);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, isFrozen: false })), 400);
       }
     }, timings.freeze.interval * capabilities.slowdownFactor));
 
@@ -132,7 +145,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.92) {
         setEffects(prev => ({ ...prev, jitterActive: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, jitterActive: false })), 300);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, jitterActive: false })), 300);
       }
     }, timings.jitter.interval * capabilities.slowdownFactor));
 
@@ -140,7 +153,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.9) {
         setEffects(prev => ({ ...prev, cursorDisplaced: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, cursorDisplaced: false })), 1500);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, cursorDisplaced: false })), 1500);
       }
     }, timings.cursorDisplace.interval * capabilities.slowdownFactor));
 
@@ -148,7 +161,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.93) {
         setEffects(prev => ({ ...prev, colorShiftActive: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, colorShiftActive: false })), 600);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, colorShiftActive: false })), 600);
       }
     }, timings.colorShift.interval * capabilities.slowdownFactor));
 
@@ -156,7 +169,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.94) {
         setEffects(prev => ({ ...prev, doubleVisionActive: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, doubleVisionActive: false })), 800);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, doubleVisionActive: false })), 800);
       }
     }, timings.doubleVision.interval * capabilities.slowdownFactor));
 
@@ -164,7 +177,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.91) {
         setEffects(prev => ({ ...prev, vhsTrackingActive: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, vhsTrackingActive: false })), 1200);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, vhsTrackingActive: false })), 1200);
       }
     }, timings.vhsTracking.interval * capabilities.slowdownFactor));
 
@@ -174,7 +187,7 @@ export function useGaslighting(enabled: boolean) {
         const notifications = GASLIGHT_CONFIG.phrases.notifications;
         const n = notifications[Math.floor(Math.random() * notifications.length)];
         setEffects(prev => ({ ...prev, notification: { id: Date.now(), ...n } }));
-        setTimeout(() => setEffects(prev => ({ ...prev, notification: null })), 4000);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, notification: null })), 4000);
       }
     }, timings.notifications.interval * capabilities.slowdownFactor));
 
@@ -184,7 +197,7 @@ export function useGaslighting(enabled: boolean) {
         const memories = GASLIGHT_CONFIG.phrases.memoryGaslight;
         const memory = memories[Math.floor(Math.random() * memories.length)];
         setEffects(prev => ({ ...prev, memoryGaslight: memory }));
-        setTimeout(() => setEffects(prev => ({ ...prev, memoryGaslight: null })), 3000);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, memoryGaslight: null })), 3000);
       }
     }, timings.memoryGaslight.interval * capabilities.slowdownFactor));
 
@@ -192,7 +205,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.95) {
         setEffects(prev => ({ ...prev, screenRotated: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, screenRotated: false })), 2000);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, screenRotated: false })), 2000);
       }
     }, timings.screenRotate.interval * capabilities.slowdownFactor));
 
@@ -200,7 +213,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.92) {
         setEffects(prev => ({ ...prev, fakeLoader: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, fakeLoader: false })), 1500);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, fakeLoader: false })), 1500);
       }
     }, timings.fakeLoader.interval * capabilities.slowdownFactor));
 
@@ -208,7 +221,7 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.9) {
         setEffects(prev => ({ ...prev, textScrambleActive: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, textScrambleActive: false })), 400);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, textScrambleActive: false })), 400);
       }
     }, timings.textScramble.interval * capabilities.slowdownFactor));
 
@@ -216,10 +229,9 @@ export function useGaslighting(enabled: boolean) {
     intervalsRef.current.push(setInterval(() => {
       if (Math.random() > 0.96) {
         setEffects(prev => ({ ...prev, invertedColors: true }));
-        setTimeout(() => setEffects(prev => ({ ...prev, invertedColors: false })), 200);
+        safeSetTimeout(() => setEffects(prev => ({ ...prev, invertedColors: false })), 200);
       }
     }, timings.invertedColors.interval * capabilities.slowdownFactor));
-
   };
 
   useEffect(() => {
@@ -272,7 +284,7 @@ export function useGaslighting(enabled: boolean) {
       if (e.clientY <= 0 && !shown) {
         shown = true;
         setEffects(prev => ({ ...prev, showExitModal: true }));
-        setTimeout(() => {
+        safeSetTimeout(() => {
           shown = false;
         }, 30000);
       }
@@ -371,7 +383,6 @@ export function GaslightEffects({ effects }: { effects: ReturnType<typeof useGas
           <span className="font-mono text-2xl text-purple animate-whisper">{effects.whisper}</span>
         </div>
       )}
-
     </>
   );
 }
