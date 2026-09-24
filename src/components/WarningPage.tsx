@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import BGCLogo3D from './BGCLogo3D';
+import PrivacyPolicy from './PrivacyPolicy';
 
 interface WarningPageProps {
   onAccept: () => void;
-  onShowPrivacy?: () => void;
 }
 
-export default function WarningPage({ onAccept, onShowPrivacy }: WarningPageProps) {
+export default function WarningPage({ onAccept }: WarningPageProps) {
   const [checked, setChecked] = useState(false);
   const [privacyChecked, setPrivacyChecked] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   return (
     <div className="min-h-screen bg-cosmic text-white flex items-center justify-center p-6">
@@ -135,7 +136,7 @@ export default function WarningPage({ onAccept, onShowPrivacy }: WarningPageProp
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  onShowPrivacy?.();
+                  setShowPrivacyPolicy(true);
                 }}
                 className="text-lime font-semibold underline hover:text-lime/80 transition-colors"
               >
@@ -188,6 +189,11 @@ export default function WarningPage({ onAccept, onShowPrivacy }: WarningPageProp
           </p>
         </motion.div>
       </div>
+
+      {/* Политика конфиденциальности как модальное окно поверх WarningPage */}
+      {showPrivacyPolicy && (
+        <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+      )}
     </div>
   );
 }

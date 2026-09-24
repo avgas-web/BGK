@@ -527,14 +527,6 @@ export default function App() {
       {showWarning && !hasAcceptedWarning ? (
         <WarningPage 
           onAccept={() => { setShowWarning(false); setHasAcceptedWarning(true); }}
-          onShowPrivacy={() => {
-            setShowWarning(false);
-            setHasAcceptedWarning(true);
-            // Небольшая задержка, чтобы WarningPage успел закрыться
-            setTimeout(() => {
-              setShowPrivacyPolicy(true);
-            }, 100);
-          }}
         />
       ) : (
         <Layout {...layoutProps}>
