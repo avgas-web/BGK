@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { FocusTrap } from './components/FocusTrap';
 import ManipulationGuide from './components/ManipulationGuide';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 // Code splitting - ленивая загрузка страниц
 const WarningPage = lazy(() => import('./components/WarningPage'));
@@ -429,6 +430,7 @@ export default function App() {
   const [stopInput, setStopInput] = useState('');
   const [showStopPanel, setShowStopPanel] = useState(false);
   const [showManipulationGuide, setShowManipulationGuide] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   const gaslight = useGaslighting(gaslightingEnabled && !clarityMode && !stopWordActive);
 
@@ -523,7 +525,9 @@ export default function App() {
   return (
     <Suspense fallback={<LoadingFallback />}>
       {showWarning && !hasAcceptedWarning ? (
-        <WarningPage onAccept={() => { setShowWarning(false); setHasAcceptedWarning(true); }} />
+        <WarningPage 
+          onAccept={() => { setShowWarning(false); setHasAcceptedWarning(true); }}
+        />
       ) : (
         <Layout {...layoutProps}>
           {renderPage()}
@@ -541,6 +545,11 @@ export default function App() {
           {/* Справочник манипуляций */}
           {showManipulationGuide && (
             <ManipulationGuide onClose={() => setShowManipulationGuide(false)} />
+          )}
+
+          {/* Политика конфиденциальности */}
+          {showPrivacyPolicy && (
+            <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
           )}
         </Layout>
       )}

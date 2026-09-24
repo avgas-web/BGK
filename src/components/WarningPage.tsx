@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import BGCLogo3D from './BGCLogo3D';
+import PrivacyPolicy from './PrivacyPolicy';
 
 interface WarningPageProps {
   onAccept: () => void;
@@ -8,6 +9,8 @@ interface WarningPageProps {
 
 export default function WarningPage({ onAccept }: WarningPageProps) {
   const [checked, setChecked] = useState(false);
+  const [privacyChecked, setPrivacyChecked] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   return (
     <div className="min-h-screen bg-cosmic text-white flex items-center justify-center p-6">
@@ -105,7 +108,7 @@ export default function WarningPage({ onAccept }: WarningPageProps) {
             </p>
           </div>
 
-          <label className="flex items-start gap-3 mb-6 cursor-pointer group">
+          <label className="flex items-start gap-3 mb-4 cursor-pointer group">
             <input
               type="checkbox"
               checked={checked}
@@ -119,16 +122,40 @@ export default function WarningPage({ onAccept }: WarningPageProps) {
             </span>
           </label>
 
+          <label className="flex items-start gap-3 mb-6 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={privacyChecked}
+              onChange={(e) => setPrivacyChecked(e.target.checked)}
+              className="mt-1 w-5 h-5 rounded accent-lime cursor-pointer"
+            />
+            <span className="text-sm text-gray group-hover:text-white transition-colors">
+              Я ознакомлен(а) с{' '}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowPrivacyPolicy(true);
+                }}
+                className="text-lime font-semibold underline hover:text-lime/80 transition-colors"
+              >
+                Политикой конфиденциальности
+              </button>
+              {' '}и даю согласие на обработку моих данных в соответствии с ней.
+            </span>
+          </label>
+
           <button
             onClick={onAccept}
-            disabled={!checked}
+            disabled={!checked || !privacyChecked}
             className={`w-full py-4 rounded-full font-heading font-bold text-lg transition-all ${
-              checked
+              checked && privacyChecked
                 ? 'bg-lime text-cosmic hover:animate-pulse-glow cursor-pointer'
                 : 'bg-graphite text-gray/40 cursor-not-allowed'
             }`}
           >
-            {checked ? 'Я понимаю. Войти на сайт' : 'Подтвердите согласие выше'}
+            {checked && privacyChecked ? 'Я согласен. Войти на сайт' : 'Подтвердите оба согласия выше'}
           </button>
 
           <div className="mt-6 text-center">
@@ -162,6 +189,11 @@ export default function WarningPage({ onAccept }: WarningPageProps) {
           </p>
         </motion.div>
       </div>
+
+      {/* Политика конфиденциальности как модальное окно поверх WarningPage */}
+      {showPrivacyPolicy && (
+        <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+      )}
     </div>
   );
 }
