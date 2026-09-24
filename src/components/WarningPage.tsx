@@ -4,9 +4,10 @@ import BGCLogo3D from './BGCLogo3D';
 
 interface WarningPageProps {
   onAccept: () => void;
+  onShowPrivacy?: () => void;
 }
 
-export default function WarningPage({ onAccept }: WarningPageProps) {
+export default function WarningPage({ onAccept, onShowPrivacy }: WarningPageProps) {
   const [checked, setChecked] = useState(false);
   const [privacyChecked, setPrivacyChecked] = useState(false);
 
@@ -128,7 +129,19 @@ export default function WarningPage({ onAccept }: WarningPageProps) {
               className="mt-1 w-5 h-5 rounded accent-lime cursor-pointer"
             />
             <span className="text-sm text-gray group-hover:text-white transition-colors">
-              Я ознакомлен(а) с <span className="text-lime font-semibold">Политикой конфиденциальности</span> и даю согласие на обработку моих данных в соответствии с ней.
+              Я ознакомлен(а) с{' '}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onShowPrivacy?.();
+                }}
+                className="text-lime font-semibold underline hover:text-lime/80 transition-colors"
+              >
+                Политикой конфиденциальности
+              </button>
+              {' '}и даю согласие на обработку моих данных в соответствии с ней.
             </span>
           </label>
 

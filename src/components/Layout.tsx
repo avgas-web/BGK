@@ -72,24 +72,24 @@ export default function Layout({
         <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
       )}
 
+      {/* Кнопка службы поддержки в левом нижнем углу */}
+      <motion.button
+        onClick={() => setShowSupportChat(true)}
+        animate={{ 
+          scale: [1, 1.05, 1],
+        }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="group fixed bottom-6 left-6 z-50 w-16 h-16 rounded-full bg-purple/90 backdrop-blur border-4 border-purple flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_30px_rgba(123,97,255,0.5)]"
+        aria-label="Открыть службу поддержки"
+      >
+        <span className="text-white text-2xl">💬</span>
+        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-purple text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+          ПОДДЕРЖКА
+        </span>
+      </motion.button>
+
       {/* Кнопки в правом нижнем углу */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-        {/* Кнопка службы поддержки */}
-        <motion.button
-          onClick={() => setShowSupportChat(true)}
-          animate={{ 
-            scale: [1, 1.05, 1],
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="group relative w-16 h-16 rounded-full bg-purple/90 backdrop-blur border-4 border-purple flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_30px_rgba(123,97,255,0.5)]"
-          aria-label="Открыть службу поддержки"
-        >
-          <span className="text-white text-2xl">💬</span>
-          <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-purple text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-            ПОДДЕРЖКА
-          </span>
-        </motion.button>
-
         {/* Кнопка стоп-слова */}
         <motion.button
           onClick={() => setShowStopPanel(!showStopPanel)}
