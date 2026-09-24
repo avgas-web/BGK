@@ -97,6 +97,13 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
 
   useEffect(() => {
     if (isOpen) {
+      // Сбрасываем все состояния при открытии чата
+      setMessages([]);
+      setInputValue('');
+      setShowRating(false);
+      setChatClosed(false);
+      setIsTyping(false);
+      
       // Выбираем случайного оператора
       const operator = getRandomOperator();
       setCurrentOperator(operator);
@@ -116,7 +123,16 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
         setShowRating(true);
       }, 60000);
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        // Сбрасываем все состояния при размонтировании
+        setMessages([]);
+        setInputValue('');
+        setShowRating(false);
+        setChatClosed(false);
+        setCurrentOperator('');
+        setIsTyping(false);
+      };
     }
   }, [isOpen]);
 
@@ -209,6 +225,13 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
       }]);
       
       setTimeout(() => {
+        // Сбрасываем все состояния перед закрытием
+        setMessages([]);
+        setInputValue('');
+        setShowRating(false);
+        setChatClosed(false);
+        setCurrentOperator('');
+        setIsTyping(false);
         onClose();
       }, 2000);
     }, 1000);
@@ -241,7 +264,16 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              // Сбрасываем все состояния перед закрытием
+              setMessages([]);
+              setInputValue('');
+              setShowRating(false);
+              setChatClosed(false);
+              setCurrentOperator('');
+              setIsTyping(false);
+              onClose();
+            }}
             className="text-gray hover:text-white transition-colors"
             aria-label="Закрыть чат"
           >
