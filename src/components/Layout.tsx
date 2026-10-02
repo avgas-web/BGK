@@ -154,7 +154,11 @@ export default function Layout({
           className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-graphite border border-lime/30 rounded-lg px-6 py-4 text-center"
         >
           <p className="text-lime font-mono text-sm">Вы в безопасности. Это была демонстрация.</p>
-          <p className="text-gray text-xs mt-1">Бесконечность — не предел. Особенно бесконечность осознанности.</p>
+          <p className="text-gray text-xs mt-1">
+            {clarityMode 
+              ? 'Бесконечность — не предел. Особенно бесконечность осознанности.' 
+              : 'Бесконечность БЕСПРЕДЕЛ!'}
+          </p>
         </motion.div>
       )}
 
@@ -287,7 +291,7 @@ export default function Layout({
               © 2025 ООО «Институт Информационной Гигиены». Все права защищены.
             </div>
             <div className="font-mono text-xs text-gray/40">
-              v.2.4.1 // Протокол Калибровки // Бесконечность — не предел
+              v.2.4.1 // Протокол Калибровки // {clarityMode ? 'Бесконечность — не предел' : 'Бесконечность БЕСПРЕДЕЛ!'}
             </div>
           </div>
         </div>
